@@ -1,22 +1,19 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-<
+  <q-app>
+    <q-layout view="lHh Lpr lFf">
+      <q-page-container>
+        <q-page class="flex flex-center col">
+          <div class="text-center">
+            <h4 class="q-mb-lg">PC 조립 견적 요청</h4>
+            <EstimateForm />
+          </div>
+        </q-page>
+      </q-page-container>
+    </q-layout>
+  </q-app>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+<script setup>
+import EstimateForm from './components/EstimateForm.vue' // 상대 경로 확인!
+
+</script>
