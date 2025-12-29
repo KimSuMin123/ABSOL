@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { Quasar, QLayout, QPageContainer, QPage, QForm, QInput, QSelect, QBtn,QCheckbox } from 'quasar'
+import { Quasar, QLayout, QPageContainer, QPage, QForm, QInput, QSelect, QBtn,QCheckbox,QTable,  QRadio,
+    QSeparator  } from 'quasar'
 
 // 스타일 가져오기
 import '@quasar/extras/material-icons/material-icons.css'
@@ -20,7 +21,9 @@ app.use(Quasar, {
     QInput,
     QSelect,
     QBtn,
-    QCheckbox
+    QCheckbox,QRadio,
+    QTable,    // 이게 반드시 있어야 합니다!
+    QSeparator // 구분선
   }
 })
 

@@ -5,7 +5,8 @@ const { sequelize } = require('./models'); // Sequelize 인스턴스 가져오�
 
 // 라우터 가져오기
 const estimateRouter = require('./routes/estimate');
-const repairRouter = require('./routes/repair')
+const repairRouter = require('./routes/repair');
+const userRouter = require('./routes/user');
 // 기존에 있던 다른 라우터들이 있다면 여기에 추가 (예: const userRouter = require('./routes/user'))
 
 // 환경변수 설정
@@ -28,6 +29,7 @@ app.get('/', (req, res) => {
 // 이 부분이 있어야 프런트엔드에서 /api/estimates 로 요청을 보낼 수 있습니다.
 app.use('/api/estimates', estimateRouter);
 app.use('/api/repairs', repairRouter);
+app.use('/api/users', userRouter);
 
 // 데이터베이스 연결 및 서버 실행
 sequelize.sync({ force: true }) // force: false는 기존 테이블을 삭제하지 않고 유지함

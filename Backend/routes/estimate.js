@@ -23,4 +23,14 @@ router.post('/', async (req, res) => {
   }
 });
 
+// 모든 견적 목록 가져오기
+router.get('/', async (req, res) => {
+  try {
+    const list = await Estimate.findAll({ order: [['createdAt', 'DESC']] }); // 최신순
+    res.json({ success: true, data: list });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = router;
