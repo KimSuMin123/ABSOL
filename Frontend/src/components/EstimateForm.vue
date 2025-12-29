@@ -1,5 +1,6 @@
 <template>
   <q-form @submit="handleOrder" class="q-gutter-md">
+  <h6>PC 조립 견적 요청</h6>
     <q-input v-model="form.customer_name" label="성함" outlined dense />
     <q-input v-model="form.contact" label="연락처" mask="###-####-####" outlined dense />
     
