@@ -10,36 +10,6 @@ router.post('/login', async (req, res) => {
   try {
     const { login_id, password } = req.body;
 
-    // 1. 아이디 확인
-    const user = await User.findOne({ where: { login_id } });
-    if (!user) return res.status(401).json({ success: false, message: '아이디가 존재하지 않습니다.' });
-
-    // 2. 비밀번호 확인 (암호화된 경우 bcrypt.compare 사용)
-    // 현재는 단순 비교로 예시를 들지만, 추후 암호화 적용을 권장합니다.
-    if (user.password !== password) {
-      return res.status(401).json({ success: false, message: '비밀번호가 일치하지 않습니다.' });
-    }
-
-    // 3. 토큰 발행
-    const token = jwt.sign(
-      { user_id: user.user_id, login_id: user.login_id, level: user.level },
-      JWT_SECRET,
-      { expiresIn: '8h' } // 8시간 유지
-    );
-
-    res.json({ success: true, token, user: {login_id: user.login_id, name: user.customer_name, level: user.level } });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-/**
- * 관리자 로그인 API
- * POST /api/auth/login
- */
-router.post('/login', async (req, res) => {
-  try {
-    const { login_id, password } = req.body;
-
     // 1. 유저 존재 확인
     const user = await User.findOne({ where: { login_id } });
     if (!user) {
@@ -62,8 +32,11 @@ router.post('/login', async (req, res) => {
       success: true,
       token,
       user: {
+      id: user.user_id,
         login_id: user.login_id,
-        name: user.customer_name,
+        name: user.customer_name, // DB의 customer_name을 name으로 매칭
+        phone: user.phone,        // 연락처 추가
+        address: user.address,    // 주소 추가
         level: user.level
       }
     });
@@ -71,5 +44,34 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+// routes/auth.js
 
+// [추가] 내 정보 가져오기 API (GET /api/auth/me)
+router.get('/me', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ success: false });
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // DB에서 전체 정보 조회 (customer_name, phone, address 포함 확인)
+    const user = await User.findByPk(decoded.user_id);
+    if (!user) return res.status(404).json({ success: false });
+
+    res.json({
+      success: true,
+      data: {
+        id: user.user_id,
+        login_id: user.login_id,
+        name: user.customer_name,
+        phone: user.phone,
+        address: user.address,
+        level: user.level
+      }
+    });
+  } catch (error) {
+    res.status(401).json({ success: false });
+  }
+});
 module.exports = router;
