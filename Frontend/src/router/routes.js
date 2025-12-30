@@ -26,9 +26,10 @@ const routes = [
     children: [
       { path: 'estimates', component: () => import('../pages/admin/EstimateManagement.vue') },
       { path: 'repairs', component: () => import('../pages/admin/RepairManagement.vue') },
-      { path: 'products', component: () => import('../pages/admin/ProductManagement.vue') },
+      { path: '', component: () => import('../pages/admin/ProductManagement.vue') },
       { path: 'users', component: () => import('../pages/admin/UserManagement.vue') },
-      { path: '/admin/orders', component: () => import('../pages/admin/OrderManagement.vue')}
+      { path: 'orders', component: () => import('../pages/admin/OrderManagement.vue')}
+       ,{ path: 'mypc', component: () => import('../pages/admin/AdminMyPCRegister.vue')}
     ]
   }
 ];
