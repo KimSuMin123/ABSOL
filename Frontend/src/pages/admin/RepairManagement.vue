@@ -8,7 +8,7 @@
 
     <div class="row q-col-gutter-md">
       <div v-for="repair in repairs" :key="repair.repair_id" class="col-12">
-        <q-card flat bordered class="repair-card">
+        <q-card flat bordered class="repair-card shadow-1">
           <q-card-section horizontal>
             <q-card-section class="col-3">
               <div class="row items-center q-mb-sm">
@@ -18,17 +18,15 @@
               <div class="text-caption text-grey-8"><q-icon name="phone" /> {{ repair.contact }}</div>
               <div class="text-caption text-grey-7 ellipsis"><q-icon name="location_on" /> {{ repair.address }}</div>
             </q-card-section>
-
-            <q-card-section class="col-3 border-left">
+<q-card-section class="col-2 border-left">
               <div class="text-caption text-weight-bold text-grey-7">고장 증상</div>
               <div class="text-body2 bg-grey-1 q-pa-sm rounded-borders scroll" style="height: 60px">
                 {{ repair.symptoms }}
               </div>
             </q-card-section>
-
-            <q-card-section class="col-6 border-left bg-grey-1 row q-col-gutter-sm items-center">
-              <div class="col-5">
-                <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">수리 방식 변경</div>
+            <q-card-section class="col-9 border-left  row q-col-gutter-sm items-start q-pa-md">
+              <div class="col-3">
+                <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">수리 방식</div>
                 <q-select
                   v-model="repair.repair_type"
                   :options="['수리', '방문수리', '수리불가']"
@@ -37,19 +35,34 @@
                 />
               </div>
 
-              <div class="col-7">
-                <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">진행 단계 업데이트</div>
+              <div class="col-3">
+                <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">진행 단계</div>
                 <q-select
                   v-model="repair.status"
                   :options="getStatusOptions(repair.repair_type)"
                   dense outlined bg-color="white"
                   @update:model-value="(val) => updateRepair(repair, 'status', val)"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="trending_flat" color="blue" />
-                  </template>
-                </q-select>
+                />
               </div>
+
+              <div class="col-3" v-if="['배송중', '반송중'].includes(repair.status)">
+                <div class="text-caption text-weight-bold text-primary q-mb-xs">
+                  <q-icon name="local_shipping" /> 운송장 번호 입력
+                </div>
+                <q-input
+                  v-model="repair.tracking_number"
+                  placeholder="택배사 및 번호 입력"
+                  dense outlined bg-color="white"
+                  @blur="updateRepair(repair, 'tracking', repair.tracking_number)"
+                  @keyup.enter="updateRepair(repair, 'tracking', repair.tracking_number)"
+                >
+                  <template v-slot:after>
+                    <q-btn round dense flat icon="save" color="primary" @click="updateRepair(repair, 'tracking', repair.tracking_number)" />
+                  </template>
+                </q-input>
+              </div>
+
+              
             </q-card-section>
           </q-card-section>
         </q-card>
@@ -67,7 +80,6 @@ const $q = useQuasar();
 const repairs = ref([]);
 const loading = ref(false);
 
-// 1. 유형별 상태 단계 정의
 const statusMap = {
   '수리': ['접수완료', '수리중', '수리완료', '배송중', '수령완료'],
   '방문수리': ['접수완료', '센터입고', '수리중', '수리완료', '배송중', '수령완료'],
@@ -98,16 +110,24 @@ const updateRepair = async (repair, mode, value) => {
   try {
     const payload = {
       repair_type: repair.repair_type,
-      status: repair.status
+      status: repair.status,
+      tracking_number: repair.tracking_number // 운송장 번호 포함
     };
     
-    // 만약 유형을 바꿨다면 상태를 '접수완료'로 초기화하는 로직 추가 가능
-    if (mode === 'type') payload.status = '접수완료';
+    if (mode === 'type') {
+      payload.status = '접수완료';
+      payload.tracking_number = ''; // 유형 변경 시 번호 초기화
+    }
 
     await axios.patch(`http://localhost:3000/api/repairs/${repair.repair_id}/status`, payload);
     
-    $q.notify({ color: 'positive', message: '변경사항이 저장되었습니다.', timeout: 1000 });
-    if (mode === 'type') loadData(); // 유형 변경 시 목록 새로고침
+    $q.notify({ 
+      color: 'positive', 
+      message: mode === 'tracking' ? '운송장 번호가 저장되었습니다.' : '변경사항이 저장되었습니다.', 
+      timeout: 1000 
+    });
+    
+    if (mode === 'type') loadData();
   } catch (err) {
     $q.notify({ color: 'negative', message: '업데이트 실패' });
   }

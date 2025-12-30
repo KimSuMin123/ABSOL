@@ -19,7 +19,10 @@ module.exports = (sequelize, DataTypes) => {
     status: { 
       type: DataTypes.ENUM('접수완료', '수리중', '수리완료', '배송중', '수령완료', '센터입고', '수리불가판정', '반송중'), 
       defaultValue: '접수완료' 
-    },
+    },tracking_number: { 
+  type: DataTypes.STRING, 
+  allowNull: true 
+},
     privacy_agreed: { type: DataTypes.ENUM('Y', 'N'), defaultValue: 'Y' }
   }, {
     timestamps: true,
