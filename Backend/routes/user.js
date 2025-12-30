@@ -42,28 +42,42 @@ router.get('/', async (req, res) => {
  */
 router.post('/register', async (req, res) => {
   try {
-    const { login_id, password, customer_name, region, type, productLine, phone, address } = req.body;
+    // 1. 프론트엔드 payload 구조와 일치시키기
+    // 프론트에서 payload = { ...form.value, full_address: '...' } 로 보냄
+    const { 
+      login_id, 
+      password, 
+      customer_name, 
+      phone, 
+      full_address,  // 프론트에서 합쳐서 보낸 주소
+      region,        // 고객코드 생성용 (DB 저장은 안함)
+      type,          // 고객코드 생성용
+      productLine    // 고객코드 생성용
+    } = req.body;
 
-    // 1. 사용자 생성
+    // 2. 사용자 생성 (모델에 정의된 컬럼만 전달)
     const newUser = await User.create({
       login_id,
       password,
-      phone,
-      address,
       customer_name,
+      phone,
+      address: full_address, // DB의 address 컬럼에 합쳐진 주소 저장
       level: 'Basic'
     });
 
-    // 2. 고객 번호 조합 로직
+    // 3. 고객 번호 조합 로직
     const now = new Date();
     const yy = String(now.getFullYear()).slice(-2);
     const quarter = Math.ceil((now.getMonth() + 1) / 3);
+    
+    // 모델 정의에서 user_id를 PK로 정하셨으므로 newUser.user_id가 맞습니다.
     const formattedId = String(newUser.user_id).padStart(4, '0');
 
     // 규칙: YY(2) + 분기(1) + 지역(1) + 유형(1) + 고유ID(4) + 라인(1)
-    const customerCode = `${yy}${quarter}${region}${type}${formattedId}${productLine}`;
+    // 값이 없을 경우를 대비해 기본값('0') 설정
+    const customerCode = `${yy}${quarter}${region || '0'}${type || '0'}${formattedId}${productLine || '0'}`;
 
-    // 3. 생성된 번호 저장
+    // 4. 생성된 번호 저장
     newUser.customer_code = customerCode;
     await newUser.save();
 
@@ -72,10 +86,10 @@ router.post('/register', async (req, res) => {
       customer_code: customerCode 
     });
   } catch (error) {
+    console.error('SERVER ERROR:', error); // 터미널에서 구체적인 에러 확인 가능
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 /**
  * 3. 회원 등급 수정 (Admin용)
  * PATCH /api/users/:id/level

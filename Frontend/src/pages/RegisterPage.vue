@@ -44,20 +44,7 @@
           placeholder="상세 주소를 입력하세요" 
         />
 
-        <div class="text-caption q-mt-md">거주 지역 </div>
-        <div class="row q-gutter-x-md q-gutter-y-xs">
-          <q-radio v-for="r in regions" :key="r.value" v-model="form.region" :val="r.value" :label="r.label" dense />
-        </div>
-
-        <div class="text-caption q-mt-md">고객 유형 </div>
-        <div class="row q-gutter-sm">
-          <q-radio v-for="t in types" :key="t.value" v-model="form.type" :val="t.value" :label="t.label" dense />
-        </div>
-
-        <div class="text-caption q-mt-md">관심 상품 라인업</div>
-        <div class="row q-gutter-md">
-          <q-radio v-for="l in lines" :key="l.value" v-model="form.productLine" :val="l.value" :label="l.label" dense/>
-        </div>
+    
       </q-card-section>
 
       <q-card-actions align="center" class="q-pb-lg">
@@ -110,21 +97,6 @@ const openPostcode = () => {
   }).open();
 };
 
-const regions = [
-  { label: '서울', value: '1' }, { label: '경기', value: '2' }, { label: '인천', value: '3' },
-  { label: '강원', value: '4' }, { label: '충남', value: '5' }, { label: '충북', value: '6' },
-  { label: '경북', value: '7' }, { label: '경남', value: '8' }, { label: '전라', value: '9' }
-];
-
-const types = [
-  { label: '수리', value: '1' }, { label: '본체구입', value: '2' }, { label: '부품', value: '3' },
-  { label: '복구', value: '4' }, { label: '점검', value: '5' }, { label: '설치', value: '6' }, { label: '조립', value: '7' }
-];
-
-const lines = [
-  { label: '일반', value: '1' }, { label: '사이드와인더', value: '2' },
-  { label: '스패로우', value: '3' }, { label: '암람', value: '4' }
-];
 
 onMounted(() => {
   if (route.query.pw) {
