@@ -30,21 +30,16 @@
 
       <div class="col-12 col-md-7 column q-gutter-y-md">
         <q-card flat bordered class="bg-grey-3 flex-center q-pa-lg" style="border-radius: 10px; flex: 1;">
-          <div class="text-h5 text-weight-bold q-mb-md">견적 요청(비회원)</div>
+          <div class="text-h5 text-weight-bold q-mb-xl">견적 요청(비회원)</div>
           <div class="row items-center">
-            <q-checkbox v-model="agreement.estimate" color="black" keep-color />
-            <span class="text-subtitle1">개인 정보 수집 동의</span>
-            <q-space />
-            <q-btn label="요청하기" color="grey-8" unelevated @click="goToGuest('estimate')" />
+            <q-btn label="신청하기" color="grey-8" unelevated @click="goToGuest('estimate')" />
           </div>
         </q-card>
 
         <q-card flat bordered class="bg-grey-3 flex-center q-pa-lg" style="border-radius: 10px; flex: 1;">
-          <div class="text-h5 text-weight-bold q-mb-md">수리 및 복구(비회원)</div>
+          <div class="text-h5 text-weight-bold q-mb-xl">수리 및 복구(비회원)</div>
           <div class="row items-center">
-            <q-checkbox v-model="agreement.repair" color="black" keep-color />
-            <span class="text-subtitle1">개인 정보 수집 동의</span>
-            <q-space />
+
             <q-btn label="신청하기" color="grey-8" unelevated @click="goToGuest('repair')" />
           </div>
         </q-card>
@@ -92,14 +87,6 @@ const handleLogin = async () => {
 };
 
 const goToGuest = (type) => {
-  if (type === 'estimate' && !agreement.estimate) {
-    $q.notify({ color: 'negative', message: '개인정보 수집에 동의해주세요.' });
-    return;
-  }
-  if (type === 'repair' && !agreement.repair) {
-    $q.notify({ color: 'negative', message: '개인정보 수집에 동의해주세요.' });
-    return;
-  }
   router.push(type === 'estimate' ? '/estimate' : '/repairs');
 };
 </script>
