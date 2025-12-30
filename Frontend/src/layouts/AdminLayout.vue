@@ -13,7 +13,7 @@
 
         <div class="row no-wrap q-gutter-sm q-mr-md">
           <q-btn flat dense icon="people" label="회원관리" to="/admin/users" />
-          <q-btn flat dense icon="inventory_2" label="상품관리" to="/admin" />
+          <q-btn flat dense icon="inventory_2" label="상품관리" to="/admin/product" />
           <q-btn flat dense icon="build" label="수리이력" to="/admin/repairs" />
           <q-btn flat dense icon="calculate" label="견적이력" to="/admin/estimates" />
           <q-btn flat dense icon="receipt_long" label="상품구매이력" to="/admin/orders" />

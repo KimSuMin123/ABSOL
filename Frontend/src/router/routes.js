@@ -24,13 +24,13 @@ const routes = [
     children: [
       { path: 'estimates', component: () => import('../pages/admin/EstimateManagement.vue') },
       { path: 'repairs', component: () => import('../pages/admin/RepairManagement.vue') },
-      { path: '', component: () => import('../pages/admin/ProductManagement.vue') },
+      { path: 'product', component: () => import('../pages/admin/ProductManagement.vue') },
       { path: 'users', component: () => import('../pages/admin/UserManagement.vue') },
       { path: 'orders', component: () => import('../pages/admin/OrderManagement.vue')}
        ,{ path: 'mypc', component: () => import('../pages/admin/AdminMyPCRegister.vue')},{ 
         path: 'banner', 
         component: () => import('../pages/admin/BannerManagement.vue') 
-      }
+      },{ path: '', component: () => import('../pages/admin/AdminDashboard.vue')}
     ]
   }
 ];
