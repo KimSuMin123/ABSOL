@@ -81,7 +81,7 @@ const handleLogout = () => {
     localStorage.removeItem('user');
     authStore.logout(); // authStore 내부에 로그아웃 로직이 있어야 함
     
-    router.push('/login');
+    router.push('/');
     $q.notify({
       color: 'info',
       message: '로그아웃 되었습니다.',
