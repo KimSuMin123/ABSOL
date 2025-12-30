@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const { sequelize } = require('./models'); // Sequelize 인스턴스 가져오기
+const path = require('path');
 
 // 라우터 가져오기
 const estimateRouter = require('./routes/estimate');
@@ -31,6 +32,7 @@ app.use('/api/estimates', estimateRouter);
 app.use('/api/repairs', repairRouter);
 app.use('/api/users', userRouter);
 app.use('/api/products', productRouter)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 데이터베이스 연결 및 서버 실행
 sequelize.sync({ force: true }) // force: false는 기존 테이블을 삭제하지 않고 유지함

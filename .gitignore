@@ -1,5 +1,6 @@
 # 의존성 모듈 (용량이 크고 npm install로 설치 가능하므로 제외)
 node_modules/
+uploads/
 
 # 환경 변수 파일 (DB 접속 정보, API 키 등 보안 데이터 포함 - 절대 업로드 금지)
 .env
