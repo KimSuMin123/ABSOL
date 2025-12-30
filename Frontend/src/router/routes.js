@@ -6,6 +6,8 @@ const routes = [
     children: [
       { path: '/estimate', component: () => import('../components/EstimateForm.vue') },
       { path: '', component: () => import('../components/RepairForm.vue') },
+      { path: '/register', component: () => import('../pages/RegisterPage.vue') },
+       { path: '/order', component: () => import('../pages/ProductList.vue') },
     ]
   },
 
@@ -18,6 +20,7 @@ const routes = [
       { path: 'estimates', component: () => import('../pages/admin/EstimateManagement.vue') },
       { path: 'repairs', component: () => import('../pages/admin/RepairManagement.vue') },
       { path: 'products', component: () => import('../pages/admin/ProductManagement.vue') },
+      { path: 'users', component: () => import('../pages/admin/UserManagement.vue') },
     ]
   }
 ];

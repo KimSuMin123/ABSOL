@@ -3,7 +3,7 @@
     <div class="row items-center q-mb-lg bg-white q-pa-md shadow-1 rounded-borders">
       <div class="text-h6 text-weight-bold">
         <span class="text-blue-7">AB</span><span class="text-red-7">SOL</span> 
-        <span class="q-ml-sm text-subtitle1 text-grey-8">전체 상품 마스터 관리</span>
+        <span class="q-ml-sm text-subtitle1 text-grey-8">전체 상품 관리</span>
       </div>
       <q-space />
       <q-btn color="primary" icon="add" label="새 상품 등록" @click="openDialog('create')" />

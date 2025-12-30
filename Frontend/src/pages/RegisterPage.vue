@@ -39,7 +39,7 @@
 
         <div class="text-caption q-mt-md">관심 상품 라인업</div>
         <div class="row q-gutter-md">
-          <q-radio v-for="l in lines" :key="l.value" v-model="form.productLine" :val="l.value" :label="l.label" color="orange" />
+          <q-radio v-for="l in lines" :key="l.value" v-model="form.productLine" :val="l.value" :label="l.label" dense/>
         </div>
       </q-card-section>
 
@@ -51,14 +51,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router'; // useRouter 추가
 import axios from 'axios';
 
+const route = useRoute();
+const router = useRouter();
+
+// 폼 데이터 초기값 (중복 선언 통합)
 const form = ref({
-  login_id: '', password: '', customer_name: '',
-  region: '1', type: '1', productLine: '1'
+  login_id: '',
+  password: '', 
+  customer_name: '',
+  phone: '',
+  address: '',
+  region: '1',
+  type: '1',
+  productLine: '1'
 });
 
+// 선택 옵션 데이터
 const regions = [
   { label: '서울', value: '1' }, { label: '경기', value: '2' }, { label: '인천', value: '3' },
   { label: '강원', value: '4' }, { label: '충남', value: '5' }, { label: '충북', value: '6' },
@@ -75,8 +87,24 @@ const lines = [
   { label: '스패로우', value: '3' }, { label: '암람', value: '4' }
 ];
 
+// 페이지 로드 시 비밀번호 자동 주입
+onMounted(() => {
+  if (route.query.pw) {
+    form.value.password = route.query.pw;
+  }
+}); // <--- 누락되었던 괄호 닫기
+
+// 등록 실행
 const submit = async () => {
-  const res = await axios.post('http://localhost:3000/api/users/register', form.value);
-  alert(`회원가입 완료! 생성된 고객번호: ${res.data.customer_code}`);
+  try {
+    const res = await axios.post('http://localhost:3000/api/users/register', form.value);
+    alert(`회원가입 완료! 생성된 고객번호: ${res.data.customer_code}`);
+    
+    // 가입 완료 후 회원 관리 리스트로 이동 (선택 사항)
+    router.push('/users');
+  } catch (error) {
+    console.error('등록 에러:', error);
+    alert('등록 중 오류가 발생했습니다.');
+  }
 };
 </script>
