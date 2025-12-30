@@ -101,7 +101,7 @@ const submit = async () => {
     alert(`회원가입 완료! 생성된 고객번호: ${res.data.customer_code}`);
     
     // 가입 완료 후 회원 관리 리스트로 이동 (선택 사항)
-    router.push('/users');
+    router.push('/login');
   } catch (error) {
     console.error('등록 에러:', error);
     alert('등록 중 오류가 발생했습니다.');

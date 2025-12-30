@@ -3,18 +3,16 @@ const routes = [
   {
     path: '/',
     component: () => import('../layouts/MainLayout.vue'),
-    children: [
-      { path: '/estimate', component: () => import('../components/EstimateForm.vue') },
-      { path: '', component: () => import('../components/RepairForm.vue') },
-      { path: '/register', component: () => import('../pages/RegisterPage.vue') },
-       { path: '/order', component: () => import('../pages/ProductList.vue') },
-       {
-          path: '/product/:id',
-          component: () => import('../pages/ProductDetail.vue'),
-          name: 'product-detail'
-        },{ path: '/cart', component: () => import('../pages/CartPage.vue') },
-        { path: '/login', component: () => import('../pages/LoginPage.vue') }, 
-        { path: '/mypage', component: () => import('../pages/MyPage.vue') }
+   children: [
+      { path: '', component: () => import('../pages/LoginPage.vue') },
+      { path: 'register', component: () => import('../pages/RegisterPage.vue') },
+
+      { path: 'estimate', component: () => import('../components/EstimateForm.vue')},
+      { path: 'repairs', component: () => import('../components/RepairForm.vue') },
+      { path: 'order', component: () => import('../pages/ProductList.vue'), meta: { requiresAuth: true } },
+      { path: 'product/:id', component: () => import('../pages/ProductDetail.vue'), name: 'product-detail', meta: { requiresAuth: true } },
+      { path: 'cart', component: () => import('../pages/CartPage.vue'), meta: { requiresAuth: true } },
+      { path: 'mypage', component: () => import('../pages/MyPage.vue'), meta: { requiresAuth: true } }
     ]
   },
 
