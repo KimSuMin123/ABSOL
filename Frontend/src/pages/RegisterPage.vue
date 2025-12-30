@@ -201,7 +201,7 @@ const submit = async () => {
       message: `회원가입이 완료되었습니다.`,
       ok: '로그인하러 가기'
     }).onOk(() => {
-      router.push('/login');
+      router.push('/');
     });
 
   } catch (error) {
