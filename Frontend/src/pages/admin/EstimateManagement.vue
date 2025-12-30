@@ -17,11 +17,11 @@
       <div v-for="estimate in estimates" :key="estimate.estimate_id" class="col-12">
         <q-card flat bordered class="estimate-card shadow-1">
           <q-card-section horizontal>
-            <div class="col-2 flex flex-center bg-teal-1 q-ma-sm rounded-borders" style="max-width: 120px; height: 120px">
+            <div class="col-auto flex flex-center bg-teal-1 q-ma-sm rounded-borders" style="width: 120px; height: 120px">
               <q-icon name="desktop_windows" size="64px" color="teal-7" />
             </div>
 
-            <q-card-section class="col-4 q-py-md">
+            <q-card-section class="col-3 q-py-md">
               <div class="row items-center q-mb-xs">
                 <q-badge color="teal-8" class="q-mr-sm">견적요청</q-badge>
                 <div class="text-h6 text-weight-bold">{{ estimate.customer_name }} 고객님</div>
@@ -34,7 +34,7 @@
               </div>
             </q-card-section>
 
-            <q-card-section class="col-4 q-py-md border-left">
+            <q-card-section class="col q-py-md border-left">
               <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">희망 예산 및 추가 요청</div>
               <div class="text-subtitle1 text-weight-bolder text-primary q-mb-xs">
                 {{ estimate.budget ? estimate.budget.toLocaleString() : 0 }} 만원
@@ -44,11 +44,29 @@
               </div>
             </q-card-section>
 
-            <q-card-section class="col-2 q-py-md flex flex-center border-left bg-grey-1">
-              <div class="text-center full-width">
-                <div class="text-caption text-grey-7">신청일</div>
-                <div class="text-weight-bold text-blue-grey-9" style="font-size: 1.1rem">
-                  {{ estimate.createdAt ? estimate.createdAt.substring(0, 10) : '-' }}
+            <q-card-section class="col-3 q-py-md flex flex-center border-left bg-grey-1">
+              <div class="text-center full-width q-px-md">
+                <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">진행 상태 관리</div>
+                <q-select
+                  v-model="estimate.status"
+                  :options="['접수완료', '견적발송중', '견적발송완료']"
+                  dense
+                  outlined
+                  options-dense
+                  bg-color="white"
+                  style="font-size: 0.9rem"
+                  @update:model-value="(val) => updateStatus(estimate.estimate_id, val)"
+                >
+                  <template v-slot:append>
+                    <q-badge 
+                      rounded 
+                      :color="getStatusColor(estimate.status)" 
+                      style="width: 12px; height: 12px; padding: 0"
+                    />
+                  </template>
+                </q-select>
+                <div class="text-caption text-grey-6 q-mt-md">
+                  신청일: <span class="text-weight-bold">{{ estimate.createdAt?.substring(0, 10) }}</span>
                 </div>
               </div>
             </q-card-section>
@@ -72,6 +90,7 @@ const $q = useQuasar();
 const estimates = ref([]);
 const loading = ref(false);
 
+// 데이터 불러오기
 const loadData = async () => {
   loading.value = true;
   try {
@@ -87,6 +106,37 @@ const loadData = async () => {
   }
 };
 
+// 상태별 색상 지정
+const getStatusColor = (status) => {
+  switch (status) {
+    case '접수완료': return 'blue';
+    case '견적발송중': return 'orange';
+    case '견적발송완료': return 'green';
+    default: return 'grey';
+  }
+};
+
+// 서버에 상태 업데이트 요청 (PATCH 사용)
+const updateStatus = async (id, newStatus) => {
+  try {
+    const res = await axios.patch(`http://localhost:3000/api/estimates/${id}/status`, {
+      status: newStatus
+    });
+    if (res.data.success) {
+      $q.notify({
+        color: 'positive',
+        message: `상태가 [${newStatus}](으)로 변경되었습니다.`,
+        icon: 'check',
+        timeout: 1000,
+        position: 'top'
+      });
+    }
+  } catch (error) {
+    $q.notify({ color: 'negative', message: '상태 변경 처리 중 오류가 발생했습니다.' });
+    loadData(); // 실패 시 원래 데이터로 복구하기 위해 다시 로드
+  }
+};
+
 onMounted(loadData);
 </script>
 
@@ -94,12 +144,21 @@ onMounted(loadData);
 .estimate-card {
   transition: all 0.3s;
   background: white;
+  border-radius: 8px;
 }
 .estimate-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
 }
 .border-left {
   border-left: 1px solid #e0e0e0;
+}
+/* 스크롤바 디자인 (내용이 길 때) */
+.scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
 }
 </style>

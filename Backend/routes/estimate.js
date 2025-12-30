@@ -32,5 +32,15 @@ router.get('/', async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+router.patch('/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
+    await Estimate.update({ status }, { where: { estimate_id: id } });
+    res.json({ success: true, message: '상태가 변경되었습니다.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 module.exports = router;

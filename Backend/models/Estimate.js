@@ -28,7 +28,11 @@ module.exports = (sequelize, DataTypes) => {
     privacy_agreed: { 
       type: DataTypes.ENUM('Y', 'N'), 
       allowNull: false
-    }
+    },status: {
+  type: DataTypes.ENUM('접수완료', '견적발송중', '견적발송완료'),
+  allowNull: false,
+  defaultValue: '접수완료'
+}
   }, {
     timestamps: true
   });
