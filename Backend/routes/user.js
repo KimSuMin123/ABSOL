@@ -124,5 +124,25 @@ router.get('/check-id/:login_id', async (req, res) => {
     res.status(500).json({ success: false, message: '서버 에러가 발생했습니다.' });
   }
 });
+// routes/admin.js (또는 관련 라우터)
+router.patch('/:user_id', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const { customer_name, phone, address, level, customer_code } = req.body;
 
+    await User.update({
+      customer_name,
+      phone,
+      address,
+      level,
+      customer_code // 프론트에서 조합해서 보낸 새 코드 저장
+    }, { 
+      where: { user_id } 
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 module.exports = router;
