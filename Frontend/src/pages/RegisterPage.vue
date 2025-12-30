@@ -33,7 +33,20 @@
           />
         </div>
 
-        <q-input v-model="form.password" type="password" label="비밀번호" outlined dense />
+       <q-input 
+          v-model="form.password" 
+          type="password" 
+          label="비밀번호" 
+          outlined 
+          dense
+          hint="8자 이상, 특수문자 1개 이상 포함"
+          :rules="[
+            val => !!val || '비밀번호를 입력해주세요',
+            val => val.length >= 8 || '최소 8자 이상 입력해주세요',
+            val => /^(?=.*[!@#$%^&*])/.test(val) || '특수문자를 최소 1개 이상 포함해주세요'
+          ]"
+          lazy-rules
+        />
         <q-input v-model="form.customer_name" label="이름" outlined dense />
         
         <q-input 
@@ -156,9 +169,21 @@ onMounted(() => {
 });
 
 // 회원가입 제출
+// <script setup> 내의 submit 함수 수정
 const submit = async () => {
+  // 1. 아이디 중복 확인 체크
   if (!isIdChecked.value) {
     $q.notify({ color: 'warning', message: '아이디 중복 확인을 먼저 완료해주세요.' });
+    return;
+  }
+
+  // 2. 비밀번호 유효성 상세 체크 (정규표현식)
+  const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  if (!passwordRegex.test(form.value.password)) {
+    $q.notify({ 
+      color: 'negative', 
+      message: '비밀번호 조건(8자 이상, 특수문자 포함)을 확인해주세요.' 
+    });
     return;
   }
 
@@ -173,15 +198,17 @@ const submit = async () => {
     
     $q.dialog({
       title: '가입 완료',
-      message: `회원가입을 축하드립니다.`,
+      message: `회원가입이 완료되었습니다.`,
       ok: '로그인하러 가기'
     }).onOk(() => {
       router.push('/login');
     });
 
   } catch (error) {
-    console.error(error);
-    $q.notify({ color: 'negative', message: '등록 중 오류가 발생했습니다: ' + (error.response?.data?.message || error.message) });
+    $q.notify({ 
+      color: 'negative', 
+      message: '등록 중 오류가 발생했습니다.' 
+    });
   } finally {
     submitting.value = false;
   }
