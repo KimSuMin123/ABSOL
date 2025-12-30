@@ -44,18 +44,29 @@
 
           <div class="row q-col-gutter-sm">
             <div class="col-6">
-              <q-btn 
-                outline 
-                color="primary" 
-                label="장바구니 담기" 
-                icon="shopping_cart" 
-                class="full-width" 
-                size="lg" 
-                @click="addToCart"
-              />
+              <q-btn outline color="primary" label="장바구니 담기" icon="shopping_cart" class="full-width" size="lg" @click="addToCart" />
             </div>
             <div class="col-6">
-              <q-btn color="primary" label="바로 구매하기" icon="bolt" class="full-width" size="lg" :disable="product.stock === 0" />
+              <q-btn color="primary" label="바로 구매하기" icon="bolt" class="full-width" size="lg" :disable="product.stock === 0" @click="openPurchaseDialog" />
+              
+              <q-dialog v-model="purchaseDialog">
+                <q-card style="min-width: 350px">
+                  <q-card-section class="bg-primary text-white">
+                    <div class="text-h6">배송 정보 입력</div>
+                  </q-card-section>
+
+                  <q-card-section class="q-gutter-y-sm q-pt-md">
+                    <q-input dense outlined v-model="orderForm.customer_name" label="주문자 성함" autofocus />
+                    <q-input dense outlined v-model="orderForm.phone" label="연락처" />
+                    <q-input dense outlined v-model="orderForm.address" label="배송지 주소" />
+                  </q-card-section>
+
+                  <q-card-actions align="right" class="q-pb-md q-pr-md">
+                    <q-btn flat label="취소" v-close-popup />
+                    <q-btn color="primary" label="결제하기" @click="processPurchase" />
+                  </q-card-actions>
+                </q-card>
+              </q-dialog>
             </div>
           </div>
         </q-card-section>
@@ -66,35 +77,74 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router'; // useRouter 추가
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import { useQuasar } from 'quasar'; // Quasar Notify 알림용
-import { useCartStore } from '../stores/cart'; // [포인트] Pinia 스토어 가져오기
+import { useQuasar } from 'quasar';
+import { useCartStore } from '../stores/cart';
 
 const route = useRoute();
-const router = useRouter(); // [포인트]
-const $q = useQuasar(); // [포인트]
-const cartStore = useCartStore(); // [포인트] 스토어 인스턴스
+const router = useRouter();
+const $q = useQuasar();
+const cartStore = useCartStore();
 
 const product = ref({});
 const loading = ref(false);
 
-// [추가] 장바구니 담기 기능
+// [추가] 구매 관련 상태 변수
+const purchaseDialog = ref(false);
+const orderForm = ref({
+  customer_name: '',
+  phone: '',
+  address: ''
+});
+
+// 다이얼로그 열기
+const openPurchaseDialog = () => {
+  purchaseDialog.value = true;
+};
+
+// 장바구니 담기
 const addToCart = () => {
   if (!product.value.product_id) return;
-
-  // Pinia 스토어의 액션 호출
   cartStore.addToCart(product.value);
-
-  // 사용자 피드백 알림
   $q.notify({
     type: 'positive',
     message: `${product.value.product_name} 상품이 장바구니에 담겼습니다.`,
     position: 'top',
-    actions: [
-      { label: '장바구니 보기', color: 'white', handler: () => router.push('/cart') }
-    ]
+    actions: [{ label: '장바구니 보기', color: 'white', handler: () => router.push('/cart') }]
   });
+};
+
+// [추가] 실제 구매 프로세스 (재고 차감 및 주문 기록)
+const processPurchase = async () => {
+  if (!orderForm.value.customer_name || !orderForm.value.phone || !orderForm.value.address) {
+    $q.notify({ color: 'negative', message: '모든 배송 정보를 입력해주세요.' });
+    return;
+  }
+
+  try {
+    const res = await axios.post('http://localhost:3000/api/orders/direct', {
+      product_id: product.value.product_id,
+      product_name: product.value.product_name, // 주문 당시 상품명 저장
+      customer_name: orderForm.value.customer_name,
+      phone: orderForm.value.phone,
+      address: orderForm.value.address,
+      total_price: product.value.product_price
+    });
+
+    if (res.data.success) {
+      $q.notify({ color: 'positive', message: '주문 및 결제가 완료되었습니다!' });
+      purchaseDialog.value = false;
+      
+      // 재고 수량 업데이트를 위해 데이터를 다시 불러옴
+      loadProductDetail();
+    }
+  } catch (error) {
+    $q.notify({ 
+      color: 'negative', 
+      message: error.response?.data?.message || '주문 처리 중 오류가 발생했습니다.' 
+    });
+  }
 };
 
 const loadProductDetail = async () => {

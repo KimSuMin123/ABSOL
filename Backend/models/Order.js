@@ -9,4 +9,5 @@ module.exports = (sequelize, DataTypes) => {
     tracking_number: { type: DataTypes.STRING },
     is_paid: { type: DataTypes.BOOLEAN, defaultValue: false }
   });
+  return Order;
 };

@@ -26,6 +26,7 @@ const routes = [
       { path: 'repairs', component: () => import('../pages/admin/RepairManagement.vue') },
       { path: 'products', component: () => import('../pages/admin/ProductManagement.vue') },
       { path: 'users', component: () => import('../pages/admin/UserManagement.vue') },
+      { path: '/admin/orders', component: () => import('../pages/admin/OrderManagement.vue')}
     ]
   }
 ];

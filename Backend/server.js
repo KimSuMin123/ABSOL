@@ -9,6 +9,7 @@ const estimateRouter = require('./routes/estimate');
 const repairRouter = require('./routes/repair');
 const userRouter = require('./routes/user');
 const productRouter = require('./routes/product')
+const orderRouter = require('./routes/order');
 
 // 환경변수 설정
 dotenv.config();
@@ -32,6 +33,7 @@ app.use('/api/estimates', estimateRouter);
 app.use('/api/repairs', repairRouter);
 app.use('/api/users', userRouter);
 app.use('/api/products', productRouter)
+app.use('/api/orders', orderRouter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 데이터베이스 연결 및 서버 실행
