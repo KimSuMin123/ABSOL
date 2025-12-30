@@ -50,23 +50,49 @@
               <q-btn color="primary" label="바로 구매하기" icon="bolt" class="full-width" size="lg" :disable="product.stock === 0" @click="openPurchaseDialog" />
               
               <q-dialog v-model="purchaseDialog">
-                <q-card style="min-width: 350px">
-                  <q-card-section class="bg-primary text-white">
-                    <div class="text-h6">배송 정보 입력</div>
-                  </q-card-section>
+  <q-card style="min-width: 600px; min-height: 450px;">
+    <q-card-section class="bg-primary text-white">
+      <div class="text-h6">배송 정보 입력</div>
+    </q-card-section>
 
-                  <q-card-section class="q-gutter-y-sm q-pt-md">
-                    <q-input dense outlined v-model="orderForm.customer_name" label="주문자 성함" autofocus />
-                    <q-input dense outlined v-model="orderForm.phone" label="연락처" />
-                    <q-input dense outlined v-model="orderForm.address" label="배송지 주소" />
-                  </q-card-section>
+    <q-card-section class="q-gutter-y-sm q-pt-md">
+      <q-input dense outlined v-model="orderForm.customer_name" label="주문자 성함" autofocus />
+      <q-input dense outlined v-model="orderForm.phone" label="연락처" mask="###-####-####" />
 
-                  <q-card-actions align="right" class="q-pb-md q-pr-md">
-                    <q-btn flat label="취소" v-close-popup />
-                    <q-btn color="primary" label="결제하기" @click="processPurchase" />
-                  </q-card-actions>
-                </q-card>
-              </q-dialog>
+      <div class="row q-gutter-x-sm items-center no-wrap">
+        <q-input 
+          dense outlined 
+          v-model="orderForm.postcode" 
+          label="우편번호" 
+          readonly 
+          class="col-4" 
+        />
+        <q-btn label="주소 검색" color="secondary" @click="openPostcode" outline class="col-auto" />
+      </div>
+
+      <q-input 
+        dense outlined 
+        v-model="orderForm.address" 
+        label="기본 배송지 주소" 
+        readonly 
+        hint="주소 검색을 완료해 주세요." 
+      />
+
+      <q-input 
+        dense outlined 
+        v-model="orderForm.detailAddress" 
+        label="상세 주소" 
+        placeholder="동, 호수 등을 입력하세요" 
+        ref="detailInput"
+      />
+    </q-card-section>
+
+    <q-card-actions class="q-pb-xl q-pr-md">
+      <q-btn flat label="취소" v-close-popup />
+      <q-btn color="primary" label="결제하기" @click="processPurchase" />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
             </div>
           </div>
         </q-card-section>
@@ -89,18 +115,41 @@ const cartStore = useCartStore();
 
 const product = ref({});
 const loading = ref(false);
+const submitting = ref(false); // 결제 중 로딩 상태 추가
 
-// [추가] 구매 관련 상태 변수
+// 구매 관련 상태 (중복 선언 제거)
 const purchaseDialog = ref(false);
+const detailInput = ref(null);
 const orderForm = ref({
   customer_name: '',
   phone: '',
-  address: ''
+  postcode: '',
+  address: '',
+  detailAddress: ''
 });
 
 // 다이얼로그 열기
 const openPurchaseDialog = () => {
   purchaseDialog.value = true;
+};
+
+// [추가] 카카오 주소 검색 로직
+const openPostcode = () => {
+  if (!window.daum) {
+    $q.notify({ color: 'negative', message: '주소 서비스 라이브러리가 로드되지 않았습니다.' });
+    return;
+  }
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      let fullAddr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+      orderForm.value.postcode = data.zonecode;
+      orderForm.value.address = fullAddr;
+      // 주소 선택 후 상세주소 칸으로 포커스 이동
+      setTimeout(() => {
+        if (detailInput.value) detailInput.value.focus();
+      }, 100);
+    }
+  }).open();
 };
 
 // 장바구니 담기
@@ -115,28 +164,33 @@ const addToCart = () => {
   });
 };
 
-// [추가] 실제 구매 프로세스 (재고 차감 및 주문 기록)
+// [수정] 실제 구매 프로세스 (주소 합치기 로직 포함)
 const processPurchase = async () => {
   if (!orderForm.value.customer_name || !orderForm.value.phone || !orderForm.value.address) {
-    $q.notify({ color: 'negative', message: '모든 배송 정보를 입력해주세요.' });
+    $q.notify({ color: 'negative', message: '모든 배송 정보를 정확히 입력해주세요.' });
     return;
   }
 
+  submitting.value = true;
   try {
+    // 백엔드 저장을 위해 상세 주소까지 하나로 합침
+    const fullAddress = `(${orderForm.value.postcode}) ${orderForm.value.address} ${orderForm.value.detailAddress}`;
+
     const res = await axios.post('http://localhost:3000/api/orders/direct', {
       product_id: product.value.product_id,
-      product_name: product.value.product_name, // 주문 당시 상품명 저장
+      product_name: product.value.product_name,
       customer_name: orderForm.value.customer_name,
       phone: orderForm.value.phone,
-      address: orderForm.value.address,
+      address: fullAddress, // 합쳐진 주소 전송
       total_price: product.value.product_price
     });
 
     if (res.data.success) {
       $q.notify({ color: 'positive', message: '주문 및 결제가 완료되었습니다!' });
       purchaseDialog.value = false;
-      
-      // 재고 수량 업데이트를 위해 데이터를 다시 불러옴
+      // 폼 초기화
+      orderForm.value = { customer_name: '', phone: '', postcode: '', address: '', detailAddress: '' };
+      // 재고 업데이트를 위해 데이터 리로드
       loadProductDetail();
     }
   } catch (error) {
@@ -144,6 +198,8 @@ const processPurchase = async () => {
       color: 'negative', 
       message: error.response?.data?.message || '주문 처리 중 오류가 발생했습니다.' 
     });
+  } finally {
+    submitting.value = false;
   }
 };
 
