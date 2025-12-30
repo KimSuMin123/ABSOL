@@ -10,27 +10,44 @@
         <q-input v-model="form.password" type="password" label="비밀번호" outlined dense />
         <q-input v-model="form.customer_name" label="이름" outlined dense />
        
+        <q-input 
+          v-model="form.phone" 
+          label="전화번호" 
+          mask="###-####-####" 
+          placeholder="010-0000-0000"
+          outlined dense 
+        />
+
+        <div class="row q-gutter-x-sm items-center no-wrap">
           <q-input 
-            v-model="form.phone" 
-            label="전화번호" 
-            mask="###-####-####" 
-            placeholder="010-0000-0000"
-            class="col-6" 
+            v-model="form.postcode" 
+            label="우편번호" 
             outlined dense 
+            readonly 
+            class="col-4"
           />
-       
-        <q-input v-model="form.address" label="상세 주소" outlined dense placeholder="읍/면/동 상세주소를 입력하세요" />
+          <q-btn label="주소 검색" color="secondary" @click="openPostcode" outline class="col-auto" />
+        </div>
+        
+        <q-input 
+          v-model="form.address" 
+          label="기본 주소" 
+          outlined dense 
+          readonly 
+          placeholder="주소 검색을 이용해주세요" 
+        />
+        
+        <q-input 
+          v-model="form.detailAddress" 
+          label="상세 주소" 
+          outlined dense 
+          placeholder="상세 주소를 입력하세요" 
+        />
+
         <div class="text-caption q-mt-md">거주 지역 </div>
         <div class="row q-gutter-x-md q-gutter-y-xs">
-            <q-radio 
-              v-for="r in regions" 
-              :key="r.value" 
-              v-model="form.region" 
-              :val="r.value" 
-              :label="r.label" 
-              dense 
-            />
-          </div>
+          <q-radio v-for="r in regions" :key="r.value" v-model="form.region" :val="r.value" :label="r.label" dense />
+        </div>
 
         <div class="text-caption q-mt-md">고객 유형 </div>
         <div class="row q-gutter-sm">
@@ -52,25 +69,47 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router'; // useRouter 추가
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 
 const route = useRoute();
 const router = useRouter();
 
-// 폼 데이터 초기값 (중복 선언 통합)
+// 폼 데이터 초기값 (주소 관련 필드 추가)
 const form = ref({
   login_id: '',
   password: '', 
   customer_name: '',
   phone: '',
-  address: '',
+  postcode: '',      // 우편번호 추가
+  address: '',       // 기본 주소
+  detailAddress: '', // 상세 주소 추가
   region: '1',
   type: '1',
   productLine: '1'
 });
 
-// 선택 옵션 데이터
+// 카카오 주소 API 실행 함수
+const openPostcode = () => {
+  new window.daum.Postcode({
+    oncomplete: (data) => {
+      // 도로명 주소와 지번 주소 중 선택한 값에 따라 처리
+      let fullAddr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+      let extraAddr = '';
+
+      if (data.userSelectedType === 'R') {
+        if (data.bname !== '') extraAddr += data.bname;
+        if (data.buildingName !== '') extraAddr += (extraAddr !== '' ? `, ${data.buildingName}` : data.buildingName);
+        fullAddr += (extraAddr !== '' ? ` (${extraAddr})` : '');
+      }
+
+      form.value.postcode = data.zonecode; // 우편번호 저장
+      form.value.address = fullAddr;       // 기본 주소 저장
+      // 상세 주소 입력창으로 포커스 이동 (선택 사항)
+    }
+  }).open();
+};
+
 const regions = [
   { label: '서울', value: '1' }, { label: '경기', value: '2' }, { label: '인천', value: '3' },
   { label: '강원', value: '4' }, { label: '충남', value: '5' }, { label: '충북', value: '6' },
@@ -87,20 +126,22 @@ const lines = [
   { label: '스패로우', value: '3' }, { label: '암람', value: '4' }
 ];
 
-// 페이지 로드 시 비밀번호 자동 주입
 onMounted(() => {
   if (route.query.pw) {
     form.value.password = route.query.pw;
   }
-}); // <--- 누락되었던 괄호 닫기
+});
 
-// 등록 실행
 const submit = async () => {
   try {
-    const res = await axios.post('http://localhost:3000/api/users/register', form.value);
-    alert(`회원가입 완료! 생성된 고객번호: ${res.data.customer_code}`);
+    // 최종 주소 합치기 (필요에 따라 백엔드에서 따로 받아도 됨)
+    const payload = {
+      ...form.value,
+      full_address: `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`
+    };
     
-    // 가입 완료 후 회원 관리 리스트로 이동 (선택 사항)
+    const res = await axios.post('http://localhost:3000/api/users/register', payload);
+    alert(`회원가입을 축하합니다!`);
     router.push('/login');
   } catch (error) {
     console.error('등록 에러:', error);
