@@ -6,10 +6,36 @@
       </q-card-section>
 
       <q-card-section class="q-gutter-sm">
-        <q-input v-model="form.login_id" label="아이디" outlined dense />
+        <div class="row q-gutter-x-sm items-center no-wrap">
+          <q-input 
+            v-model="form.login_id" 
+            label="아이디" 
+            outlined dense 
+            class="col"
+            :readonly="isIdChecked"
+            placeholder="아이디를 입력하세요"
+            @update:model-value="isIdChecked = false"
+          />
+          <q-btn 
+            :label="isIdChecked ? '확인됨' : '중복 확인'" 
+            :color="isIdChecked ? 'positive' : 'secondary'" 
+            @click="checkDuplicate" 
+            :outline="!isIdChecked"
+            class="col-auto" 
+          />
+          <q-btn 
+            v-if="isIdChecked" 
+            icon="refresh" 
+            flat 
+            round 
+            dense 
+            @click="isIdChecked = false" 
+          />
+        </div>
+
         <q-input v-model="form.password" type="password" label="비밀번호" outlined dense />
         <q-input v-model="form.customer_name" label="이름" outlined dense />
-       
+        
         <q-input 
           v-model="form.phone" 
           label="전화번호" 
@@ -42,13 +68,28 @@
           label="상세 주소" 
           outlined dense 
           placeholder="상세 주소를 입력하세요" 
+          ref="detailInput"
         />
 
-    
+        <div class="q-mt-md">
+          <div class="text-caption text-grey-7">지역/유형/라인업 선택</div>
+          <div class="row q-gutter-sm q-mt-xs">
+            <q-select v-model="form.region" :options="regions" label="지역" outlined dense emit-value map-options class="col" />
+            <q-select v-model="form.type" :options="types" label="유형" outlined dense emit-value map-options class="col" />
+            <q-select v-model="form.productLine" :options="lines" label="라인업" outlined dense emit-value map-options class="col" />
+          </div>
+        </div>
       </q-card-section>
 
       <q-card-actions align="center" class="q-pb-lg">
-        <q-btn label="계정 생성 및 코드 발급" color="primary" @click="submit" class="full-width" />
+        <q-btn 
+          label="계정 생성 및 고객코드 발급" 
+          color="primary" 
+          @click="submit" 
+          class="full-width" 
+          size="lg"
+          :loading="submitting"
+        />
       </q-card-actions>
     </q-card>
   </q-page>
@@ -58,66 +99,102 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
+import { useQuasar } from 'quasar';
 
+const $q = useQuasar();
 const route = useRoute();
 const router = useRouter();
+const detailInput = ref(null);
+const submitting = ref(false);
+const isIdChecked = ref(false);
 
-// 폼 데이터 초기값 (주소 관련 필드 추가)
 const form = ref({
   login_id: '',
   password: '', 
   customer_name: '',
   phone: '',
-  postcode: '',      // 우편번호 추가
-  address: '',       // 기본 주소
-  detailAddress: '', // 상세 주소 추가
+  postcode: '',
+  address: '',
+  detailAddress: '',
   region: '1',
   type: '1',
   productLine: '1'
 });
 
-// 카카오 주소 API 실행 함수
+// 데이터 옵션 (백엔드 코드 생성 로직에 맞춤)
+const regions = [{ label: '서울', value: '1' }, { label: '경기', value: '2' }, { label: '기타', value: '3' }];
+const types = [{ label: '수리', value: '1' }, { label: '조립', value: '2' }, { label: '부품', value: '3' }];
+const lines = [{ label: '일반', value: '1' }, { label: '고성능', value: '2' }];
+
+// 아이디 중복 확인
+const checkDuplicate = async () => {
+  if (!form.value.login_id) {
+    $q.notify({ color: 'negative', message: '아이디를 입력해주세요.' });
+    return;
+  }
+  try {
+    const res = await axios.get(`http://localhost:3000/api/users/check-id/${form.value.login_id}`);
+    if (res.data.isDuplicate) {
+      $q.notify({ color: 'negative', message: '이미 사용 중인 아이디입니다.' });
+      isIdChecked.value = false;
+    } else {
+      $q.notify({ color: 'positive', message: '사용 가능한 아이디입니다.' });
+      isIdChecked.value = true;
+    }
+  } catch (error) {
+    $q.notify({ color: 'negative', message: '중복 확인 중 오류가 발생했습니다.' });
+  }
+};
+
+// 카카오 주소 API
 const openPostcode = () => {
+  if (!window.daum) {
+    $q.notify({ color: 'negative', message: '주소 서비스 라이브러리가 로드되지 않았습니다.' });
+    return;
+  }
   new window.daum.Postcode({
     oncomplete: (data) => {
-      // 도로명 주소와 지번 주소 중 선택한 값에 따라 처리
       let fullAddr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-      let extraAddr = '';
-
-      if (data.userSelectedType === 'R') {
-        if (data.bname !== '') extraAddr += data.bname;
-        if (data.buildingName !== '') extraAddr += (extraAddr !== '' ? `, ${data.buildingName}` : data.buildingName);
-        fullAddr += (extraAddr !== '' ? ` (${extraAddr})` : '');
-      }
-
-      form.value.postcode = data.zonecode; // 우편번호 저장
-      form.value.address = fullAddr;       // 기본 주소 저장
-      // 상세 주소 입력창으로 포커스 이동 (선택 사항)
+      form.value.postcode = data.zonecode;
+      form.value.address = fullAddr;
+      setTimeout(() => detailInput.value.focus(), 100);
     }
   }).open();
 };
 
-
 onMounted(() => {
-  if (route.query.pw) {
-    form.value.password = route.query.pw;
-  }
+  if (route.query.pw) form.value.password = route.query.pw;
 });
 
+// 회원가입 제출
 const submit = async () => {
+  if (!isIdChecked.value) {
+    $q.notify({ color: 'warning', message: '아이디 중복 확인을 먼저 완료해주세요.' });
+    return;
+  }
+
+  submitting.value = true;
   try {
-    // 최종 주소 합치기 (필요에 따라 백엔드에서 따로 받아도 됨)
     const payload = {
       ...form.value,
       full_address: `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`
     };
     
     const res = await axios.post('http://localhost:3000/api/users/register', payload);
-    alert(`회원가입을 축하합니다!`);
-    router.push('/login');
+    
+    $q.dialog({
+      title: '가입 완료',
+      message: `회원가입이 완료되었습니다. 귀하의 고객코드는 [${res.data.customer_code}] 입니다.`,
+      ok: '로그인하러 가기'
+    }).onOk(() => {
+      router.push('/login');
+    });
+
   } catch (error) {
-    console.error('등록 에러:', error);
-    alert('등록 중 오류가 발생했습니다.');
+    console.error(error);
+    $q.notify({ color: 'negative', message: '등록 중 오류가 발생했습니다: ' + (error.response?.data?.message || error.message) });
+  } finally {
+    submitting.value = false;
   }
 };
 </script>

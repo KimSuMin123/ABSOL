@@ -104,4 +104,25 @@ router.patch('/:id/level', async (req, res) => {
   }
 });
 
+// 아이디 중복 확인 API
+router.get('/check-id/:login_id', async (req, res) => {
+  try {
+    const { login_id } = req.params;
+    
+    // DB에서 해당 아이디가 있는지 조회
+    const existingUser = await User.findOne({ 
+      where: { login_id: login_id } 
+    });
+
+    if (existingUser) {
+      return res.status(200).json({ isDuplicate: true });
+    } else {
+      return res.status(200).json({ isDuplicate: false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: '서버 에러가 발생했습니다.' });
+  }
+});
+
 module.exports = router;
