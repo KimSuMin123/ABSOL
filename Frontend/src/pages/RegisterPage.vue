@@ -71,14 +71,7 @@
           ref="detailInput"
         />
 
-        <div class="q-mt-md">
-          <div class="text-caption text-grey-7">지역/유형/라인업 선택</div>
-          <div class="row q-gutter-sm q-mt-xs">
-            <q-select v-model="form.region" :options="regions" label="지역" outlined dense emit-value map-options class="col" />
-            <q-select v-model="form.type" :options="types" label="유형" outlined dense emit-value map-options class="col" />
-            <q-select v-model="form.productLine" :options="lines" label="라인업" outlined dense emit-value map-options class="col" />
-          </div>
-        </div>
+        
       </q-card-section>
 
       <q-card-actions align="center" class="q-pb-lg">
@@ -121,10 +114,6 @@ const form = ref({
   productLine: '1'
 });
 
-// 데이터 옵션 (백엔드 코드 생성 로직에 맞춤)
-const regions = [{ label: '서울', value: '1' }, { label: '경기', value: '2' }, { label: '기타', value: '3' }];
-const types = [{ label: '수리', value: '1' }, { label: '조립', value: '2' }, { label: '부품', value: '3' }];
-const lines = [{ label: '일반', value: '1' }, { label: '고성능', value: '2' }];
 
 // 아이디 중복 확인
 const checkDuplicate = async () => {
@@ -184,7 +173,7 @@ const submit = async () => {
     
     $q.dialog({
       title: '가입 완료',
-      message: `회원가입이 완료되었습니다. 귀하의 고객코드는 [${res.data.customer_code}] 입니다.`,
+      message: `회원가입을 축하드립니다.`,
       ok: '로그인하러 가기'
     }).onOk(() => {
       router.push('/login');
