@@ -34,11 +34,6 @@
                   <q-item-section avatar><q-icon name="person" /></q-item-section>
                   <q-item-section>마이페이지</q-item-section>
                 </q-item>
-                
-                <q-item v-if="authStore.isAdmin" clickable v-close-popup to="/admin/estimates">
-                  <q-item-section avatar><q-icon name="admin_panel_settings" color="orange" /></q-item-section>
-                  <q-item-section class="text-orange text-weight-bold">관리자 시스템</q-item-section>
-                </q-item>
 
                 <q-separator />
                 <q-item clickable v-close-popup @click="handleLogout">
@@ -65,3 +60,33 @@
     </q-footer>
   </q-layout>
 </template>
+<script setup>
+import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import { useAuthStore } from '../stores/auth'; // 실제 스토어 경로에 맞게 수정
+
+const router = useRouter();
+const $q = useQuasar();
+const authStore = useAuthStore();
+
+const handleLogout = () => {
+  $q.dialog({
+    title: '로그아웃',
+    message: '정말 로그아웃 하시겠습니까?',
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    // 로컬스토리지 정리 및 스토어 로그아웃 실행
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    authStore.logout(); // authStore 내부에 로그아웃 로직이 있어야 함
+    
+    router.push('/login');
+    $q.notify({
+      color: 'info',
+      message: '로그아웃 되었습니다.',
+      icon: 'logout'
+    });
+  });
+};
+</script>

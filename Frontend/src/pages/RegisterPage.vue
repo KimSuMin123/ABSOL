@@ -2,7 +2,7 @@
   <q-page class="flex flex-center q-pa-md">
     <q-card style="width: 100%; max-width: 550px;">
       <q-card-section class="text-h6 bg-dark text-white">
-        ABSOL COMPUTER 회원가입
+        ABSOL TECH 회원가입
       </q-card-section>
 
       <q-card-section class="q-gutter-sm">
