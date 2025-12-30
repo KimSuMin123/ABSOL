@@ -17,6 +17,7 @@ const routes = [
     children: [
       { path: 'estimates', component: () => import('../pages/admin/EstimateManagement.vue') },
       { path: 'repairs', component: () => import('../pages/admin/RepairManagement.vue') },
+      { path: 'products', component: () => import('../pages/admin/ProductManagement.vue') },
     ]
   }
 ];
