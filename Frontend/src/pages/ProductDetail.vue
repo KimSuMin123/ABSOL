@@ -182,7 +182,8 @@ const processPurchase = async () => {
       customer_name: orderForm.value.customer_name,
       phone: orderForm.value.phone,
       address: fullAddress, // 합쳐진 주소 전송
-      total_price: product.value.product_price
+      total_price: product.value.product_price,
+      status: '접수완료'
     });
 
     if (res.data.success) {

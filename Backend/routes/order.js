@@ -88,15 +88,14 @@ router.post('/direct', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { tracking_number } = req.body;
+    const { tracking_number, status } = req.body;
     
-    // tracking_number가 '직접배송'이면 운송장 없이 처리
-    const updateData = {
-      tracking_number: tracking_number || '직접배송 완료'
-    };
+    const updateData = {};
+    if (tracking_number !== undefined) updateData.tracking_number = tracking_number;
+    if (status !== undefined) updateData.status = status;
 
     await Order.update(updateData, { where: { order_id: id } });
-    res.json({ success: true, message: '배송 정보 업데이트 완료' });
+    res.json({ success: true, message: '주문 정보 업데이트 완료' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
