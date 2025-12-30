@@ -15,11 +15,8 @@
         <div class="row no-wrap items-center q-gutter-x-sm">
            <q-btn flat label="수리문의" to="/" />
           <q-btn flat label="조립견적" to="/estimate" />
-         
           <q-btn flat label="상품구매" to="/order" />
-          
-      
-
+          <q-btn flat label="장바구니" to="/cart" />
           <q-separator dark vertical inset class="q-mx-sm" />
 
           <q-btn-dropdown flat round dense icon="account_circle">
