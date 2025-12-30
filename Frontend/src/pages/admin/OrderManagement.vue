@@ -2,29 +2,39 @@
   <q-page class="q-pa-md bg-grey-2">
     <div class="bg-white q-pa-md shadow-1 rounded-borders q-mb-lg">
       <div class="row items-center q-mb-md">
-        <div class="text-h6 text-weight-bold text-blue-9">주문 마스터 관리 (조립/배송)</div>
+        <div class="text-h6 text-weight-bold text-blue-9">주문 마스터 관리 (실시간 필터)</div>
         <q-space />
-        <q-btn color="grey-7" icon="refresh" label="새로고침" @click="loadOrders" flat />
+        <q-btn color="grey-7" icon="refresh" label="데이터 동기화" @click="loadOrders" flat />
       </div>
 
       <div class="row q-col-gutter-sm">
-        <div class="col-12 col-sm-4">
-          <q-input v-model="searchQuery" label="주문자/상품명 검색" dense outlined @keyup.enter="loadOrders">
-            <template v-slot:append><q-icon name="search" @click="loadOrders" class="cursor-pointer" /></template>
+        <div class="col-12 col-sm-6">
+          <q-input 
+            v-model="searchQuery" 
+            label="주문자/상품명 실시간 검색" 
+            dense outlined 
+            clearable
+          >
+            <template v-slot:append><q-icon name="search" /></template>
           </q-input>
         </div>
-        <div class="col-12 col-sm-3">
+        <div class="col-12 col-sm-6">
           <q-select 
             v-model="selectedStatusFilter" 
             :options="['전체', '접수완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료']" 
-            label="진행 단계 필터" dense outlined @update:model-value="loadOrders"
+            label="진행 단계 필터" 
+            dense outlined 
           />
         </div>
       </div>
     </div>
 
     <div class="row q-col-gutter-md">
-      <div v-for="order in orders" :key="order.order_id" class="col-12">
+      <div v-if="filteredOrders.length === 0" class="col-12 text-center q-pa-xl text-grey-6 bg-white rounded-borders shadow-1">
+        검색 조건에 맞는 주문 내역이 없습니다.
+      </div>
+
+      <div v-for="order in filteredOrders" :key="order.order_id" class="col-12">
         <q-card flat bordered class="order-card shadow-1">
           <q-card-section horizontal>
             <div class="col-2 flex flex-center q-ma-sm rounded-borders" :class="getStatusBgColor(order.status)" style="max-width: 120px; height: 120px">
@@ -39,7 +49,8 @@
               <div class="text-subtitle2 text-primary">#{{ order.order_id }} | {{ order.customer_name }}</div>
               <div class="text-caption text-grey-7"><q-icon name="phone" size="xs" /> {{ order.phone }}</div>
             </q-card-section>
-  <q-card-section class="col-2 q-py-md flex flex-center border-left">
+
+            <q-card-section class="col-2 q-py-md flex flex-center border-left">
               <div class="text-center">
                 <div class="text-body2 text-weight-bold text-blue-9">{{ order.total_price?.toLocaleString() }}원</div>
                 <div class="text-caption text-grey-6">{{ order.createdAt?.substring(0, 10) }}</div>
@@ -48,7 +59,8 @@
                 </q-badge>
               </div>
             </q-card-section>
-            <q-card-section class="col-5 q-py-md border-left  row q-col-gutter-sm items-center">
+
+            <q-card-section class="col-5 q-py-md border-left row q-col-gutter-sm items-center bg-grey-1">
               <div class="col-6">
                 <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">단계 변경</div>
                 <q-select
@@ -63,15 +75,13 @@
                 <q-input
                   v-model="order.tracking_number"
                   dense outlined bg-color="white"
-                  placeholder="번호 입력 후 Enter"
+                  placeholder="입력 후 Enter"
                   @keyup.enter="updateOrderData(order, { tracking_number: order.tracking_number })"
                 >
-                  <template v-slot:append><q-icon name="save" size="xs" /></template>
+                  <template v-slot:append><q-icon name="save" size="xs" color="primary" /></template>
                 </q-input>
               </div>
             </q-card-section>
-
-          
           </q-card-section>
         </q-card>
       </div>
@@ -82,23 +92,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue'; // computed 추가
 import axios from 'axios';
 import { useQuasar } from 'quasar';
 
 const $q = useQuasar();
-const orders = ref([]);
+const orders = ref([]); // 원본 데이터
 const loading = ref(false);
 const searchQuery = ref('');
 const selectedStatusFilter = ref('전체');
 
+// [핵심] 프론트엔드 실시간 필터 로직
+const filteredOrders = computed(() => {
+  return orders.value.filter(order => {
+    // 1. 검색어 체크 (고객명, 상품명, 전화번호)
+    const matchesSearch = 
+      (order.customer_name || '').includes(searchQuery.value || '') || 
+      (order.product_name || '').includes(searchQuery.value || '') ||
+      (order.phone || '').includes(searchQuery.value || '');
+
+    // 2. 상태 필터 체크
+    const matchesStatus = 
+      selectedStatusFilter.value === '전체' || order.status === selectedStatusFilter.value;
+
+    return matchesSearch && matchesStatus;
+  });
+});
+
 const loadOrders = async () => {
   loading.value = true;
   try {
-    const params = { search: searchQuery.value };
-    if (selectedStatusFilter.value !== '전체') params.status = selectedStatusFilter.value;
-    
-    const res = await axios.get('http://localhost:3000/api/orders', { params });
+    // 필터링은 프론트에서 하므로 쿼리 파라미터 없이 전체 로드
+    const res = await axios.get('http://localhost:3000/api/orders');
     orders.value = res.data.data;
   } catch (error) {
     $q.notify({ color: 'negative', message: '데이터 로드 실패' });
@@ -111,6 +136,7 @@ const updateOrderData = async (order, payload) => {
   try {
     await axios.patch(`http://localhost:3000/api/orders/${order.order_id}`, payload);
     $q.notify({ color: 'positive', message: '업데이트 완료', timeout: 500 });
+    // 업데이트 후 원본 데이터의 상태를 최신화 (필요시 loadOrders 재호출)
   } catch (error) {
     $q.notify({ color: 'negative', message: '업데이트 실패' });
     loadOrders();
