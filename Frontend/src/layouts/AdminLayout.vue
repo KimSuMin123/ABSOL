@@ -17,7 +17,8 @@
           <q-btn flat dense icon="build" label="수리이력" to="/admin/repairs" />
           <q-btn flat dense icon="calculate" label="견적이력" to="/admin/estimates" />
           <q-btn flat dense icon="receipt_long" label="상품구매이력" to="/admin/orders" />
-          <q-btn flat round dense icon="home" to="/">
+          <q-btn flat dense icon="view_carousel" label="배너 편집" to="/admin/banner" />
+          <q-btn flat round dense icon="home" to="/order">
             <q-tooltip>사용자 페이지로 이동</q-tooltip>
           </q-btn>
         </div>

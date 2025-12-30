@@ -30,7 +30,10 @@ import {
   QDialog,    // 컴포넌트로서의 QDialog
   QCard,      // 다이얼로그 내부 카드
   QCardSection,
-  QImg        // 상품 이미지용
+  QImg,
+  QCarousel,
+  QCarouselSlide,
+  QCarouselControl     // 상품 이미지용
 } from 'quasar'
 
 import router from './router/index' 
@@ -50,7 +53,9 @@ app.use(Quasar, {
     QHeader, QToolbar, QToolbarTitle, QSpace, QBadge,
     QBtnDropdown, QList, QItem, QItemSection,
     QFooter, QIcon,
-    QDialog, QCard, QCardSection, QImg 
+    QDialog, QCard, QCardSection, QImg ,QCarousel,
+  QCarouselSlide,
+  QCarouselControl
   },
   plugins: {
     Dialog,

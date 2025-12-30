@@ -16,6 +16,7 @@ db.Repair = require('./Repair')(sequelize, Sequelize);
 db.Order = require('./Order')(sequelize, Sequelize);
 db.CompanyInfo = require('./CompanyInfo')(sequelize, Sequelize);
 db.MyPC = require('./MyPC')(sequelize, Sequelize);
+db.Banner = require('./Banner')(sequelize, Sequelize);
 
 // 3. 관계 정의 (작성하신 코드 적용)
 // 회원 <-> 견적, 수리, 주문

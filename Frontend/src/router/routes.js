@@ -27,7 +27,10 @@ const routes = [
       { path: '', component: () => import('../pages/admin/ProductManagement.vue') },
       { path: 'users', component: () => import('../pages/admin/UserManagement.vue') },
       { path: 'orders', component: () => import('../pages/admin/OrderManagement.vue')}
-       ,{ path: 'mypc', component: () => import('../pages/admin/AdminMyPCRegister.vue')}
+       ,{ path: 'mypc', component: () => import('../pages/admin/AdminMyPCRegister.vue')},{ 
+        path: 'banner', 
+        component: () => import('../pages/admin/BannerManagement.vue') 
+      }
     ]
   }
 ];
