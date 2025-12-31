@@ -60,7 +60,7 @@
               </div>
             </q-card-section>
 
-           <q-card-section class="col-5 q-py-md border-left row q-col-gutter-sm items-center bg-grey-1">
+           <q-card-section class="col-5 q-py-md border-left row q-col-gutter-sm items-center">
   <div class="col-6">
     <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">단계 변경</div>
     <q-select
