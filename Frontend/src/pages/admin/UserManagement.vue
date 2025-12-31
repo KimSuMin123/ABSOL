@@ -58,7 +58,8 @@
               <div class="text-center full-width q-gutter-y-xs">
                 <q-btn flat color="blue-9" label="PC 하드웨어 관리" icon="computer" dense class="full-width text-weight-bold" @click="openMyPCModal(user)" />
                 <q-separator />
-                <q-btn flat color="grey-8" label="정보 수정 및 코드갱신" icon="edit" dense class="full-width" @click="openEditDialog(user)" />
+                <q-btn flat color="grey-8" label="정보 수정 및 코드갱신" icon="edit" dense class="full-width" @click="openEditDialog(user)" /><q-separator />
+                <q-btn flat color="grey-8" label="고객 기기 조회" icon="devices" dense class="full-width" @click="openUserPCList(user)" />
               </div>
             </q-card-section>
           </q-card-section>
@@ -108,7 +109,12 @@
     </q-dialog>
 
     <AdminMyPCModal v-model="pcModal.show" :user-id="pcModal.userId" :customer-name="pcModal.userName" />
-
+<AdminUserPCList 
+  v-model="userPCListModal.show" 
+  :user-id="userPCListModal.userId" 
+  :customer-name="userPCListModal.userName" 
+  @refresh="loadData"
+/>
     <q-inner-loading :showing="loading"><q-spinner-grid size="50px" color="primary" /></q-inner-loading>
   </q-page>
 </template>
@@ -119,6 +125,7 @@ import axios from 'axios';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import AdminMyPCModal from './AdminMyPCRegister.vue';
+import AdminUserPCList from './AdminUserPCList.vue';
 
 const $q = useQuasar();
 const $router = useRouter();
@@ -160,6 +167,12 @@ const editForm = ref({
   type: '1',
   productLine: '1'
 });
+const userPCListModal = ref({ show: false, userId: null, userName: '' });
+const openUserPCList = (user) => {
+  userPCListModal.value.userId = user.user_id;
+  userPCListModal.value.userName = user.customer_name;
+  userPCListModal.value.show = true;
+};
 
 const pcModal = ref({ show: false, userId: null, userName: '' });
 

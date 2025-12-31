@@ -6,7 +6,7 @@ const { MyPC } = require('../models');
 router.get('/user/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
-    const mypc = await MyPC.findOne({ where: { user_id } });
+    const mypc = await MyPC.findAll({ where: { user_id } });
     res.json({ success: true, data: mypc });
   } catch (error) {
     console.error('MyPC Fetch Error:', error);
@@ -44,5 +44,35 @@ router.post('/user/:user_id', async (req, res) => {
     });
   }
 });
+router.delete('/:mypc_id', async (req, res) => {
+  try {
+    const { mypc_id } = req.params;
 
+    // DB에서 해당 ID를 가진 기기 삭제 실행
+    const result = await MyPC.destroy({
+      where: { mypc_id: mypc_id }
+    });
+
+    if (result) {
+      // 삭제 성공 시
+      res.json({ 
+        success: true, 
+        message: '기기 정보가 성공적으로 삭제되었습니다.' 
+      });
+    } else {
+      // 해당 ID를 찾을 수 없는 경우
+      res.status(404).json({ 
+        success: false, 
+        message: '삭제할 기기 정보를 찾을 수 없습니다.' 
+      });
+    }
+  } catch (error) {
+    console.error('MyPC Delete Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: '서버 오류로 인해 삭제에 실패했습니다.',
+      error: error.message 
+    });
+  }
+});
 module.exports = router;
