@@ -27,10 +27,10 @@ router.get('/', async (req, res) => {
 router.patch('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, repair_type, tracking_number } = req.body;
+    const { status, repair_type, tracking_number, delivery_company } = req.body;
     
     // 유형 변경과 상태 변경을 동시에 처리할 수 있도록 업데이트
-    await Repair.update({ status, repair_type, tracking_number }, { where: { repair_id: id } });
+    await Repair.update({ status, repair_type, tracking_number, delivery_company  }, { where: { repair_id: id } });
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

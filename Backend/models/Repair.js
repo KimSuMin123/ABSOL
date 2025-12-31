@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
     },tracking_number: { 
   type: DataTypes.STRING, 
   allowNull: true 
+},delivery_company: { 
+  type: DataTypes.STRING, 
+  allowNull: true,
+  comment: '스마트택배 택배사 코드 (예: 04)'
 },
     privacy_agreed: { type: DataTypes.ENUM('Y', 'N'), defaultValue: 'Y' }
   }, {
