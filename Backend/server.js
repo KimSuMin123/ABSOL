@@ -38,13 +38,13 @@ app.use('/api/users', userRouter);
 app.use('/api/products', productRouter)
 app.use('/api/orders', orderRouter);
 app.use('/api/auth', authRouter);
-app.use('/api', mypcRouter)
+app.use('/api/mypc', mypcRouter)
 app.use('/api/banner', bannerRouter)
 app.use('/api/dashboard', dashboardRouter)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 데이터베이스 연결 및 서버 실행
-sequelize.sync({ force: true }) // force: false는 기존 테이블을 삭제하지 않고 유지함
+sequelize.sync({force :false}) // force: false는 기존 테이블을 삭제하지 않고 유지함
   .then(() => {
     console.log('✅ 데이터베이스 연결 성공 및 테이블 동기화 완료!');
     

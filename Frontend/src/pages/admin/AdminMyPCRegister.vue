@@ -140,7 +140,7 @@ const saveMyPC = async () => {
   
   saving.value = true;
   try {
-    const res = await axios.post(`http://localhost:3000/api/mypc/${props.userId}`, form.value);
+    const res = await axios.post(`http://localhost:3000/api/mypc/user/${props.userId}`, form.value);
     if (res.data.success) {
       $q.notify({ color: 'positive', message: '고객 PC 하드웨어 정보가 저장되었습니다.', icon: 'done' });
       internalShow.value = false;

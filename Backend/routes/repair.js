@@ -36,4 +36,17 @@ router.patch('/:id/status', async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+// [추가] 특정 사용자의 수리 내역만 가져오는 라우터
+router.get('/user/:user_id', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const repairs = await Repair.findAll({ 
+      where: { user_id }, 
+      order: [['createdAt', 'DESC']] 
+    });
+    res.json({ success: true, data: repairs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 module.exports = router;

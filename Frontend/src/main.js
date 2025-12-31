@@ -33,7 +33,12 @@ import {
   QImg,
   QCarousel,
   QCarouselSlide,
-  QCarouselControl     // 상품 이미지용
+  QCarouselControl,
+  QTooltip,       // q-tooltip (X)
+  QSpinnerGrid,   // q-spinner-grid (X)
+  QInnerLoading,
+   QCardActions,     // 등록 필수
+    QExpansionItem,  ClosePopup//
 } from 'quasar'
 
 import router from './router/index' 
@@ -55,12 +60,18 @@ app.use(Quasar, {
     QFooter, QIcon,
     QDialog, QCard, QCardSection, QImg ,QCarousel,
   QCarouselSlide,
-  QCarouselControl
+  QCarouselControl,QTooltip, 
+    QSpinnerGrid, 
+    QInnerLoading,
+    QCardActions,     // 등록 필수
+    QExpansionItem,   // 등록 필수
   },
   plugins: {
     Dialog,
     Notify
-  }
+  },directives: {       // ⚠️ 디렉티브 섹션은 따로 있습니다!
+    ClosePopup        // v-close-popup 사용을 위해 등록
+  },
 })
 
 app.mount('#app')

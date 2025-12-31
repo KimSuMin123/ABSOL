@@ -3,7 +3,7 @@ const router = express.Router();
 const { MyPC } = require('../models');
 
 // [GET] 특정 고객의 PC 정보 불러오기
-router.get('/mypc/:user_id', async (req, res) => {
+router.get('/user/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
     const mypc = await MyPC.findOne({ where: { user_id } });
@@ -15,7 +15,7 @@ router.get('/mypc/:user_id', async (req, res) => {
 });
 
 // [POST] 고객 PC 정보 등록 및 업데이트
-router.post('/mypc/:user_id', async (req, res) => {
+router.post('/user/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
     const pcData = req.body;

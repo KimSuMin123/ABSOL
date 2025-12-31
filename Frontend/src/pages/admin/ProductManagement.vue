@@ -98,7 +98,57 @@
     </div>
 
     <q-dialog v-model="dialogVisible" persistent>
-      </q-dialog>
+    <q-dialog v-model="dialogVisible" persistent>
+  <q-card style="min-width: 600px; max-width: 800px; border-radius: 12px;">
+    <q-card-section class="bg-primary text-white row items-center q-pb-none">
+      <div class="text-h6">{{ dialogMode === 'create' ? '새 상품 등록' : '상품 정보 수정' }}</div>
+      <q-space />
+      <q-btn icon="close" flat round dense v-close-popup />
+    </q-card-section>
+
+    <q-card-section class="q-pa-md">
+      <q-form @submit="saveProduct" class="row q-col-gutter-md">
+        <div class="col-12 col-md-4 text-center">
+          <div class="text-subtitle2 q-mb-sm text-grey-7">상품 이미지</div>
+          <q-img
+            :src="imagePreview || 'https://cdn.quasar.dev/img/no-image.png'"
+            class="rounded-borders cursor-pointer"
+            style="height: 200px; border: 1px dashed #ccc"
+            @click="$refs.fileInput.click()"
+          >
+            <div class="absolute-full flex flex-center bg-transparent text-white" v-if="!imagePreview">
+              <q-icon name="add_a_photo" size="40px" color="grey-5" />
+            </div>
+          </q-img>
+          <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="onFileSelected" />
+          <q-btn flat color="primary" label="이미지 선택" class="q-mt-sm" @click="$refs.fileInput.click()" />
+        </div>
+
+        <div class="col-12 col-md-8">
+          <div class="row q-col-gutter-sm">
+            <q-input v-model="form.product_name" label="상품명 *" class="col-12" outlined dense :rules="[val => !!val || '필수 항목']" />
+            <q-input v-model.number="form.product_price" type="number" label="판매 가격 *" class="col-6" outlined dense suffix="원" />
+            <q-input v-model.number="form.stock" type="number" label="재고 수량 *" class="col-6" outlined dense suffix="개" />
+            
+            <div class="col-12 q-gutter-sm">
+              <q-radio v-model="form.is_used" :val="false" label="새상품" />
+              <q-radio v-model="form.is_used" :val="true" label="중고 상품" color="orange" />
+            </div>
+
+            <q-input v-model="form.hardware_info" type="textarea" label="하드웨어 사양 (CPU, RAM 등)" class="col-12" outlined dense rows="3" />
+            <q-input v-model="form.description" type="textarea" label="상품 상세 설명" class="col-12" outlined dense rows="3" />
+          </div>
+        </div>
+      </q-form>
+    </q-card-section>
+
+    <q-card-actions align="right" class="q-pa-md bg-grey-1">
+      <q-btn label="취소" flat color="grey-7" v-close-popup />
+      <q-btn :label="dialogMode === 'create' ? '등록하기' : '수정완료'" color="primary" @click="saveProduct" />
+    </q-card-actions>
+  </q-card>
+</q-dialog>  
+    </q-dialog>
 
     <q-inner-loading :showing="loading"><q-spinner-grid size="50px" color="primary" /></q-inner-loading>
   </q-page>

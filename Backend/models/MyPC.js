@@ -2,7 +2,12 @@ module.exports = (sequelize, DataTypes) => {
   return sequelize.define('MyPC', {
     mypc_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     pc_nickname: { type: DataTypes.STRING, defaultValue: '내 컴퓨터' }, // 식별용 이름
-    
+    // 사용자 식별을 위한 외래 키 추가
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // 사용자 없는 PC 정보는 없어야 하므로 false
+      comment: '사용자 테이블의 ID'
+    },
     // CPU
     cpu_name: { type: DataTypes.STRING },
     cpu_sn: { type: DataTypes.STRING },
