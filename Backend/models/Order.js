@@ -4,7 +4,10 @@ module.exports = (sequelize, DataTypes) => {
     product_name: { type: DataTypes.STRING }, 
     customer_name: { type: DataTypes.STRING },
     phone: { type: DataTypes.STRING },
-    address: { type: DataTypes.STRING },
+    address: { type: DataTypes.STRING },delivery_company: { 
+      type: DataTypes.STRING,
+      allowNull: true 
+    },
     total_price: { type: DataTypes.INTEGER },
     tracking_number: { type: DataTypes.STRING },
     is_paid: { type: DataTypes.BOOLEAN, defaultValue: false },

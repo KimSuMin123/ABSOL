@@ -14,6 +14,7 @@ const authRouter = require('./routes/auth');
 const mypcRouter = require('./routes/mypc');
 const bannerRouter = require('./routes/banner')
 const dashboardRouter =require('./routes/dashboard')
+const deliveryRouter =require('./routes/delivery')
 // 환경변수 설정
 dotenv.config();
 
@@ -41,10 +42,11 @@ app.use('/api/auth', authRouter);
 app.use('/api/mypc', mypcRouter)
 app.use('/api/banner', bannerRouter)
 app.use('/api/dashboard', dashboardRouter)
+app.use('/api/delivery',deliveryRouter)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 데이터베이스 연결 및 서버 실행
-sequelize.sync({force :false}) // force: false는 기존 테이블을 삭제하지 않고 유지함
+sequelize.sync({alter :false}) // force: false는 기존 테이블을 삭제하지 않고 유지함
   .then(() => {
     console.log('✅ 데이터베이스 연결 성공 및 테이블 동기화 완료!');
     

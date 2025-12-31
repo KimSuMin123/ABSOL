@@ -60,28 +60,43 @@
               </div>
             </q-card-section>
 
-            <q-card-section class="col-5 q-py-md border-left row q-col-gutter-sm items-center bg-grey-1">
-              <div class="col-6">
-                <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">단계 변경</div>
-                <q-select
-                  v-model="order.status"
-                  :options="['접수완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료']"
-                  dense outlined bg-color="white"
-                  @update:model-value="(val) => updateOrderData(order, { status: val })"
-                />
-              </div>
-              <div class="col-6">
-                <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">운송장 번호</div>
-                <q-input
-                  v-model="order.tracking_number"
-                  dense outlined bg-color="white"
-                  placeholder="입력 후 Enter"
-                  @keyup.enter="updateOrderData(order, { tracking_number: order.tracking_number })"
-                >
-                  <template v-slot:append><q-icon name="save" size="xs" color="primary" /></template>
-                </q-input>
-              </div>
-            </q-card-section>
+           <q-card-section class="col-5 q-py-md border-left row q-col-gutter-sm items-center bg-grey-1">
+  <div class="col-6">
+    <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">단계 변경</div>
+    <q-select
+      v-model="order.status"
+      :options="['접수완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료']"
+      dense outlined bg-color="white"
+      @update:model-value="(val) => updateOrderData(order, { status: val })"
+    />
+  </div>
+  
+  <div class="col-6">
+    <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">배송사 선택</div>
+    <q-select
+      v-model="order.delivery_company"
+      :options="companyOptions"
+      option-value="Code"
+      option-label="Name"
+      emit-value
+      map-options
+      dense outlined bg-color="white"
+      @update:model-value="(val) => updateOrderData(order, { delivery_company: val })"
+    />
+  </div>
+
+  <div class="col-12">
+    <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">운송장 번호</div>
+    <q-input
+      v-model="order.tracking_number"
+      dense outlined bg-color="white"
+      placeholder="입력 후 Enter"
+      @keyup.enter="updateOrderData(order, { tracking_number: order.tracking_number })"
+    >
+      <template v-slot:append><q-icon name="save" size="xs" color="primary" /></template>
+    </q-input>
+  </div>
+</q-card-section>
           </q-card-section>
         </q-card>
       </div>
@@ -157,6 +172,21 @@ const getStatusIcon = (status) => {
   const icons = { '접수완료': 'assignment', '조립중': 'build', '조립완료': 'check_circle', '상품출고': 'outbox', '배송중': 'local_shipping', '수령완료': 'home' };
   return icons[status] || 'help';
 };
+const companyOptions = ref([]);
 
-onMounted(loadOrders);
+// 택배사 리스트 로드 함수
+const loadCompanyList = async () => {
+  try {
+    const res = await axios.get('http://localhost:3000/api/delivery/companyList');
+    // 스마트택배 응답 구조인 res.data.Company 사용
+    companyOptions.value = res.data.Company || [];
+  } catch (error) {
+    console.error('택배사 목록 로드 실패');
+  }
+};
+
+onMounted(() => {
+  loadOrders();
+  loadCompanyList(); // 페이지 로드 시 택배사 리스트 호출
+});
 </script>

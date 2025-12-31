@@ -97,19 +97,32 @@ router.post('/direct', async (req, res) => {
   }
 }); // 👈 여기서 POST 라우터 닫기
 
-// 운송장 등록 및 상태 수정 (관리자용)
+// [PATCH] 주문 정보 부분 업데이트
 router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { tracking_number, status } = req.body;
-    
-    const updateData = {};
-    if (tracking_number !== undefined) updateData.tracking_number = tracking_number;
-    if (status !== undefined) updateData.status = status;
+    // 프론트엔드에서 보낸 필드들만 추출
+    const { status, tracking_number, delivery_company, is_paid } = req.body;
 
-    await Order.update(updateData, { where: { order_id: id } });
-    res.json({ success: true, message: '주문 정보 업데이트 완료' });
+    // 업데이트할 객체 동적 생성 (값이 있는 것만 업데이트)
+    const updateData = {};
+    if (status !== undefined) updateData.status = status;
+    if (tracking_number !== undefined) updateData.tracking_number = tracking_number;
+    if (delivery_company !== undefined) updateData.delivery_company = delivery_company;
+    if (is_paid !== undefined) updateData.is_paid = is_paid;
+
+    // DB 업데이트 실행
+    const result = await Order.update(updateData, {
+      where: { order_id: id }
+    });
+
+    if (result[0] > 0) {
+      res.json({ success: true, message: 'DB 업데이트 성공' });
+    } else {
+      res.status(404).json({ success: false, message: '해당 주문을 찾지 못함' });
+    }
   } catch (error) {
+    console.error('Update Error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
