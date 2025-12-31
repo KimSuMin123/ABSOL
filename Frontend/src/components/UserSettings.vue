@@ -9,7 +9,7 @@
         
         <q-card-section class="q-gutter-y-sm">
           <q-input v-model="userStore.user.login_id" label="회원번호(ID)" filled readonly />
-          <q-input v-model="editForm.name" label="성함" outlined dense />
+          <q-input v-model="editForm.name" label="성함" outlined filled readonly />
           <q-input v-model="editForm.phone" label="연락처" mask="###-####-####" outlined dense />
           <q-input v-model="editForm.address" label="주소" outlined dense type="textarea" rows="2" />
           
@@ -100,7 +100,7 @@ const planOptions = [
   { name: 'Gold', desc: 'HDD 데이터 무료 복구', price: 165000, color: 'amber-9' },
 ];
 
-// 1. 프로필 수정 로직
+// 1. 프로필 수정 로직 (성함, 연락처, 주소 업데이트)
 const updateProfile = async () => {
   if (!editForm.value.name || !editForm.value.phone) {
     $q.notify({ color: 'warning', message: '성함과 연락처를 입력해주세요.' });
@@ -109,22 +109,33 @@ const updateProfile = async () => {
 
   loading.value = true;
   try {
-    const res = await axios.put(`http://localhost:3000/api/users/${userStore.user.id}`, editForm.value);
+    // 백엔드 라우터 주소와 맞춰 PATCH 호출 (ID는 URL 파라미터로 전달)
+    const res = await axios.patch(`http://localhost:3000/api/users/${userStore.user.id}`, {
+      name: editForm.value.name,
+      phone: editForm.value.phone,
+      address: editForm.value.address
+    });
+    
     if (res.data.success) {
-      // Pinia 스토어 업데이트
+      // Pinia 스토어에 즉시 반영하여 UI 일관성 유지
       userStore.user.name = editForm.value.name;
       userStore.user.phone = editForm.value.phone;
       userStore.user.address = editForm.value.address;
       
-      $q.notify({ color: 'positive', message: '정보가 성공적으로 수정되었습니다.', icon: 'check' });
+      $q.notify({ 
+        color: 'positive', 
+        message: '개인정보가 성공적으로 수정되었습니다.', 
+        icon: 'check',
+        timeout: 1000 
+      });
     }
   } catch (e) {
-    $q.notify({ color: 'negative', message: '정보 수정 중 오류가 발생했습니다.' });
+    console.error('Profile Update Error:', e);
+    $q.notify({ color: 'negative', message: '정보 수정에 실패했습니다.' });
   } finally {
     loading.value = false;
   }
 };
-
 // 2. 멤버십 업그레이드 로직 (PATCH 사용 및 동적 색상 적용)
 const upgradePlan = (plan) => {
   if (userStore.user.level === plan.name) {
