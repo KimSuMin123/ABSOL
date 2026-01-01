@@ -49,7 +49,7 @@
             <q-card-section class="col-7 border-left row q-col-gutter-sm items-start q-pa-md">
               <div class="col-3">
                 <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">수리 방식</div>
-                <q-select v-model="repair.repair_type" :options="['수리', '방문수리', '수리불가']" dense outlined bg-color="white" @update:model-value="(val) => updateRepair(repair, 'type', val)" />
+                <q-select v-model="repair.repair_type" :options="['방문수리', '수리불가']" dense outlined bg-color="white" @update:model-value="(val) => updateRepair(repair, 'type', val)" />
               </div>
 
               <div class="col-3">
@@ -108,7 +108,7 @@ const filteredRepairs = computed(() => {
 });
 
 const statusMap = {
-  '수리': ['접수완료', '수리중', '수리완료', '배송중', '수령완료'],
+  //'수리': ['접수완료', '수리중', '수리완료', '배송중', '수령완료'],
   '방문수리': ['접수완료', '센터입고', '수리중', '수리완료', '배송중', '수령완료'],
   '수리불가': ['접수완료', '수리불가판정', '반송중', '수령완료']
 };

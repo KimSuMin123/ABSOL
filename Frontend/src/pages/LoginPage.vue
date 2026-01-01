@@ -73,15 +73,20 @@ const handleLogin = async () => {
   }
   try {
     const res = await axios.post('http://localhost:3000/api/auth/login', loginData.value);
+    
     if (res.data.success) {
       authStore.login(res.data.user, res.data.token);
       $q.notify({ color: 'blue-7', message: `${res.data.user.name}님 환영합니다!`, icon: 'check' });
       
-      // [핵심 수정] 로그인 성공 시 무조건 /order 페이지로 이동
-      // 관리자 여부와 관계없이 상품구매(order) 페이지로 보냅니다.
-      router.push('/order'); 
+      // 관리자 여부 체크 (DB의 역할 필드명이 role이라고 가정)
+      // 만약 필드명이 isAdmin(boolean)이라면 res.data.user.isAdmin === true 등으로 체크하세요.
+      if (res.data.user.login_id === 'admin') {
+        router.push('/admin'); // 관리자 페이지로 이동
+      } else {
+        router.push('/order'); // 일반 사용자 페이지로 이동
+      }
     }
-  } catch (error) {
+  }catch (error) {
     $q.notify({ color: 'red-7', message: '로그인 정보가 일치하지 않습니다.' });
   }
 };

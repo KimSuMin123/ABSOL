@@ -63,13 +63,9 @@
           />
 
           <div class="q-py-xs">
-            <div class="text-subtitle2 q-mb-none">수리 방식 선택 <span class="text-red">*</span></div>
-            <div class="row q-gutter-x-md">
-              <q-radio v-model="form.repair_type" val="수리" label="매장 방문" color="primary" dense />
-              <q-radio v-model="form.repair_type" val="방문수리" label="출장 수리" color="red-7" dense />
-            </div>
-            <div v-if="form.repair_type === '방문수리'" class="text-caption text-red-6 q-mt-xs text-weight-medium">
-              <q-icon name="info" size="xs" /> 추가 비용(1만원~3만원)이 발생할 수 있습니다. 
+          
+            <div class="text-caption text-red-6 q-mt-xs text-weight-medium">
+              <q-icon name="info" size="xs" /> 출장 수리로 진행되어 출장비(1만원~3만원)이 발생할 수 있습니다. 
             </div>
           </div>
 
