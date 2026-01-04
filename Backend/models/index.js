@@ -4,9 +4,18 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.js')[env]; // DB 설정 정보
 const db = {};
 
-// 1. Sequelize 인스턴스 생성 (DB 연결)
-const sequelize = new Sequelize(config.database, config.username, config.password, config);
 
+// models/index.js 예시
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+  host: process.env.DB_HOST,
+  dialect: 'mysql', // 혹은 'postgres'
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false // 클라우드 DB 연결 시 필수인 경우가 많음
+    }
+  }
+});
 // 2. 각 모델 파일을 불러와서 db 객체에 담기
 // (각 파일에서 module.exports = (sequelize, DataTypes) => { ... } 로 정의했을 때)
 db.User = require('./Users')(sequelize, Sequelize);
