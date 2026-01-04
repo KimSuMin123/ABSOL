@@ -57,12 +57,12 @@ router.get('/customer/:phone', async (req, res) => {
   }
 });
 // 바로 구매하기: POST /api/orders/direct
+// 바로 구매하기/결제 전 주문 생성: POST /api/orders/direct
 router.post('/direct', async (req, res) => {
-  const t = await sequelize.transaction(); // 트랜잭션 시작
+  const t = await sequelize.transaction();
   try {
-    // 1. req.body에서 user_id를 반드시 받아옵니다.
     const { 
-      user_id, // 👈 프론트엔드에서 보낸 user_id 추가
+      user_id, 
       product_id, 
       customer_name, 
       phone, 
@@ -71,32 +71,45 @@ router.post('/direct', async (req, res) => {
       product_name 
     } = req.body;
 
-    // 2. 재고 확인 및 차감
-    const product = await Product.findByPk(product_id, { transaction: t });
-    if (!product || product.stock <= 0) {
-      throw new Error('재고가 부족하여 주문할 수 없습니다.');
-    }
-    await product.decrement('stock', { by: 1, transaction: t });
+    // 1. [해결책] 토스 결제창과 매칭할 유니크한 toss_order_id 생성
+    const tossOrderId = `ORDER_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
-    // 3. 주문 내역 생성 (user_id 포함)
+    // 2. 재고 확인 (단일 상품인 경우)
+    if (product_id) {
+      const product = await Product.findByPk(product_id, { transaction: t });
+      if (!product || product.stock <= 0) {
+        throw new Error('재고가 부족하여 주문할 수 없습니다.');
+      }
+      // 재고 차감 (결제 성공 시 차감하고 싶다면 confirm으로 옮기셔도 됩니다)
+      await product.decrement('stock', { by: 1, transaction: t });
+    }
+
+    // 3. [해결책] 모델 정의에 맞춰 필수값 포함하여 주문 생성
     const newOrder = await Order.create({
-      user_id, // 👈 DB에 로그인한 유저 ID가 저장됩니다.
+      user_id: user_id || null,
       product_name,
       customer_name,
       phone,
       address,
       total_price,
-      is_paid: true,
-      status: '접수완료' // 기본 상태값 추가
+      toss_order_id: tossOrderId, // 👈 필수! 이게 없어서 INSERT가 안됐던 것임
+      is_paid: false,             // 👈 결제 전이므로 false가 맞음
+      status: '접수완료'           // 모델의 ENUM 값 중 하나
     }, { transaction: t });
 
-    await t.commit(); // 트랜잭션 확정
-    res.status(201).json({ success: true, message: '주문 성공', order_id: newOrder.order_id });
+    await t.commit();
+    
+    // 4. 생성된 toss_order_id를 프론트로 돌려줌
+    res.status(201).json({ 
+      success: true, 
+      toss_order_id: tossOrderId 
+    });
   } catch (error) {
-    await t.rollback(); // 오류 시 롤백
+    if (t) await t.rollback();
+    console.error('주문 생성 에러:', error);
     res.status(500).json({ success: false, message: error.message });
   }
-}); // 👈 여기서 POST 라우터 닫기
+});
 
 // [PATCH] 주문 정보 부분 업데이트
 router.patch('/:id', async (req, res) => {
@@ -141,15 +154,14 @@ router.get('/user/:user_id', async (req, res) => {
   }
 });
 router.post('/confirm', async (req, res) => {
-  const { paymentKey, orderId, amount } = req.body;
-  const secretKey = 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6'; // 본인의 시크릿 키로 변경 권장
-
+  const { paymentKey, orderId, amount } = req.body; // orderId는 'ORDER_1767514177687' 형태
+  const secretKey = 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6'; 
   const encryptedSecretKey = Buffer.from(secretKey + ':').toString('base64');
 
-  const t = await sequelize.transaction(); // 안전한 처리를 위해 트랜잭션 사용
+  const t = await sequelize.transaction();
   try {
-    // 1. 토스페이먼츠 API로 승인 요청
-    const response = await axios.post(
+    // 1. 토스페이먼츠 최종 승인 요청
+    await axios.post(
       'https://api.tosspayments.com/v1/payments/confirm',
       { paymentKey, orderId, amount },
       {
@@ -160,38 +172,36 @@ router.post('/confirm', async (req, res) => {
       }
     );
 
-    // 2. 승인 성공 시 DB 작업
-    // 만약 orderId(ORDER_59gjpra57)가 DB의 order_id와 다르다면, 
-    // 모델에 toss_order_id 같은 컬럼을 추가해서 조회해야 합니다.
-    // 여기서는 일단 'order_id' 컬럼이 해당 문자열을 받는다고 가정하거나, 
-    // 다른 고유 식별자로 매칭해야 합니다.
-    
-    await Order.update(
-      { 
-        is_paid: true, 
-        status: '접수완료',
-        // 만약 모델에 paymentKey 컬럼을 만드셨다면 추가: 
-        // tracking_number: paymentKey (또는 별도 컬럼)
-      }, 
-      { 
-        where: { 
-          // 만약 orderId가 문자열(ORDER_...)이면 DB의 해당 컬럼과 매칭
-          // 예: order_id: orderId (PK가 문자열인 경우) 
-          // 혹은 별도의 고유번호 컬럼 사용
-          order_id: orderId.replace('ORDER_', '') // 예시: 숫자만 추출할 경우
-        },
-        transaction: t 
-      }
-    );
+    // 2. [핵심] toss_order_id 컬럼으로 주문을 찾습니다.
+    const order = await Order.findOne({ 
+      where: { toss_order_id: orderId }, 
+      transaction: t 
+    });
+
+    if (!order) {
+      console.error(`❌ 주문 매칭 실패: toss_order_id가 ${orderId}인 주문이 없습니다.`);
+      throw new Error('주문 정보를 찾을 수 없습니다.');
+    }
+
+    // 3. 주문 정보 업데이트 (이제 order.order_id를 사용할 수 있습니다)
+    await order.update({
+      is_paid: true,
+      status: '접수완료', // 결제가 완료되었으므로 접수 완료로 변경
+      payment_key: paymentKey
+    }, { transaction: t });
 
     await t.commit();
-    res.status(200).json({ success: true, data: response.data });
+    
+    // 응답 시 DB의 진짜 ID(order_id)를 함께 보내주면 프론트에서 관리하기 편합니다.
+    res.status(200).json({ 
+      success: true, message: '결제 승인 성공',
+      db_id: order.order_id 
+    });
 
   } catch (error) {
-    await t.rollback();
-    const errorData = error.response?.data || { message: error.message };
-    console.error('결제 승인 실패:', errorData);
-    res.status(error.response?.status || 500).json(errorData);
+    if (t) await t.rollback();
+    console.error('결제 처리 오류:', error.message);
+    res.status(500).json({ message: error.message });
   }
 });
 module.exports = router;

@@ -27,29 +27,39 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import axios from 'axios'
+import { useCartStore } from '../stores/cart'
 
 const route = useRoute()
+const router = useRouter()
+const $q = useQuasar()
+const cartStore = useCartStore()
+
 const loading = ref(true)
 const isSuccess = ref(false)
-const errorMessage = ref('')
 
 onMounted(async () => {
   try {
-    // URL에 포함된 정보를 백엔드로 전달하여 '최종 승인'을 받음
+    // 쿼리 파라미터 확인 (토스에서 보내줌)
+    const { paymentKey, orderId, amount } = route.query
+
+    // 백엔드 confirm API 호출
     const response = await axios.post('http://localhost:3000/api/orders/confirm', {
-      paymentKey: route.query.paymentKey,
-      orderId: route.query.orderId,
-      amount: route.query.amount,
+      paymentKey,
+      orderId,
+      amount
     })
 
-    if (response.status === 200) {
+    if (response.data.success) {
       isSuccess.value = true
+   
+      $q.notify({ type: 'positive', message: '결제가 완료되었습니다!' })
     }
   } catch (err) {
+    console.error(err)
     isSuccess.value = false
-    errorMessage.value = err.response?.data?.message || '승인 처리 중 오류가 발생했습니다.'
   } finally {
     loading.value = false
   }

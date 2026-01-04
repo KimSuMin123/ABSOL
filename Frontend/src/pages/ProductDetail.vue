@@ -77,7 +77,13 @@
 
         <q-card-actions align="right" class="q-pa-md">
           <q-btn flat label="취소" v-close-popup color="grey-7" />
-          <q-btn color="primary" label="결제 및 주문하기" :loading="submitting" @click="processPurchase" />
+           <q-btn 
+  color="primary" 
+  label="주문하기" 
+  class="full-width q-mt-md" 
+  size="lg" 
+  @click=goToPayment
+/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -189,7 +195,25 @@ const processPurchase = async () => {
     submitting.value = false;
   }
 };
+const goToPayment = () => {
+if (!orderForm.value.customer_name || !orderForm.value.phone || !orderForm.value.address) {
+    $q.notify({ color: 'negative', message: '배송 정보를 모두 입력해주세요.' });
+    return;
+  }
 
+  // 에러 발생 지점 수정: setDirectOrder -> setPendingOrder (스토어 함수명과 일치)
+  cartStore.setPendingOrder({
+    product_id: product.value.product_id,
+    product_name: product.value.product_name,
+    product_price: product.value.product_price,
+    customer_name: orderForm.value.customer_name,
+    phone: orderForm.value.phone,
+    address: `(${orderForm.value.postcode}) ${orderForm.value.address} ${orderForm.value.detailAddress}`
+  });
+
+  // 결제 페이지로 이동
+  router.push({ path: '/pay', query: { mode: 'direct' } });
+};
 const loadProductDetail = async () => {
   loading.value = true;
   try {
