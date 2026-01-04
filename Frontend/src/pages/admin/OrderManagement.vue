@@ -46,8 +46,12 @@
                 <q-badge :color="getStatusColor(order.status)" class="q-mr-sm">{{ order.status }}</q-badge>
                 <div class="text-h6 text-weight-bold ellipsis">{{ order.product_name }}</div>
               </div>
-              <div class="text-subtitle2 text-primary">#{{ order.order_id }} | {{ order.customer_name }}</div>
+              <div class="text-subtitle2 text-primary">내부 주문 번호 : {{ order.order_id }}</div>
+             <div class="text-caption text-grey-7">주문자 이름 : {{ order.customer_name }}</div>
               <div class="text-caption text-grey-7"><q-icon name="phone" size="xs" /> {{ order.phone }}</div>
+                 <div class="text-caption text-grey-7">토스 주문 아이디 : {{ order.toss_order_id }}</div>
+                    <div class="text-caption text-grey-7">토스 결제 키 : {{ order.payment_key }}</div>
+
             </q-card-section>
 
             <q-card-section class="col-2 q-py-md flex flex-center border-left">
