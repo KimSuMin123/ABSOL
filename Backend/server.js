@@ -22,10 +22,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 미들웨어 설정
-app.use(cors({
-  origin: ['https://absol.onrender.com', 'http://localhost:5173'], // 프론트 배포 주소 추가
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json()); // JSON 데이터 파싱
 app.use(express.urlencoded({ extended: true }));
 
