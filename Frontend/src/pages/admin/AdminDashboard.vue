@@ -45,11 +45,7 @@
           :pagination="{ rowsPerPage: 5 }"
           class="bg-white"
         >
-          <template v-slot:body-cell-action="props">
-            <q-td :props="props">
-              <q-btn size="sm" flat color="primary" icon="launch" @click="$router.push('/admin/orders')" />
-            </q-td>
-          </template>
+    
         </q-table>
       </div>
 
@@ -89,10 +85,21 @@ const stats = ref({ todayRevenue: 0, newOrderCount: 0, newRepairCount: 0, newEst
 const lists = ref({ newOrders: [], newRepairs: [], newEstimates: [] });
 
 // 테이블 컬럼 정의
+// 테이블 컬럼 정의 수정
 const orderCols = [
-  { name: 'customer_name', label: '고객명', field: 'customer_name', align: 'left' },{ name: 'product_name', label: '제품명', align: 'product_name' },
-  { name: 'total_price', label: '금액', field: row => `${row.total_price.toLocaleString()}원`, align: 'right' },
-  
+  { name: 'customer_name', label: '고객명', field: 'customer_name', align: 'left' },
+  { 
+    name: 'product_name', 
+    label: '제품명', 
+    field: 'product_name', 
+    align: 'left'
+  },
+  { 
+    name: 'total_price', 
+    label: '금액', 
+    field: row => row.total_price ? `${row.total_price.toLocaleString()}원` : '0원', 
+    align: 'right' 
+  },
 ];
 
 const repairCols = [
