@@ -79,11 +79,12 @@ import { ref } from 'vue';
 import { useUserStore } from '../stores/user';
 import { useQuasar } from 'quasar';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 const userStore = useUserStore();
 const $q = useQuasar();
 const loading = ref(false);
-
+const router = useRouter();
 // 초기값 설정 (스토어 데이터 복제)
 const editForm = ref({
   name: userStore.user.name,
@@ -143,33 +144,29 @@ const upgradePlan = (plan) => {
     return;
   }
 
+  // 결제 전 최종 확인 다이얼로그
   $q.dialog({
-    title: `<span class="text-${plan.color} text-weight-bolder">${plan.name} 등급 업그레이드</span>`,
-    message: `선택하신 [${plan.name}] 등급으로 변경하시겠습니까?<br>결제 예정 금액: <b>${plan.price.toLocaleString()}원</b>`,
+    title: `<span class="text-${plan.color} text-weight-bolder">${plan.name} 멤버십 결제</span>`,
+    message: `
+      <div class="q-py-sm">
+        <div class="text-subtitle2">신청 등급: ${plan.name}</div>
+        <div class="text-subtitle2">결제 금액: <b>${plan.price.toLocaleString()}원</b></div>
+        <div class="text-caption text-grey-7 q-mt-sm">* 멤버십 혜택은 결제 완료 즉시 적용됩니다.</div>
+      </div>
+    `,
     html: true,
-    cancel: { label: '취소', flat: true },
-    ok: { label: '확인', color: plan.color, unelevated: true },
-    persistent: true
-  }).onOk(async () => {
-    try {
-      // 등급만 변경하므로 PATCH 메서드 호출
-      const res = await axios.patch(`http://localhost:3000/api/users/${userStore.user.id}/level`, {
-        level: plan.name
-      });
-      
-      if (res.data.success) {
-        userStore.user.level = plan.name; 
-        
-        $q.notify({ 
-          color: plan.color, 
-          message: `${plan.name} 등급으로 변경되었습니다!`, 
-          icon: 'stars',
-          position: 'top'
-        });
+    cancel: true,
+    ok: { label: '결제하기', color: plan.color, unelevated: true }
+  }).onOk(() => {
+    // 결제 페이지(Pay.vue)로 이동하면서 멤버십 정보 전달
+    router.push({
+      path: '/pay',
+      query: {
+        mode: 'membership',
+        level: plan.name,
+        price: plan.price
       }
-    } catch (e) {
-      $q.notify({ color: 'negative', message: '멤버십 변경 중 오류가 발생했습니다.' });
-    }
+    });
   });
 };
 </script>

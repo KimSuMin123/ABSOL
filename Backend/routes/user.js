@@ -94,11 +94,20 @@ router.post('/register', async (req, res) => {
  * 3. 회원 등급 수정 (Admin용)
  * PATCH /api/users/:id/level
  */
-router.patch('/:id/level', async (req, res) => {
+router.patch('/users/:id/level', async (req, res) => {
   try {
     const { level } = req.body;
-    await User.update({ level }, { where: { user_id: req.params.id } });
-    res.json({ success: true, message: '회원 등급이 변경되었습니다.' });
+    // User 모델의 Primary Key 컬럼명이 'id'인지 'user_id'인지 확인 후 수정
+    const result = await User.update(
+      { level }, 
+      { where: { id: req.params.id } } // 또는 user_id: req.params.id
+    );
+    
+    if (result[0] > 0) {
+      res.json({ success: true, message: '회원 등급이 변경되었습니다.' });
+    } else {
+      res.status(404).json({ success: false, message: '유저를 찾지 못했습니다.' });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

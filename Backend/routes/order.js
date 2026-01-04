@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Order, Product, sequelize } = require('../models');
+const { Order, Product, sequelize,User } = require('../models');
 const { Op } = require('sequelize'); // 검색을 위한 연산자 추가
 const axios = require('axios');
 /**
@@ -153,55 +153,72 @@ router.get('/user/:user_id', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+// routes/orders.js (또는 해당 결제 라우터)
+// routes/orders.js (또는 관련 라우터 파일)
+// routes/orders.js
 router.post('/confirm', async (req, res) => {
-  const { paymentKey, orderId, amount } = req.body; // orderId는 'ORDER_1767514177687' 형태
+  const { paymentKey, orderId, amount, targetLevel } = req.body;
+  
+  // 1. 토스 시크릿 키 설정 (시크릿 키 뒤에 콜론 ':'을 붙여야 401 에러를 방지합니다)
   const secretKey = 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6'; 
-  const encryptedSecretKey = Buffer.from(secretKey + ':').toString('base64');
+  const authToken = Buffer.from(secretKey + ':').toString('base64');
 
-  const t = await sequelize.transaction();
   try {
-    // 1. 토스페이먼츠 최종 승인 요청
+    // 2. 토스 승인 요청
     await axios.post(
       'https://api.tosspayments.com/v1/payments/confirm',
       { paymentKey, orderId, amount },
       {
         headers: {
-          Authorization: `Basic ${encryptedSecretKey}`,
+          Authorization: `Basic ${authToken}`,
           'Content-Type': 'application/json',
         },
       }
     );
 
-    // 2. [핵심] toss_order_id 컬럼으로 주문을 찾습니다.
-    const order = await Order.findOne({ 
-      where: { toss_order_id: orderId }, 
-      transaction: t 
-    });
+    // 3. DB 업데이트를 위한 트랜잭션 시작
+    const t = await sequelize.transaction();
+    try {
+      if (orderId.startsWith('MEMBERSHIP')) {
+        // orderId 형식: MEMBERSHIP_1_1700000000000 (MEMBERSHIP_유저ID_타임스탬프)
+        const userId = orderId.split('_')[1];
+        
+        // 상단에서 User를 import 했으므로 이제 'User is not defined' 에러가 나지 않습니다.
+        const user = await User.findByPk(userId); 
+        if (!user) throw new Error('해당 유저를 DB에서 찾을 수 없습니다.');
 
-    if (!order) {
-      console.error(`❌ 주문 매칭 실패: toss_order_id가 ${orderId}인 주문이 없습니다.`);
-      throw new Error('주문 정보를 찾을 수 없습니다.');
+        // 유저 등급 업데이트
+        await user.update({ level: targetLevel }, { transaction: t });
+      } else {
+        // 일반 주문(DIRECT/CART) 처리
+        const order = await Order.findOne({ where: { toss_order_id: orderId }, transaction: t });
+        if (order) {
+          await order.update({ 
+            is_paid: true, 
+            status: '접수완료', 
+            payment_key: paymentKey 
+          }, { transaction: t });
+        } else {
+          throw new Error('주문 내역을 찾을 수 없습니다.');
+        }
+      }
+
+      await t.commit();
+      res.json({ success: true });
+    } catch (dbErr) {
+      await t.rollback();
+      throw dbErr;
     }
-
-    // 3. 주문 정보 업데이트 (이제 order.order_id를 사용할 수 있습니다)
-    await order.update({
-      is_paid: true,
-      status: '접수완료', // 결제가 완료되었으므로 접수 완료로 변경
-      payment_key: paymentKey
-    }, { transaction: t });
-
-    await t.commit();
+  } catch (err) {
+    console.error('--- 결제 승인 최종 실패 ---');
+    // 토스 API 응답 에러인지, 코드 문법 에러인지 상세히 출력
+    console.error(err.response?.data || err.message); 
     
-    // 응답 시 DB의 진짜 ID(order_id)를 함께 보내주면 프론트에서 관리하기 편합니다.
-    res.status(200).json({ 
-      success: true, message: '결제 승인 성공',
-      db_id: order.order_id 
+    res.status(500).json({ 
+      success: false, 
+      message: err.response?.data?.message || err.message 
     });
-
-  } catch (error) {
-    if (t) await t.rollback();
-    console.error('결제 처리 오류:', error.message);
-    res.status(500).json({ message: error.message });
   }
 });
+
 module.exports = router;
