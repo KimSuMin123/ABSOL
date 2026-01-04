@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Order, Product, sequelize } = require('../models');
 const { Op } = require('sequelize'); // 검색을 위한 연산자 추가
+const axios = require('axios');
 /**
  * 1. 주문 이력 전체 조회 및 검색 (고객명, 연락처, 상품명)
  * GET /api/orders
@@ -139,5 +140,58 @@ router.get('/user/:user_id', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+router.post('/confirm', async (req, res) => {
+  const { paymentKey, orderId, amount } = req.body;
+  const secretKey = 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6'; // 본인의 시크릿 키로 변경 권장
 
+  const encryptedSecretKey = Buffer.from(secretKey + ':').toString('base64');
+
+  const t = await sequelize.transaction(); // 안전한 처리를 위해 트랜잭션 사용
+  try {
+    // 1. 토스페이먼츠 API로 승인 요청
+    const response = await axios.post(
+      'https://api.tosspayments.com/v1/payments/confirm',
+      { paymentKey, orderId, amount },
+      {
+        headers: {
+          Authorization: `Basic ${encryptedSecretKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    // 2. 승인 성공 시 DB 작업
+    // 만약 orderId(ORDER_59gjpra57)가 DB의 order_id와 다르다면, 
+    // 모델에 toss_order_id 같은 컬럼을 추가해서 조회해야 합니다.
+    // 여기서는 일단 'order_id' 컬럼이 해당 문자열을 받는다고 가정하거나, 
+    // 다른 고유 식별자로 매칭해야 합니다.
+    
+    await Order.update(
+      { 
+        is_paid: true, 
+        status: '접수완료',
+        // 만약 모델에 paymentKey 컬럼을 만드셨다면 추가: 
+        // tracking_number: paymentKey (또는 별도 컬럼)
+      }, 
+      { 
+        where: { 
+          // 만약 orderId가 문자열(ORDER_...)이면 DB의 해당 컬럼과 매칭
+          // 예: order_id: orderId (PK가 문자열인 경우) 
+          // 혹은 별도의 고유번호 컬럼 사용
+          order_id: orderId.replace('ORDER_', '') // 예시: 숫자만 추출할 경우
+        },
+        transaction: t 
+      }
+    );
+
+    await t.commit();
+    res.status(200).json({ success: true, data: response.data });
+
+  } catch (error) {
+    await t.rollback();
+    const errorData = error.response?.data || { message: error.message };
+    console.error('결제 승인 실패:', errorData);
+    res.status(error.response?.status || 500).json(errorData);
+  }
+});
 module.exports = router;

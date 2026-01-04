@@ -15,6 +15,13 @@ module.exports = (sequelize, DataTypes) => {
     status: { 
       type: DataTypes.ENUM('접수완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료'), 
       defaultValue: '접수완료' 
+    },toss_order_id: { // 토스 결제창에 보냈던 'ORDER_59gjpra57' 저장용
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },payment_key: { // 결제 승인 후 받는 고유 키 (환불 시 필요)
+      type: DataTypes.STRING,
+      allowNull: true
     }
   });
 };

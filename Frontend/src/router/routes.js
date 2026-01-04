@@ -12,7 +12,9 @@ const routes = [
       { path: 'order', component: () => import('../pages/ProductList.vue'), meta: { requiresAuth: true } },
       { path: 'product/:id', component: () => import('../pages/ProductDetail.vue'), name: 'product-detail', meta: { requiresAuth: true } },
       { path: 'cart', component: () => import('../pages/CartPage.vue'), meta: { requiresAuth: true } },
-      { path: 'mypage', component: () => import('../pages/MyPage.vue'), meta: { requiresAuth: true } }
+      { path: 'mypage', component: () => import('../pages/MyPage.vue'), meta: { requiresAuth: true } },
+       { path: 'pay', component: () => import('../components/Payment.vue'), meta: { requiresAuth: true } },
+              { path: 'success', component: () => import('../components/SuccessView.vue'), meta: { requiresAuth: true } },
     ]
   },
 

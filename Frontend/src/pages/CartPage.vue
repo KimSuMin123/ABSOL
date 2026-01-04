@@ -33,7 +33,13 @@
             <div class="text-h6">총 결제 금액</div>
             <div class="text-h5 text-primary text-weight-bolder">{{ cartStore.totalPrice.toLocaleString() }}원</div>
           </div>
-          <q-btn color="primary" label="주문하기" class="full-width q-mt-md" size="lg" />
+          <q-btn 
+  color="primary" 
+  label="주문하기" 
+  class="full-width q-mt-md" 
+  size="lg" 
+  @click="$router.push('/pay')" 
+/>
         </q-card>
       </div>
     </div>
