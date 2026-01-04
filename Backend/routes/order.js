@@ -63,7 +63,8 @@ router.post('/direct', async (req, res) => {
   try {
     const { 
       user_id, 
-      product_id, 
+      product_id,    // 바로구매용
+      cartItems,     // 장바구니용 (배열)
       customer_name, 
       phone, 
       address, 
@@ -71,42 +72,45 @@ router.post('/direct', async (req, res) => {
       product_name 
     } = req.body;
 
-    // 1. [해결책] 토스 결제창과 매칭할 유니크한 toss_order_id 생성
     const tossOrderId = `ORDER_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
-    // 2. 재고 확인 (단일 상품인 경우)
+    // --- 재고 차감 로직 ---
+    
+    // 1. 바로구매(단일)일 경우
     if (product_id) {
       const product = await Product.findByPk(product_id, { transaction: t });
-      if (!product || product.stock <= 0) {
-        throw new Error('재고가 부족하여 주문할 수 없습니다.');
-      }
-      // 재고 차감 (결제 성공 시 차감하고 싶다면 confirm으로 옮기셔도 됩니다)
+      if (!product || product.stock <= 0) throw new Error('재고가 부족합니다.');
       await product.decrement('stock', { by: 1, transaction: t });
+    } 
+    // 2. 장바구니(여러 상품)일 경우
+    else if (cartItems && cartItems.length > 0) {
+      for (const item of cartItems) {
+        const product = await Product.findByPk(item.product_id, { transaction: t });
+        if (!product || product.stock < item.quantity) {
+          throw new Error(`[${product?.product_name || '상품'}]의 재고가 부족합니다.`);
+        }
+        // 각 상품의 수량(quantity)만큼 재고 차감
+        await product.decrement('stock', { by: item.quantity, transaction: t });
+      }
     }
 
-    // 3. [해결책] 모델 정의에 맞춰 필수값 포함하여 주문 생성
-    const newOrder = await Order.create({
+    // 주문 테이블 생성
+    await Order.create({
       user_id: user_id || null,
       product_name,
       customer_name,
       phone,
       address,
       total_price,
-      toss_order_id: tossOrderId, // 👈 필수! 이게 없어서 INSERT가 안됐던 것임
-      is_paid: false,             // 👈 결제 전이므로 false가 맞음
-      status: '접수완료'           // 모델의 ENUM 값 중 하나
+      toss_order_id: tossOrderId,
+      is_paid: false,
+      status: '접수완료'
     }, { transaction: t });
 
     await t.commit();
-    
-    // 4. 생성된 toss_order_id를 프론트로 돌려줌
-    res.status(201).json({ 
-      success: true, 
-      toss_order_id: tossOrderId 
-    });
+    res.status(201).json({ success: true, toss_order_id: tossOrderId });
   } catch (error) {
     if (t) await t.rollback();
-    console.error('주문 생성 에러:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
