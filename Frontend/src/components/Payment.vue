@@ -68,16 +68,18 @@ const isDirect = computed(() => route.query.mode === 'direct')
 
 // [변경] 주문 명칭 계산 (바로구매 데이터 우선)
 const orderTitle = computed(() => {
+  // 1. 바로 구매(단일 상품)인 경우
   if (isDirect.value && cartStore.pendingOrder) {
-    return cartStore.pendingOrder.product_name
+    return cartStore.pendingOrder.product_name;
   }
   
-  if (cartStore.items.length === 0) return '상품 정보 없음'
-  const firstItem = cartStore.items[0].product_name
-  return cartStore.items.length > 1 
-    ? `${firstItem} 외 ${cartStore.items.length - 1}건` 
-    : firstItem
-})
+  // 2. 장바구니 결제인 경우
+  if (cartStore.items.length === 0) return '상품 정보 없음';
+
+  // 장바구니의 모든 아이템 이름을 배열로 만든 뒤 ', '로 연결
+  // 예: "RTX 4060, Intel i7-14700K, DDR5 16GB"
+  return cartStore.items.map(item => item.product_name).join(', ');
+});
 
 // [변경] 결제 금액 계산 (바로구매 데이터 우선)
 const totalAmount = computed(() => {
