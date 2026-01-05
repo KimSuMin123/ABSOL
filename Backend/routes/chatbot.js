@@ -37,19 +37,26 @@ if (message.includes('시간') || message.includes('영업')) {
     });
   }
 
-  const keywords = message
-    .replace(/(은|는|이|가|을|를)(\s|$)/g, ' ') // 조사를 공백으로 치환
-    .trim()
-    .split(/\s+/) // 공백 기준으로 나눠서 배열로 만듦
-    .filter(k => k.length > 0); // 빈 문자열 제거
+// routes/chatbot.js 수정 부분
 
-  console.log(`원본 메시지: ${message} -> 추출된 키워드 배열:`, keywords);
+const rawKeywords = message
+  .replace(/(은|는|이|가|을|를|이요|있나요|있어|있니|해줘|알려줘|주세요)(\s|$)/g, ' ') 
+  .trim()
+  .split(/\s+/);
 
+// [추가] 검색에서 제외할 단어들 (불용어 리스트)
+const stopWords = ['추천', '검색', '찾아', '상품', '제품', '가격', '얼마'];
 
-// 3. 모든 키워드에 대해 다중 컬럼 검색 쿼리 생성
-  // 각 단어가 [상품명, 설명, 스펙] 중 어디라도 걸리면 가져옴
+const keywords = rawKeywords
+  .filter(k => k.length > 0 && !stopWords.includes(k)); // 불용어 제외
+
+console.log(`최종 추출된 키워드:`, keywords);
+  if (keywords.length === 0) {
+    return res.json({ type: 'text', content: '어떤 제품을 찾으시나요? 키워드를 입력해주세요!' });
+  }
+
   try {
-    const searchConditions = keywords.map(word => ({
+    const andConditions = keywords.map(word => ({
       [Op.or]: [
         { product_name: { [Op.like]: `%${word}%` } },
         { description: { [Op.like]: `%${word}%` } },
@@ -57,22 +64,35 @@ if (message.includes('시간') || message.includes('영업')) {
       ]
     }));
 
-    const products = await Product.findAll({
-      where: {
-        [Op.or]: searchConditions // 생성된 조건들을 다시 OR로 묶음
-      },
-      limit: 6 // 여러 단어 검색이므로 결과가 많을 수 있어 조금 늘림
+    let products = await Product.findAll({
+      where: { [Op.and]: andConditions }, // 모든 키워드가 만족해야 함
+      limit: 6
     });
 
+    // 2. [OR 조건] AND 결과가 없을 경우 각각의 키워드로 검색
+    if (products.length === 0 && keywords.length > 1) {
+      console.log('AND 검색 결과 없음 -> OR 검색으로 전환');
+      products = await Product.findAll({
+        where: { [Op.or]: andConditions }, // 키워드 중 하나라도 포함되면 됨
+        limit: 6
+      });
+    }
+
+    // 3. 응답 처리
     if (products.length > 0) {
-      return res.json({ type: 'products', content: products });
+      return res.json({ 
+        type: 'products', 
+        content: products,
+        message: products.length === keywords.length ? '정확한 검색 결과입니다.' : '관련 상품들을 추천해 드려요!'
+      });
     } else {
       const searchAll = keywords.join(', ');
       return res.json({ 
         type: 'text', 
-        content: `'${searchAll}' 관련 제품을 찾지 못했습니다.\n다른 단어로 검색해보시겠어요?` 
+        content: `'${searchAll}' 관련 제품을 찾지 못했습니다.\n단어를 줄여서 검색해 보시겠어요?` 
       });
     }
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: '검색 중 오류 발생' });
