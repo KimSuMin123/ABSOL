@@ -133,6 +133,9 @@ const handlePayment = async () => {
     
     // 1. 멤버십은 별도의 주문 생성 없이 토스 전용 ID 생성 (또는 전용 API 호출)
     if (currentMode.value === 'MEMBERSHIP') {
+      customer_name: currentMode.value === 'MEMBERSHIP' 
+        ? (userStore.user?.name || '구매자') 
+        : (currentMode.value === 'DIRECT' ? cartStore.pendingOrder.customer_name : (userStore.user?.name || '구매자')),
       toss_order_id = `MEMBERSHIP_${userStore.user?.id}_${Date.now()}`
     } else {
       // 2. 일반 주문(Direct/Cart)은 백엔드에 주문서 먼저 생성

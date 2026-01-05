@@ -191,7 +191,19 @@ router.post('/confirm', async (req, res) => {
         // 상단에서 User를 import 했으므로 이제 'User is not defined' 에러가 나지 않습니다.
         const user = await User.findByPk(userId); 
         if (!user) throw new Error('해당 유저를 DB에서 찾을 수 없습니다.');
-
+// [추가] 멤버십 주문 이력을 Order 테이블에 생성
+        await Order.create({
+          user_id: userId,
+          product_name: `${targetLevel} 멤버십 업그레이드`,
+          total_price: amount,
+          customer_name: user.name || '회원',
+          phone: user.phone,
+          address: user.address || '멤버십 결제(디지털)',
+          toss_order_id: orderId,
+          payment_key: paymentKey,
+          is_paid: true,
+          status: '접수완료'
+        }, { transaction: t });
         // 유저 등급 업데이트
         await user.update({ level: targetLevel }, { transaction: t });
       } else {
