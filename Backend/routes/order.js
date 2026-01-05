@@ -75,7 +75,7 @@ router.post('/direct', async (req, res) => {
     const tossOrderId = `ORDER_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
     // --- 재고 차감 로직 ---
-    
+    console.log('받은 cartItems 데이터:', JSON.stringify(cartItems, null, 2));
     // 1. 바로구매(단일)일 경우
     if (product_id) {
       const product = await Product.findByPk(product_id, { transaction: t });
@@ -83,6 +83,7 @@ router.post('/direct', async (req, res) => {
       await product.decrement('stock', { by: 1, transaction: t });
     } 
     // 2. 장바구니(여러 상품)일 경우
+    
     else if (cartItems && cartItems.length > 0) {
       for (const item of cartItems) {
         const product = await Product.findByPk(item.product_id, { transaction: t });

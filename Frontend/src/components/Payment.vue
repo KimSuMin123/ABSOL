@@ -143,7 +143,8 @@ const handlePayment = async () => {
         customer_name: currentMode.value === 'DIRECT' ? cartStore.pendingOrder.customer_name : (userStore.user?.name || '구매자'),
         phone: currentMode.value === 'DIRECT' ? cartStore.pendingOrder.phone : (userStore.user?.phone || '01000000000'),
         address: currentMode.value === 'DIRECT' ? cartStore.pendingOrder.address : (userStore.user?.address || '기본배송지'),
-        product_id: currentMode.value === 'DIRECT' ? cartStore.pendingOrder.product_id : null
+        product_id: currentMode.value === 'DIRECT' ? cartStore.pendingOrder.product_id : null,
+        cartItems: currentMode.value === 'CART' ? cartStore.items : []
       }
       const res = await axios.post('http://localhost:3000/api/orders/direct', payload)
       toss_order_id = res.data.toss_order_id
