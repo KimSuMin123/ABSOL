@@ -14,7 +14,8 @@ const routes = [
       { path: 'cart', component: () => import('../pages/CartPage.vue'), meta: { requiresAuth: true } },
       { path: 'mypage', component: () => import('../pages/MyPage.vue'), meta: { requiresAuth: true } },
        { path: 'pay', component: () => import('../components/Payment.vue'), meta: { requiresAuth: true } },
-              { path: 'success', component: () => import('../components/SuccessView.vue'), meta: { requiresAuth: true } },
+      { path: 'success', component: () => import('../components/SuccessView.vue'), meta: { requiresAuth: true } },
+       { path: 'chat', component: () => import('../components/ChatBotComponent.vue'), meta: { requiresAuth: true } },
     ]
   },
 

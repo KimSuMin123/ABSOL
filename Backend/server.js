@@ -15,6 +15,7 @@ const mypcRouter = require('./routes/mypc');
 const bannerRouter = require('./routes/banner')
 const dashboardRouter =require('./routes/dashboard')
 const deliveryRouter =require('./routes/delivery')
+const chatbotRouter =require('./routes/chatbot')
 // 환경변수 설정
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use('/api/mypc', mypcRouter)
 app.use('/api/banner', bannerRouter)
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/delivery',deliveryRouter)
+app.use('/api/chatbot',chatbotRouter)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 데이터베이스 연결 및 서버 실행
