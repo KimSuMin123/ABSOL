@@ -1,19 +1,25 @@
 <template>
-  <q-card class="chatbot-card column">
-    <q-card-section class="col overflow-auto scroll">
+  <q-card class="chatbot-card column" style="max-width: 600px; margin: 0 auto; height: 800px;">
+    <q-card-section ref="scrollTarget" class="col overflow-auto scroll">
       <div v-for="(msg, index) in chatHistory" :key="index">
         <q-chat-message
           :name="msg.from === 'me' ? '나' : 'ABSOL'"
           :sent="msg.from === 'me'"
           :bg-color="msg.from === 'me' ? 'amber-2' : 'blue-1'"
         >
-          <div v-if="msg.type === 'text' || msg.type === 'nav'">
+          <div 
+            v-if="msg.type === 'text' || msg.type === 'nav'"
+            style="white-space: pre-line;"
+          >
             {{ msg.text }}
-            <q-btn v-if="msg.type === 'nav'" 
-                   color="primary" 
-                   label="페이지로 이동" 
-                   class="q-mt-sm full-width"
-                   @click="$router.push(msg.path)" />
+            <div v-if="msg.type === 'nav'" class="row justify-center q-mt-sm">
+              <q-btn 
+                color="primary" 
+                label="페이지로 이동" 
+                style="width: 80%;"
+                @click="$router.push(msg.path)" 
+              />
+            </div>
           </div>
 
           <div v-else-if="msg.type === 'products'" class="row q-gutter-sm">
@@ -40,13 +46,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, nextTick } from 'vue' // watch와 nextTick 추가
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const router = useRouter()
 const userInput = ref('')
-const chatHistory = ref([{ from: 'bot', type: 'text', text: '안녕하세요! 부품 검색이나 수리/견적 문의를 도와드릴까요?' }])
+const scrollTarget = ref(null) // 스크롤 대상 ref 선언
+
+const chatHistory = ref([{ from: 'bot', type: 'text', text: '안녕하세요!\n부품 검색이나 수리/견적 문의를 도와드릴까요?' }])
+
+// 3. 메시지 배열이 바뀔 때마다 스크롤을 아래로 내리는 감시자(watch)
+watch(chatHistory, async () => {
+  await nextTick() // DOM 업데이트가 완료될 때까지 대기
+  if (scrollTarget.value) {
+    // 스크롤 대상의 엘리먼트에 직접 접근하여 위치 조정
+    const el = scrollTarget.value.$el
+    el.scrollTop = el.scrollHeight
+  }
+}, { deep: true }) // 배열 내부 객체 변화까지 감지
 
 const handleSend = async () => {
   if (!userInput.value.trim()) return
@@ -65,7 +83,18 @@ const handleSend = async () => {
       chatHistory.value.push({ from: 'bot', type: 'text', text: data.content })
     }
   } catch (err) {
-    chatHistory.value.push({ from: 'bot', type: 'text', text: '오류가 발생했습니다.' })
+    chatHistory.value.push({ from: 'bot', type: 'text', text: '오류가 발생했습니다.\n서버 상태를 확인해주세요.' })
   }
 }
 </script>
+
+<style scoped>
+.chatbot-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+/* 부드러운 스크롤 효과 추가 */
+.scroll {
+  scroll-behavior: smooth;
+}
+</style>
