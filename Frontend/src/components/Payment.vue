@@ -67,21 +67,27 @@ const currentMode = computed(() => {
   return 'CART' // 기본값: 장바구니
 })
 
-// [변경] 주문 명칭 계산 (3가지 모드 대응)
+// [변경] 주문 명칭 계산 (모든 상품명과 수량 나열)
 const orderTitle = computed(() => {
+  // 1. 단품 바로 구매 (DIRECT) 모드
   if (currentMode.value === 'DIRECT' && cartStore.pendingOrder) {
     return cartStore.pendingOrder.product_name
   }
+
+  // 2. 멤버십 결제 모드
   if (currentMode.value === 'MEMBERSHIP') {
     return `${route.query.level} 멤버십 업그레이드`
   }
-  if (cartStore.items.length === 0) return '상품 정보 없음'
-  
-  return cartStore.items.length === 1 
-    ? cartStore.items[0].product_name 
-    : `${cartStore.items[0].product_name} 외 ${cartStore.items.length - 1}건`
-})
 
+  // 3. 장바구니 결제 모드 (상품이 없을 때)
+  if (cartStore.items.length === 0) return '상품 정보 없음'
+
+  // 4. 장바구니 결제 모드 (상품이 1개 이상일 때 전체 나열)
+  // 모든 상품을 "상품명 수량개" 형태로 만들고 쉼표로 연결합니다.
+  return cartStore.items
+    .map(item => `${item.product_name} ${item.quantity}개`)
+    .join(', ')
+})
 // [변경] 결제 금액 계산
 const totalAmount = computed(() => {
   if (currentMode.value === 'DIRECT' && cartStore.pendingOrder) {

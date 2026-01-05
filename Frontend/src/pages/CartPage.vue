@@ -120,14 +120,21 @@ const goToPayment = () => {
     return;
   }
 
-  // 배송 정보 저장 (장바구니 결제이므로 product_id 등은 비워둠)
+  // 모든 상품명과 수량을 나열 (예: "AMD 라이젠5 1개, 삼성 DDR5 16G 2개")
+  const productSummary = cartStore.items
+    .map(item => `${item.product_name} ${item.quantity}개`)
+    .join(', ');
+
+  // 배송 정보 및 상세 상품 정보 저장
   cartStore.setPendingOrder({
     customer_name: orderForm.value.customer_name,
     phone: orderForm.value.phone,
-    address: `(${orderForm.value.postcode}) ${orderForm.value.address} ${orderForm.value.detailAddress}`
+    address: `(${orderForm.value.postcode}) ${orderForm.value.address} ${orderForm.value.detailAddress}`,
+    product_name: productSummary, // 나열된 상품명 전달
+    total_amount: cartStore.totalPrice
   });
 
-  // 장바구니 결제는 query 없이 이동 (Pay.vue에서 mode가 없으면 장바구니로 인식)
+  // 결제 페이지로 이동
   router.push({ path: '/pay' }); 
 };
 </script>
