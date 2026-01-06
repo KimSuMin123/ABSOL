@@ -46,8 +46,9 @@
             val => /^(?=.*[!@#$%^&*])/.test(val) || '특수문자를 최소 1개 이상 포함해주세요'
           ]"
           lazy-rules
+          class="q-gutter-x-sm"
         />
-        <q-input v-model="form.customer_name" label="이름" outlined dense />
+        <q-input v-model="form.customer_name" class="q-gutter-x-sm" label="이름" outlined dense />
         
         <q-input 
           v-model="form.phone" 
@@ -55,6 +56,7 @@
           mask="###-####-####" 
           placeholder="010-0000-0000"
           outlined dense 
+          class="q-gutter-x-sm"
         />
 
         <div class="row q-gutter-x-sm items-center no-wrap">
@@ -65,7 +67,7 @@
             readonly 
             class="col-4"
           />
-          <q-btn label="주소 검색" color="secondary" @click="openPostcode" outline class="col-auto" />
+          <q-btn label="주소 검색" color="secondary" @click="openPostcode" outline class="col-auto " />
         </div>
         
         <q-input 
@@ -73,6 +75,7 @@
           label="기본 주소" 
           outlined dense 
           readonly 
+         class="q-gutter-x-sm"
           placeholder="주소 검색을 이용해주세요" 
         />
         
@@ -80,6 +83,7 @@
           v-model="form.detailAddress" 
           label="상세 주소" 
           outlined dense 
+          class="q-gutter-x-sm"
           placeholder="상세 주소를 입력하세요" 
           ref="detailInput"
         />
@@ -92,7 +96,7 @@
           label="계정 생성 및 고객코드 발급" 
           color="primary" 
           @click="submit" 
-          class="full-width" 
+          class="col-10 q-gutter-x-sm" 
           size="lg"
           :loading="submitting"
         />
