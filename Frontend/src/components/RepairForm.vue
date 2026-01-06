@@ -168,7 +168,7 @@ const handleRepair = async () => {
         : `${form.value.address} ${form.value.detailAddress}`
     };
 
-    const res = await axios.post('http://svc.sel3.cloudtype.app:30209/api/repairs', payload);
+    const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/repairs', payload);
     
     if (res.data.success) {
       $q.dialog({

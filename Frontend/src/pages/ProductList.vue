@@ -32,7 +32,7 @@
           v-for="(banner, index) in banners" 
           :key="banner.id" 
           :name="index" 
-          :img-src="`http://svc.sel3.cloudtype.app:30209${banner.url}`" 
+          :img-src="`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${banner.url}`" 
         />
       </q-carousel>
     </div>
@@ -50,7 +50,7 @@
       <div v-else class="row q-col-gutter-sm">
         <div v-for="product in products" :key="product.product_id" class="col-6 col-sm-4 col-md-2">
           <q-card class="product-card-compact no-shadow border-light cursor-pointer" @click="goToDetail(product.product_id)">
-            <q-img :src="product.image_url ? `http://svc.sel3.cloudtype.app:30209${product.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'" :ratio="1">
+            <q-img :src="product.image_url ? `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${product.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'" :ratio="1">
                </q-img>
             <q-card-section class="q-pa-xs">
               <div class="text-caption text-weight-bold ellipsis-2-lines" style="height: 34px;">{{ product.product_name }}</div>
@@ -80,7 +80,7 @@ const loading = ref(false);
  */
 const loadBanners = async () => {
   try {
-    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/banner');
+    const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/banner');
     banners.value = res.data;
   } catch (error) {
     console.error('배너 로드 실패:', error);
@@ -90,7 +90,7 @@ const loadBanners = async () => {
 const loadProducts = async () => {
   loading.value = true;
   try {
-    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/products', {
+    const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/products', {
       params: { search: search.value }
     });
     if (res.data.success) {

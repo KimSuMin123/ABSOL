@@ -50,7 +50,7 @@
           <q-card-section horizontal>
             <q-img
               class="col-2 rounded-borders q-ma-sm"
-              :src="product.image_url ? `http://svc.sel3.cloudtype.app:30209${product.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'"
+              :src="product.image_url ? `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${product.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'"
               style="max-width: 120px; height: 120px; object-fit: cover;"
             />
 
@@ -215,7 +215,7 @@ const form = ref({ ...initialForm });
 const loadProducts = async () => {
   loading.value = true;
   try {
-    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/products/admin/all');
+    const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/products/admin/all');
     if (res.data.success) products.value = res.data.data;
   } catch (err) {
     $q.notify({ color: 'negative', message: '데이터 로드 실패' });
@@ -236,7 +236,7 @@ const openDialog = (mode, row = null) => {
   dialogMode.value = mode;
   if (mode === 'edit' && row) {
     form.value = { ...row };
-    imagePreview.value = row.image_url ? `http://svc.sel3.cloudtype.app:30209${row.image_url}` : null;
+    imagePreview.value = row.image_url ? `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${row.image_url}` : null;
   } else {
     form.value = { ...initialForm };
     imagePreview.value = null;
@@ -268,9 +268,9 @@ const saveProduct = async () => {
     const config = { headers: { 'Content-Type': 'multipart/form-data' } };
 
     if (dialogMode.value === 'create') {
-      await axios.post('http://svc.sel3.cloudtype.app:30209/api/products', formData, config);
+      await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/products', formData, config);
     } else {
-      await axios.put(`http://svc.sel3.cloudtype.app:30209/api/products/${form.value.product_id}`, formData, config);
+      await axios.put(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/products/${form.value.product_id}`, formData, config);
     }
     
     closeDialog();
@@ -285,7 +285,7 @@ const confirmDelete = (product) => {
   $q.dialog({ title: '삭제 확인', message: `[${product.product_name}]을 삭제하시겠습니까?`, cancel: true, persistent: true })
     .onOk(async () => {
       try {
-        await axios.delete(`http://svc.sel3.cloudtype.app:30209/api/products/${product.product_id}`);
+        await axios.delete(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/products/${product.product_id}`);
         loadProducts();
       } catch (err) { $q.notify({ color: 'negative', message: '삭제 실패' }); }
     });

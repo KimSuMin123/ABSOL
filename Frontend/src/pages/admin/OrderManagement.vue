@@ -142,7 +142,7 @@ const loadOrders = async () => {
   loading.value = true;
   try {
     // 필터링은 프론트에서 하므로 쿼리 파라미터 없이 전체 로드
-    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/orders');
+    const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders');
     orders.value = res.data.data;
   } catch (error) {
     $q.notify({ color: 'negative', message: '데이터 로드 실패' });
@@ -153,7 +153,7 @@ const loadOrders = async () => {
 
 const updateOrderData = async (order, payload) => {
   try {
-    await axios.patch(`http://svc.sel3.cloudtype.app:30209/api/orders/${order.order_id}`, payload);
+    await axios.patch(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders/${order.order_id}`, payload);
     $q.notify({ color: 'positive', message: '업데이트 완료', timeout: 500 });
     // 업데이트 후 원본 데이터의 상태를 최신화 (필요시 loadOrders 재호출)
   } catch (error) {
@@ -181,7 +181,7 @@ const companyOptions = ref([]);
 // 택배사 리스트 로드 함수
 const loadCompanyList = async () => {
   try {
-    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/delivery/companyList');
+    const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/delivery/companyList');
     // 스마트택배 응답 구조인 res.data.Company 사용
     companyOptions.value = res.data.Company || [];
   } catch (error) {

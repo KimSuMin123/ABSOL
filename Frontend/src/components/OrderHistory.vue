@@ -108,7 +108,7 @@ const getCompanyName = (code) => {
 const openTracking = async (order) => {
   $q.loading.show({ message: '배송 정보를 가져오는 중...' });
   try {
-    const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/delivery/track`, {
+    const res = await axios.get(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/delivery/track`, {
       params: { 
         t_code: order.delivery_company, 
         t_invoice: order.tracking_number 
@@ -161,7 +161,7 @@ const getStatusIcon = (status) => {
 const loadOrders = async () => {
   if (!userStore.user?.id) return;
   try {
-    const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/orders/user/${userStore.user.id}`);
+    const res = await axios.get(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders/user/${userStore.user.id}`);
     orders.value = res.data.data;
   } catch (e) {
     console.error('주문 로드 실패:', e);

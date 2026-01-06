@@ -149,7 +149,7 @@ const handlePayment = async () => {
         product_id: currentMode.value === 'DIRECT' ? cartStore.pendingOrder.product_id : null,
         cartItems: currentMode.value === 'CART' ? cartStore.items : []
       }
-      const res = await axios.post('http://svc.sel3.cloudtype.app:30209/api/orders/direct', payload)
+      const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders/direct', payload)
       toss_order_id = res.data.toss_order_id
     }
 

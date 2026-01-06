@@ -12,7 +12,7 @@
       <div v-else>
         <q-card v-for="item in cartStore.items" :key="item.product_id" flat bordered class="q-mb-sm bg-white">
           <q-card-section horizontal class="items-center">
-            <q-img :src="item.image_url ? `http://svc.sel3.cloudtype.app:30209${item.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'" style="width: 80px; height: 80px" class="q-ma-sm rounded-borders" />
+            <q-img :src="item.image_url ? `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${item.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'" style="width: 80px; height: 80px" class="q-ma-sm rounded-borders" />
             
             <q-card-section class="col">
               <div class="text-subtitle1 text-weight-bold">{{ item.product_name }}</div>

@@ -6,7 +6,7 @@
       <q-card flat bordered class="row no-wrap shadow-2 rounded-borders overflow-hidden">
         <div class="col-12 col-md-6 bg-white flex flex-center">
           <q-img
-            :src="product.image_url ? `http://svc.sel3.cloudtype.app:30209${product.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'"
+            :src="product.image_url ? `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${product.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'"
             style="max-width: 100%; height: auto;"
             class="q-ma-md"
           />
@@ -173,7 +173,7 @@ const processPurchase = async () => {
     const fullAddress = `(${orderForm.value.postcode}) ${orderForm.value.address} ${orderForm.value.detailAddress}`;
 
     // 주문 생성 시 user_id를 함께 전송 (마이페이지 연동의 핵심)
-    const res = await axios.post('http://svc.sel3.cloudtype.app:30209/api/orders/direct', {
+    const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders/direct', {
       user_id: userStore.user?.id || null, // 로그인 안한 경우 대비
       product_id: product.value.product_id,
       product_name: product.value.product_name,
@@ -218,7 +218,7 @@ const loadProductDetail = async () => {
   loading.value = true;
   try {
     const productId = route.params.id;
-    const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/products/${productId}`);
+    const res = await axios.get(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/products/${productId}`);
     if (res.data.success) {
       product.value = res.data.data;
     }
