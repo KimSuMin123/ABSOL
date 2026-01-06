@@ -41,7 +41,7 @@ onMounted(async () => {
   try {
     const { paymentKey, orderId, amount, level } = route.query;
 
-    const res = await axios.post('http://localhost:3000/api/orders/confirm', {
+    const res = await axios.post('http://svc.sel3.cloudtype.app:30209/api/orders/confirm', {
       paymentKey,
       orderId,
       amount: Number(amount),

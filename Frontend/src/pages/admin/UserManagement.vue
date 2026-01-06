@@ -196,7 +196,7 @@ const loadData = async () => {
     if (searchQuery.value) params.search = searchQuery.value;
     if (selectedLevel.value !== '전체') params.level = selectedLevel.value;
 
-    const res = await axios.get('http://localhost:3000/api/users', { params });
+    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/users', { params });
     if (res.data?.success) {
       users.value = res.data.data;
     }
@@ -226,7 +226,7 @@ const updateUser = async () => {
       customer_code: previewCustomerCode.value
     };
     
-    const res = await axios.patch(`http://localhost:3000/api/users/${editForm.value.user_id}`, payload);
+    const res = await axios.patch(`http://svc.sel3.cloudtype.app:30209/api/users/${editForm.value.user_id}`, payload);
     if (res.data.success) {
       $q.notify({ color: 'positive', message: '정보 및 고객코드가 갱신되었습니다.' });
       editDialogVisible.value = false;

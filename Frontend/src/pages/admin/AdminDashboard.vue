@@ -117,7 +117,7 @@ const estimateCols = [
 const loadDashboardData = async () => {
   loading.value = true;
   try {
-    const res = await axios.get('http://localhost:3000/api/dashboard/summary');
+    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/dashboard/summary');
     if (res.data.success) {
       stats.value = res.data.stats;
       lists.value = res.data.lists;

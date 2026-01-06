@@ -26,7 +26,7 @@
     <div class="row q-col-gutter-md">
       <div v-for="banner in banners" :key="banner.id" class="col-12 col-sm-6 col-md-4">
         <q-card flat bordered>
-          <q-img :src="`http://localhost:3000${banner.url}`" :ratio="16/9">
+          <q-img :src="`http://svc.sel3.cloudtype.app:30209${banner.url}`" :ratio="16/9">
             <div class="absolute-top-right">
               <q-btn round color="red" icon="delete" size="sm" @click="confirmDelete(banner.id)" />
             </div>
@@ -47,7 +47,7 @@ const banners = ref([])
 const fileInput = ref(null) // input 참조
 const uploading = ref(false)
 
-const api = axios.create({ baseURL: 'http://localhost:3000' })
+const api = axios.create({ baseURL: 'http://svc.sel3.cloudtype.app:30209' })
 
 // [추가하기] 버튼 클릭 시 호출
 const onClickUpload = () => {

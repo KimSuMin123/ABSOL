@@ -90,7 +90,7 @@ const getSpecFields = (pc) => [
 const loadMyPcs = async () => {
   if (!userStore.user?.id) return;
   try {
-    const res = await axios.get(`http://localhost:3000/api/mypc/user/${userStore.user.id}`);
+    const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/mypc/user/${userStore.user.id}`);
     if (res.data.success) {
       pcList.value = res.data.data;
     }

@@ -86,7 +86,7 @@ const handleSend = async () => {
   userInput.value = ''
 
   try {
-    const { data } = await axios.post('http://localhost:3000/api/chatbot/ask', { message })
+    const { data } = await axios.post('http://svc.sel3.cloudtype.app:30209/api/chatbot/ask', { message })
     
     if (data.type === 'nav') {
       chatHistory.value.push({ from: 'bot', type: 'nav', text: data.content, path: data.path })

@@ -132,7 +132,7 @@ const filteredEstimates = computed(() => {
 const loadData = async () => {
   loading.value = true;
   try {
-    const res = await axios.get('http://localhost:3000/api/estimates');
+    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/estimates');
     if (res.data && res.data.success) {
       estimates.value = res.data.data;
     }
@@ -154,7 +154,7 @@ const getStatusColor = (status) => {
 
 const updateStatus = async (id, newStatus) => {
   try {
-    const res = await axios.patch(`http://localhost:3000/api/estimates/${id}/status`, {
+    const res = await axios.patch(`http://svc.sel3.cloudtype.app:30209/api/estimates/${id}/status`, {
       status: newStatus
     });
     if (res.data.success) {

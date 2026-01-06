@@ -72,7 +72,7 @@ const handleLogin = async () => {
     return;
   }
   try {
-    const res = await axios.post('http://localhost:3000/api/auth/login', loginData.value);
+    const res = await axios.post('http://svc.sel3.cloudtype.app:30209/api/auth/login', loginData.value);
     
     if (res.data.success) {
       authStore.login(res.data.user, res.data.token);

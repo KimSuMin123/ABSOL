@@ -120,7 +120,7 @@ const getTypeColor = (type) => (type === '방문수리' ? 'orange-9' : type === 
 const loadData = async () => {
   loading.value = true;
   try {
-    const res = await axios.get('http://localhost:3000/api/repairs');
+    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/repairs');
     repairs.value = res.data.data;
   } catch (err) {
     $q.notify({ color: 'negative', message: '수리 내역 로드 실패' });
@@ -131,7 +131,7 @@ const loadData = async () => {
 
 const loadCompanies = async () => {
   try {
-    const res = await axios.get('http://localhost:3000/api/delivery/companyList');
+    const res = await axios.get('http://svc.sel3.cloudtype.app:30209/api/delivery/companyList');
     // 스마트 택배 API 응답 구조에 맞춰 할당
     deliveryCompanies.value = res.data.Company || []; 
   } catch (err) {
@@ -151,7 +151,7 @@ const updateRepair = async (repair, mode, value) => {
     // 수리 방식 변경 시 상태 초기화 로직
     if (mode === 'type') payload.status = '접수완료';
 
-    await axios.patch(`http://localhost:3000/api/repairs/${repair.repair_id}/status`, payload);
+    await axios.patch(`http://svc.sel3.cloudtype.app:30209/api/repairs/${repair.repair_id}/status`, payload);
     $q.notify({ color: 'positive', message: '저장되었습니다.', timeout: 800 });
     
     if (mode === 'type') loadData();

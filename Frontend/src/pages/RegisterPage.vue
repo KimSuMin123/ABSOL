@@ -135,7 +135,7 @@ const checkDuplicate = async () => {
     return;
   }
   try {
-    const res = await axios.get(`http://localhost:3000/api/users/check-id/${form.value.login_id}`);
+    const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/users/check-id/${form.value.login_id}`);
     if (res.data.isDuplicate) {
       $q.notify({ color: 'negative', message: '이미 사용 중인 아이디입니다.' });
       isIdChecked.value = false;
@@ -194,7 +194,7 @@ const submit = async () => {
       full_address: `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`
     };
     
-    const res = await axios.post('http://localhost:3000/api/users/register', payload);
+    const res = await axios.post('http://svc.sel3.cloudtype.app:30209/api/users/register', payload);
     
     $q.dialog({
       title: '가입 완료',

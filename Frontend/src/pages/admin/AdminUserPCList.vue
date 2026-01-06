@@ -103,7 +103,7 @@ watch(visible, (val) => emit('update:modelValue', val));
 const loadUserPcData = async () => {
   loading.value = true;
   try {
-    const res = await axios.get(`http://localhost:3000/api/mypc/user/${props.userId}`);
+    const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/mypc/user/${props.userId}`);
     if (res.data.success) {
       pcList.value = res.data.data;
     }
@@ -139,7 +139,7 @@ const addNewPcEntry = () => {
 
 const savePc = async (pc) => {
   try {
-    const res = await axios.post(`http://localhost:3000/api/mypc/user/${props.userId}`, pc);
+    const res = await axios.post(`http://svc.sel3.cloudtype.app:30209/api/mypc/user/${props.userId}`, pc);
     if (res.data.success) {
       $q.notify({ color: 'positive', message: `[${pc.pc_nickname}] 저장 완료` });
       loadUserPcData(); 
@@ -162,7 +162,7 @@ const confirmDelete = (pc, index) => {
     persistent: true
   }).onOk(async () => {
     try {
-      await axios.delete(`http://localhost:3000/api/mypc/${pc.mypc_id}`);
+      await axios.delete(`http://svc.sel3.cloudtype.app:30209/api/mypc/${pc.mypc_id}`);
       $q.notify({ color: 'warning', message: '삭제되었습니다.' });
       loadUserPcData();
     } catch (e) {

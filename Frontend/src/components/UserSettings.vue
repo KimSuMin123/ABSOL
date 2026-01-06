@@ -111,7 +111,7 @@ const updateProfile = async () => {
   loading.value = true;
   try {
     // 백엔드 라우터 주소와 맞춰 PATCH 호출 (ID는 URL 파라미터로 전달)
-    const res = await axios.patch(`http://localhost:3000/api/users/${userStore.user.id}`, {
+    const res = await axios.patch(`http://svc.sel3.cloudtype.app:30209/api/users/${userStore.user.id}`, {
       name: editForm.value.name,
       phone: editForm.value.phone,
       address: editForm.value.address

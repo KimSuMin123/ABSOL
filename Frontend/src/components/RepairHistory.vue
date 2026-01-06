@@ -83,7 +83,7 @@ const loadRepairs = async () => {
   if (!userStore.user?.id) return;
   loading.value = true;
   try {
-    const res = await axios.get(`http://localhost:3000/api/repairs/user/${userStore.user.id}`);
+    const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/repairs/user/${userStore.user.id}`);
     if (res.data.success) {
       repairs.value = res.data.data || [];
     }
@@ -101,7 +101,7 @@ onMounted(loadRepairs);
 const openTracking = async (item) => {
   $q.loading.show({ message: '배송 정보 로드 중...' });
   try {
-    const res = await axios.get(`http://localhost:3000/api/delivery/track`, {
+    const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/delivery/track`, {
       params: { 
         t_code: item.delivery_company, 
         t_invoice: String(item.tracking_number).replace(/[^0-9]/g, '') 

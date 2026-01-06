@@ -121,7 +121,7 @@ const internalShow = computed({
 watch(() => props.modelValue, async (isOpen) => {
   if (isOpen && props.userId) {
     try {
-      const res = await axios.get(`http://localhost:3000/api/admin/mypc/${props.userId}`);
+      const res = await axios.get(`http://svc.sel3.cloudtype.app:30209/api/admin/mypc/${props.userId}`);
       if (res.data.success && res.data.data) {
         form.value = res.data.data;
       } else {
@@ -140,7 +140,7 @@ const saveMyPC = async () => {
   
   saving.value = true;
   try {
-    const res = await axios.post(`http://localhost:3000/api/mypc/user/${props.userId}`, form.value);
+    const res = await axios.post(`http://svc.sel3.cloudtype.app:30209/api/mypc/user/${props.userId}`, form.value);
     if (res.data.success) {
       $q.notify({ color: 'positive', message: '고객 PC 하드웨어 정보가 저장되었습니다.', icon: 'done' });
       internalShow.value = false;

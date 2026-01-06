@@ -9,7 +9,7 @@ export const useEstimateStore = defineStore('estimate', {
     async submitEstimate(formData) {
       this.loading = true;
       try {
-        const response = await axios.post('http://localhost:3000/api/estimates', formData);
+        const response = await axios.post('http://svc.sel3.cloudtype.app:30209/api/estimates', formData);
         return response.data;
       } finally {
         this.loading = false;
