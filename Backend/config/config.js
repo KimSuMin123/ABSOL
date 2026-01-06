@@ -1,4 +1,4 @@
-require('dotenv').config(); // .env 파일 로드
+require('dotenv').config();
 
 module.exports = {
     development: {
@@ -6,14 +6,22 @@ module.exports = {
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
         host: process.env.DB_HOST,
-        dialect: process.env.DB_DIALECT,
+        port: process.env.DB_PORT || 3306, // 포트 추가
+        dialect: process.env.DB_DIALECT || 'mariadb',
+        dialectOptions: {
+            connectTimeout: 60000 // 연결 대기 시간 60초로 연장
+        }
     },
     production: {
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        database: "database_production",
+        database: process.env.DB_NAME, // "database_production" 대신 실제 DB명 사용
         host: process.env.DB_HOST,
-        dialect: process.env.DB_DIALECT,
-        logging: false, // 배포 환경에서는 로그를 끄는 것이 일반적입니다.
+        port: process.env.DB_PORT || 3306, // 포트 추가
+        dialect: process.env.DB_DIALECT || 'mariadb',
+        logging: false,
+        dialectOptions: {
+            connectTimeout: 60000
+        }
     }
 };
