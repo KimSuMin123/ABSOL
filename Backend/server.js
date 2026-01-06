@@ -23,7 +23,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 미들웨어 설정
-app.use(cors());
+app.use(cors({
+  origin: 'https://web-absolfront-mk2l6v1wd9132c30.sel3.cloudtype.app', // 현재 사용중인 프론트엔드 주소
+  credentials: true
+}));
 app.use(express.json()); // JSON 데이터 파싱
 app.use(express.urlencoded({ extended: true }));
 
