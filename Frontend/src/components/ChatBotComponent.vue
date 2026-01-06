@@ -23,14 +23,23 @@
           </div>
 
           <div v-else-if="msg.type === 'products'" class="row q-gutter-sm">
-            <q-card v-for="p in msg.products" :key="p.product_id" flat bordered style="width: 150px">
-              <q-card-section class="q-pa-xs">
-                <div class="text-bold text-blue" style="font-size: 11px">{{ p.product_name }}</div>
-                <div class="text-caption">{{ p.product_price.toLocaleString() }}원</div>
-                <div class="text-grey-7" style="font-size: 9px">{{ p.hardware_info }}</div>
-              </q-card-section>
-            </q-card>
-          </div>
+  <q-card 
+    v-for="p in msg.products" 
+    :key="p.product_id" 
+    flat 
+    bordered 
+    style="width: 150px"
+    class="cursor-pointer"
+    v-ripple
+    @click="goToProductDetail(p.product_id)"
+  >
+    <q-card-section class="q-pa-xs">
+      <div class="text-bold text-blue" style="font-size: 11px">{{ p.product_name }}</div>
+      <div class="text-caption">{{ p.product_price.toLocaleString() }}원</div>
+      <div class="text-grey-7" style="font-size: 9px">{{ p.hardware_info }}</div>
+    </q-card-section>
+  </q-card>
+</div>
         </q-chat-message>
       </div>
     </q-card-section>
@@ -55,7 +64,11 @@ const userInput = ref('')
 const scrollTarget = ref(null) // 스크롤 대상 ref 선언
 
 const chatHistory = ref([{ from: 'bot', type: 'text', text: '안녕하세요!\n부품 검색이나 수리/견적 문의를 도와드릴까요?' }])
-
+const goToProductDetail = (productId) => {
+  // 상품 상세 페이지 경로가 /product/123 형태라고 가정합니다.
+  // 본인의 라우터 설정에 맞춰 수정하세요.
+  router.push(`product/${productId}`) 
+}
 // 3. 메시지 배열이 바뀔 때마다 스크롤을 아래로 내리는 감시자(watch)
 watch(chatHistory, async () => {
   await nextTick() // DOM 업데이트가 완료될 때까지 대기
@@ -96,5 +109,11 @@ const handleSend = async () => {
 /* 부드러운 스크롤 효과 추가 */
 .scroll {
   scroll-behavior: smooth;
+}
+
+.cursor-pointer:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+  transition: all 0.2s;
 }
 </style>
