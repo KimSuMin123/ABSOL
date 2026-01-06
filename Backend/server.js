@@ -22,9 +22,21 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 미들웨어 설정
+const allowedOrigins = [
+  'https://web-absolfront-mk2l6v1wd9132c30.sel3.cloudtype.app',
+  'https://www.absoltech.kr',
+  'https://absoltech.kr', 'https://absoltech.absoltech.kr',
+];
+
 app.use(cors({
-  origin: 'https://web-absolfront-mk2l6v1wd9132c30.sel3.cloudtype.app', // 현재 사용중인 프론트엔드 주소
+  origin: function (origin, callback) {
+    // origin이 없거나(Postman 등), allowedOrigins에 포함된 경우 허용
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json()); // JSON 데이터 파싱
