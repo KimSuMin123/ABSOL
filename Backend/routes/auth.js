@@ -74,4 +74,74 @@ router.get('/me', async (req, res) => {
     res.status(401).json({ success: false });
   }
 });
+/**
+ * 아이디 찾기
+ * POST /api/auth/find-id
+ * 입력: customer_name, phone
+ */
+router.post('/find-id', async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+
+    // 하이픈(-) 제거 로직 추가: "010-1111-2222" -> "01011112222"
+    const purePhone = phone.replace(/-/g, '');
+
+    const user = await User.findOne({
+      where: {
+        customer_name: name,
+        // DB 형식이 하이픈이 없다면 purePhone을, 있다면 phone을 사용하세요.
+        // 보통은 하이픈 없이 저장하는 것이 일반적입니다.
+        phone: purePhone 
+      }
+    });
+
+    if (user) {
+      return res.json({ success: true, login_id: user.login_id });
+    } else {
+      return res.status(404).json({ success: false, message: '일치하는 정보가 없습니다.' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * 비밀번호 찾기
+ * POST /api/auth/find-pw
+ * 입력: customer_name, login_id, phone
+ */
+router.post('/find-pw', async (req, res) => {
+  try {
+    const { name, login_id, phone } = req.body;
+
+    // 1. 전화번호에서 하이픈(-) 제거 (DB 저장 형식과 맞춤)
+    const purePhone = phone.replace(/-/g, '');
+
+    // 2. DB 조회 (이름, 아이디, 하이픈 제거된 전화번호)
+    const user = await User.findOne({
+      where: {
+        customer_name: name,
+        login_id: login_id,
+        phone: purePhone // 또는 DB에 하이픈이 포함되어 있다면 phone 그대로 사용
+      }
+    });
+
+    if (user) {
+      // 3. 일치하는 유저가 있을 경우 비밀번호 반환
+      return res.json({ 
+        success: true, 
+        password: user.password 
+      });
+    } else {
+      // 4. 정보가 하나라도 틀리면 404 에러 반환
+      return res.status(404).json({ 
+        success: false, 
+        message: '입력하신 정보가 일치하지 않습니다.' 
+      });
+    }
+  } catch (error) {
+    console.error('Find PW Error:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
 module.exports = router;
