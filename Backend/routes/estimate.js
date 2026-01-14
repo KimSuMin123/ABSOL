@@ -40,12 +40,42 @@ router.get('/', async (req, res) => {
 router.patch('/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    // 프론트엔드에서 보내는 추가 배송 정보들을 함께 받습니다.
+    const { status, tracking_number, delivery_company } = req.body;
 
-    await Estimate.update({ status }, { where: { estimate_id: id } });
-    res.json({ success: true, message: '상태가 변경되었습니다.' });
+    // 업데이트할 필드들을 객체로 구성
+    const updateData = {
+      status,
+      tracking_number: tracking_number || null,
+      delivery_company: delivery_company || null
+    };
+
+    const [updated] = await Estimate.update(updateData, { 
+      where: { estimate_id: id } 
+    });
+
+    if (updated) {
+      res.json({ success: true, message: '견적 상태 및 배송 정보가 변경되었습니다.' });
+    } else {
+      res.status(404).json({ success: false, message: '해당 내역을 찾을 수 없습니다.' });
+    }
   } catch (error) {
+    console.error('상태 업데이트 에러:', error);
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+// 2. [GET] 특정 사용자의 견적 내역 가져오기 (마이페이지용)
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const list = await Estimate.findAll({ 
+      where: { user_id: userId },
+      order: [['createdAt', 'DESC']] 
+    });
+    res.json({ success: true, data: list });
+  } catch (err) {
+    console.error('사용자별 견적 조회 에러:', err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 module.exports = router;
