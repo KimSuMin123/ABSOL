@@ -63,7 +63,6 @@
           />
 
           <div class="q-py-xs">
-          
             <div class="text-caption text-red-6 q-mt-xs text-weight-medium">
               <q-icon name="info" size="xs" /> 출장 수리로 진행되어 출장비(1만원~3만원)이 발생할 수 있습니다. 
             </div>
@@ -92,17 +91,17 @@
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useQuasar } from 'quasar';
-import { useUserStore } from '../stores/user'; // 유저 스토어 추가
+import { useUserStore } from '../stores/user';
 
 const $q = useQuasar();
-const userStore = useUserStore(); // 스토어 인스턴스
+const userStore = useUserStore();
 
 const isAgreed = ref(false);
 const loading = ref(false);
 const detailInput = ref(null);
 
 const form = ref({
-  user_id: null, // user_id 추가
+  user_id: null,
   repair_type: '수리',
   customer_name: '',
   contact: '',
@@ -112,26 +111,44 @@ const form = ref({
   symptoms: ''
 });
 
-// 데이터 자동 채우기 함수
+// [수정] 데이터 자동 채우기 및 주소 분리 로직 적용
 const autoFill = () => {
   if (userStore.isLoggedIn && userStore.user) {
     form.value.user_id = userStore.user.id;
     form.value.customer_name = userStore.user.name || '';
     form.value.contact = userStore.user.phone || '';
     
-    // 주소가 문자열 하나로 되어 있는 경우 (예: "(12345) 서울시... 상세주소")
-    // 만약 DB 주소에 우편번호가 포함되어 있다면 파싱 로직이 필요할 수 있습니다.
-    // 여기서는 기본적으로 address 필드를 통째로 address 칸에 넣어줍니다.
-    form.value.address = userStore.user.address || '';
+    const rawAddress = (userStore.user.address || '').trim();
+    if (!rawAddress) return;
+
+    // 1. 우편번호 추출 (괄호 포함 5자리 숫자)
+    const postcodeMatch = rawAddress.match(/\(?(\d{5})\)?/);
+    
+    if (postcodeMatch) {
+      form.value.postcode = postcodeMatch[1];
+      let remaining = rawAddress.replace(postcodeMatch[0], '').trim();
+
+      // 2. 일반주소와 상세주소 분리 (도로명/지번 숫자 뒤 기준)
+      const splitRegex = /(.*(?:로|길|동|읍|면|리)\s\d+)(.*)/;
+      const addrMatch = remaining.match(splitRegex);
+
+      if (addrMatch) {
+        form.value.address = addrMatch[1].trim();
+        form.value.detailAddress = addrMatch[2].trim();
+      } else {
+        form.value.address = remaining;
+        form.value.detailAddress = '';
+      }
+    } else {
+      form.value.address = rawAddress;
+    }
   }
 };
 
-// 마운트 시 실행
 onMounted(() => {
   autoFill();
 });
 
-// 유저 데이터 변화 감시 (새로고침 대응)
 watch(() => userStore.user, (newVal) => {
   if (newVal && newVal.id) {
     autoFill();
@@ -148,25 +165,34 @@ const openPostcode = () => {
       let fullAddr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
       form.value.postcode = data.zonecode;
       form.value.address = fullAddr;
+      form.value.detailAddress = ''; // 새 주소 검색 시 상세주소 초기화
       setTimeout(() => detailInput.value.focus(), 100);
     }
   }).open();
 };
 
 const handleRepair = async () => {
-  if (!form.value.customer_name || !form.value.contact || !form.value.address) {
-    $q.notify({ color: 'warning', message: '필수 정보를 입력해주세요.' });
+  // 필수값 검증 (우편번호 포함)
+  if (!form.value.customer_name || !form.value.contact || !form.value.postcode || !form.value.address) {
+    $q.notify({ color: 'warning', message: '주소를 포함한 필수 정보를 모두 입력해주세요.' });
     return;
   }
 
   loading.value = true;
   try {
+    // 1. 서버에 보낼 데이터를 정리합니다.
     const payload = {
-      ...form.value,
-      full_address: form.value.postcode 
-        ? `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`
-        : `${form.value.address} ${form.value.detailAddress}`
+      user_id: form.value.user_id,
+      repair_type: form.value.repair_type,
+      customer_name: form.value.customer_name,
+      contact: form.value.contact,
+      symptoms: form.value.symptoms,
+      // 2. 쪼개진 주소들을 하나로 합쳐서 'address' 필드에 담습니다. (서버 컬럼명에 맞춤)
+      address: `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`.trim()
     };
+
+    // 만약 서버에서 'full_address'라는 필드명을 사용한다면 아래와 같이 추가하세요.
+    // payload.full_address = payload.address;
 
     const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/repairs', payload);
     
@@ -175,7 +201,6 @@ const handleRepair = async () => {
         title: '신청 완료',
         message: `${form.value.repair_type} 신청이 성공적으로 접수되었습니다.`,
       }).onOk(() => {
-        // 성공 후 리로드 혹은 이동
         location.reload(); 
       });
     }

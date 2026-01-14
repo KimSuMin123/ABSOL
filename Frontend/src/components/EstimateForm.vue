@@ -139,13 +139,37 @@ const form = ref({
   description: ''
 });
 
-// 데이터 자동 채우기
+// [수정 포인트 1] 데이터 자동 채우기 및 주소 분리 로직
 const autoFill = () => {
   if (userStore.isLoggedIn && userStore.user) {
     form.value.user_id = userStore.user.id;
     form.value.customer_name = userStore.user.name || '';
     form.value.contact = userStore.user.phone || '';
-    form.value.address = userStore.user.address || '';
+    
+    const rawAddress = (userStore.user.address || '').trim();
+    if (!rawAddress) return;
+
+    // 1. 우편번호 추출 (괄호 포함 5자리 숫자 찾기)
+    const postcodeMatch = rawAddress.match(/\(?(\d{5})\)?/);
+    
+    if (postcodeMatch) {
+      form.value.postcode = postcodeMatch[1]; // '14238'
+      let remaining = rawAddress.replace(postcodeMatch[0], '').trim();
+
+      // 2. 일반주소와 상세주소 분리 (도로명/지번 숫자 뒤의 첫 공백 기준)
+      const splitRegex = /(.*(?:로|길|동|읍|면|리)\s\d+)(.*)/;
+      const addrMatch = remaining.match(splitRegex);
+
+      if (addrMatch) {
+        form.value.address = addrMatch[1].trim();      // "경기 광명시 디지털로 63"
+        form.value.detailAddress = addrMatch[2].trim(); // "105동 19004호"
+      } else {
+        form.value.address = remaining;
+        form.value.detailAddress = '';
+      }
+    } else {
+      form.value.address = rawAddress;
+    }
   }
 };
 
@@ -153,7 +177,6 @@ onMounted(() => {
   autoFill();
 });
 
-// 유저 정보 변경 시 감시
 watch(() => userStore.user, (newVal) => {
   if (newVal) autoFill();
 }, { deep: true });
@@ -169,13 +192,14 @@ const openPostcode = () => {
       let fullAddr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
       form.value.postcode = data.zonecode;
       form.value.address = fullAddr;
+      form.value.detailAddress = ''; // [수정 포인트 2] 주소 검색 시 기존 상세주소 초기화
       setTimeout(() => detailInput.value.focus(), 100);
     }
   }).open();
 };
 
+// [수정 포인트 3] DB 전송 시 다시 합치기
 const handleOrder = async () => {
-  // 필수값 검증
   if (!form.value.customer_name || !form.value.contact || !form.value.address || !form.value.usage || !form.value.budget) {
     $q.notify({ color: 'warning', message: '모든 필수 항목(*)을 입력해주세요.' });
     return;
@@ -185,10 +209,8 @@ const handleOrder = async () => {
     user_id: form.value.user_id,
     customer_name: form.value.customer_name,
     contact: form.value.contact,
-    // 백엔드 full_address 컬럼에 저장될 데이터 가공
-    full_address: form.value.postcode 
-      ? `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`
-      : `${form.value.address} ${form.value.detailAddress}`,
+    // DB의 full_address 컬럼 형식에 맞춤
+    full_address: `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`.trim(),
     usage: form.value.usage,
     budget: form.value.budget,
     description: form.value.description,
@@ -202,12 +224,11 @@ const handleOrder = async () => {
       title: '신청 완료',
       message: '견적 요청이 성공적으로 접수되었습니다.',
     }).onOk(() => {
-      location.reload(); // 성공 시 페이지 리로드
+      location.reload();
     });
   }
 };
 </script>
-
 <style scoped>
 .bg-blue-0 {
   background-color: #f0f7ff !important;
