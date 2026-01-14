@@ -27,6 +27,11 @@
                   <q-btn label="회원가입" color="red-7" outline class="full-width text-weight-bold" @click="$router.push('/register')" />
                 </div>
               </div>
+              <div class="row justify-center q-gutter-x-sm q-mt-md">
+  <q-btn flat no-caps label="아이디 찾기" color="grey-7" size="sm" to="/find-id" />
+  <q-separator vertical inset />
+  <q-btn flat no-caps label="비밀번호 찾기" color="grey-7" size="sm" to="/find-pw" />
+</div>
             </q-form>
           </q-card-section>
         </q-card>

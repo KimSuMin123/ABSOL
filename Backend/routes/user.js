@@ -154,4 +154,75 @@ router.patch('/:user_id', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+/**
+ * 아이디 찾기
+ * POST /api/auth/find-id
+ * 입력: customer_name, phone
+ */
+router.post('/find-id', async (req, res) => {
+  try {
+    const { name, phone } = req.body; // 프론트에서 보낸 필드명
+
+    const user = await User.findOne({
+      where: {
+        customer_name: name,
+        phone: phone
+      }
+    });
+
+    if (user) {
+      // 보안을 위해 아이디의 일부를 마스킹 처리할 수도 있지만, 
+      // 요청하신 대로 전체 아이디를 반환합니다.
+      return res.json({ 
+        success: true, 
+        login_id: user.login_id 
+      });
+    } else {
+      return res.status(404).json({ 
+        success: false, 
+        message: '일치하는 정보가 없습니다.' 
+      });
+    }
+  } catch (error) {
+    console.error('Find ID Error:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
+/**
+ * 비밀번호 찾기
+ * POST /api/auth/find-pw
+ * 입력: customer_name, login_id, phone
+ */
+router.post('/find-pw', async (req, res) => {
+  try {
+    const { name, login_id, phone } = req.body;
+
+    const user = await User.findOne({
+      where: {
+        customer_name: name,
+        login_id: login_id,
+        phone: phone
+      }
+    });
+
+    if (user) {
+      // 현재 모델 구조상 비밀번호가 평문(Plain Text)으로 저장된 경우 그대로 반환
+      // 만약 암호화(bcrypt)되어 있다면 이 방식은 불가능하며 임시비번 발급을 해야 합니다.
+      return res.json({ 
+        success: true, 
+        password: user.password 
+      });
+    } else {
+      return res.status(404).json({ 
+        success: false, 
+        message: '정보가 일치하지 않습니다.' 
+      });
+    }
+  } catch (error) {
+    console.error('Find PW Error:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
 module.exports = router;

@@ -16,6 +16,8 @@ const routes = [
        { path: 'pay', component: () => import('../components/Payment.vue'), meta: { requiresAuth: true } },
       { path: 'success', component: () => import('../components/SuccessView.vue'), meta: { requiresAuth: true } },
        { path: 'chat', component: () => import('../components/ChatBotComponent.vue'), meta: { requiresAuth: true } },
+       { path: 'find-id', component: () => import('../components/FindIdPage.vue') }, 
+      { path: 'find-pw', component: () => import('../components/FindPwPage.vue') }
     ]
   },
 
