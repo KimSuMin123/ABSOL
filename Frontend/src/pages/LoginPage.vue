@@ -97,9 +97,9 @@ const handleLogin = async () => {
       // 관리자 여부 체크 (DB의 역할 필드명이 role이라고 가정)
       // 만약 필드명이 isAdmin(boolean)이라면 res.data.user.isAdmin === true 등으로 체크하세요.
       if (res.data.user.login_id === 'admin') {
-        router.push('/admin'); // 관리자 페이지로 이동
+        window.location.href = '/admin'; 
       } else {
-        router.push('/order'); // 일반 사용자 페이지로 이동
+        window.location.href = '/order'; 
       }
     }
   }catch (error) {
