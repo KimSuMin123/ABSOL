@@ -1,5 +1,5 @@
 <template>
-   <q-card flat bordered class="shadow-2 bg-grey-1">
+   <q-card flat bordered class="shadow-2 bg-grey-1 q-mt-md">
     <q-card-section class="q-pb-none">
       <div class="text-h6 text-weight-bolder text-primary">
          <q-icon name="history" size="sm" class="q-mr-xs" /> 내 수리 및 배송 현황

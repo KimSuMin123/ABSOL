@@ -1,5 +1,5 @@
 <template>
-  <q-card flat bordered class="bg-white q-pa-md shadow-1 rounded-borders">
+  <q-card flat bordered class="bg-white q-pa-md shadow-1 rounded-borders q-mt-md">
     <div class="row items-center justify-between q-mb-lg">
       <div class="text-h6 text-weight-bolder text-blue-10">
         <q-icon name="monitor" color="primary" size="sm" class="q-mr-sm" />
@@ -58,8 +58,7 @@
     <div v-else class="text-center q-py-xl border-dashed rounded-borders bg-grey-1">
       <q-icon name="monitor_heart" size="64px" color="grey-4" />
       <div class="text-h6 text-grey-6 q-mt-md">등록된 PC 정보가 없습니다.</div>
-      <div class="text-caption text-grey-5 q-mb-md">매장에서 구입 또는 수리 시 기기가 자동 등록됩니다.</div>
-      <q-btn flat color="primary" label="1:1 문의하기" icon="chat" />
+    
     </div>
   </q-card>
 </template>

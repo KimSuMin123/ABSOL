@@ -110,7 +110,7 @@ const handleLogout = () => {
   }).onOk(() => {
     userStore.logout();
     // 로그아웃 시에도 새로고침 효과를 주려면 window.location.href 사용
-    window.location.href = '/login';
+    window.location.href = '/';
   });
 };
 </script>
