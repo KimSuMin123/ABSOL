@@ -6,7 +6,11 @@
         <q-card flat bordered class="full-height shadow-10" style="border-radius: 20px;">
           <q-card-section class="text-center q-pt-xl">
             <div class="text-h3 text-weight-bolder q-mb-md">
-              <span class="text-blue-7">Ab</span> <span class="text-red-7">SoL</span>
+              <span class="text-blue-6">AB</span><span class="text-red-6">SOL</span>
+              <span class="text-h5 q-ml-xs text-grey-5 text-weight-light">TECH</span>
+              </div>
+              <div>
+              <span class="text-subtitle2 text-grey-8"> pc 조립 | pc 수리 | 데이터복구</span>
             </div>
           </q-card-section>
 
@@ -28,22 +32,29 @@
         </q-card>
       </div>
 
-      <div class="col-12 col-md-7 column q-gutter-y-md">
-        <q-card flat bordered class="bg-grey-3 flex-center q-pa-lg" style="border-radius: 10px; flex: 1;">
-          <div class="text-h5 text-weight-bold q-mb-xl">견적 요청(비회원)</div>
-          <div class="row items-center">
-            <q-btn label="신청하기" color="grey-8" unelevated @click="goToGuest('estimate')" />
-          </div>
-        </q-card>
+ <div class="col-12 col-md-7 column q-gutter-y-md">
+  <q-card flat bordered class="bg-grey-3 q-pa-lg" style="border-radius: 10px; flex: 1;">
+    <div class="row items-center justify-between no-wrap q-mb-xl">
+      <div class="text-h5 text-weight-bold">견적 요청(비회원)</div>
+      <q-icon name="calculate" size="64px" color="grey-6" />
+    </div>
+    
+    <div class="row items-center">
+      <q-btn label="신청하기" color="grey-8" unelevated @click="goToGuest('estimate')" />
+    </div>
+  </q-card>
 
-        <q-card flat bordered class="bg-grey-3 flex-center q-pa-lg" style="border-radius: 10px; flex: 1;">
-          <div class="text-h5 text-weight-bold q-mb-xl">수리 및 복구(비회원)</div>
-          <div class="row items-center">
+  <q-card flat bordered class="bg-grey-3 q-pa-lg" style="border-radius: 10px; flex: 1;">
+    <div class="row items-center justify-between no-wrap q-mb-xl">
+      <div class="text-h5 text-weight-bold">수리 및 복구(비회원)</div>
+      <q-icon name="build_circle" size="64px" color="grey-6" />
+    </div>
 
-            <q-btn label="신청하기" color="grey-8" unelevated @click="goToGuest('repair')" />
-          </div>
-        </q-card>
-      </div>
+    <div class="row items-center">
+      <q-btn label="신청하기" color="grey-8" unelevated @click="goToGuest('repair')" />
+    </div>
+  </q-card>
+</div>
     </div>
   </q-page>
 </template>
