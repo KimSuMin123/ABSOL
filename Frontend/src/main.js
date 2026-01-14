@@ -10,7 +10,7 @@ import {
   QToolbarTitle, QSpace, QBadge, QBtnDropdown, QList, QItem, 
   QItemSection, QFooter, QIcon, QDialog, QCard, QCardSection, 
   QImg, QCarousel, QCarouselSlide, QCarouselControl, QTooltip, 
-  QSpinnerGrid, QInnerLoading, QCardActions, QExpansionItem, QChatMessage,
+  QSpinnerGrid, QInnerLoading, QCardActions, QExpansionItem, QChatMessage,QScrollArea,QDrawer,
   ClosePopup   // 디렉티브
 } from 'quasar'
 
@@ -30,8 +30,8 @@ app.use(Quasar, {
     QCheckbox, QRadio, QTable, QSeparator, QHeader, QToolbar, 
     QToolbarTitle, QSpace, QBadge, QBtnDropdown, QList, QItem, 
     QItemSection, QFooter, QIcon, QDialog, QCard, QCardSection, 
-    QImg, QCarousel, QCarouselSlide, QCarouselControl, QTooltip, 
-    QSpinnerGrid, QInnerLoading, QCardActions, QExpansionItem, QChatMessage
+    QImg, QCarousel, QCarouselSlide, QCarouselControl, QTooltip, QDrawer,
+    QSpinnerGrid, QInnerLoading, QCardActions, QExpansionItem, QChatMessage,QScrollArea
   },
   plugins: {
     Dialog,

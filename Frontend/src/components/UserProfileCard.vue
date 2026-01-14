@@ -69,7 +69,7 @@ const handleLogout = () => {
     persistent: true
   }).onOk(() => {
     userStore.logout(); // Pinia 스토어의 로그아웃 액션 호출
-    router.push('/login');
+    router.push('/');
     $q.notify({
       color: 'positive',
       message: '성공적으로 로그아웃 되었습니다.',
