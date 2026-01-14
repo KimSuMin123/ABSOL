@@ -8,12 +8,12 @@
 
       <q-card-section class="q-px-xl q-pb-lg">
         <q-form @submit="handleFindPw" class="q-gutter-y-md">
-          <q-input v-model="form.name" label="이름" outlined dense color="red-7" />
-          <q-input v-model="form.login_id" label="아이디" outlined dense color="red-7" />
-          <q-input v-model="form.phone" label="전화번호" outlined dense color="red-7" mask="###-####-####" />
+          <q-input v-model="form.name" label="이름" outlined dense color="blue-7" />
+          <q-input v-model="form.login_id" label="아이디" outlined dense color="blue-7" />
+          <q-input v-model="form.phone" label="전화번호" outlined dense color="blue-7" mask="###-####-####" />
           
-          <q-btn label="비밀번호 확인" type="submit" color="red-7" class="full-width q-mt-md" unelevated />
-          <q-btn label="로그인으로 돌아가기" flat color="grey-7" class="full-width" to="/login" />
+          <q-btn label="비밀번호 확인" type="submit" color="blue-7" class="full-width q-mt-md" unelevated />
+          <q-btn label="로그인으로 돌아가기" flat color="grey-7" class="full-width" to="/" />
         </q-form>
       </q-card-section>
     </q-card>

@@ -12,7 +12,7 @@
           <q-input v-model="form.phone" label="전화번호" outlined dense color="blue-7" mask="###-####-####" :rules="[val => !!val || '전화번호를 입력하세요']" />
           
           <q-btn label="아이디 찾기" type="submit" color="blue-7" class="full-width q-mt-md" unelevated />
-          <q-btn label="로그인으로 돌아가기" flat color="grey-7" class="full-width" to="/login" />
+          <q-btn label="로그인으로 돌아가기" flat color="grey-7" class="full-width" to="/" />
         </q-form>
       </q-card-section>
     </q-card>
