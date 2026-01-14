@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
   'https://web-absolfront-mk2l6v1wd9132c30.sel3.cloudtype.app',
   'https://www.absoltech.kr',
-  'https://absoltech.kr', 'https://absoltech.absoltech.kr',
+  'https://absoltech.kr', 'https://absoltech.absoltech.kr','http://localhost:5173'
 ];
 
 app.use(cors({
