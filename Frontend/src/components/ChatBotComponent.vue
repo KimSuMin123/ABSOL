@@ -1,5 +1,5 @@
 <template>
-  <q-card class="chatbot-card column" style="max-width: 600px; margin: auto; height: 800px; margin-top: 70px;">
+  <q-card class="chatbot-card column" style="max-width: 600px; margin: auto; height: 650px; margin-top: 70px;">
     <q-card-section ref="scrollTarget" class="col overflow-auto scroll">
       <div v-for="(msg, index) in chatHistory" :key="index">
         <q-chat-message
