@@ -83,15 +83,12 @@ router.post('/find-id', async (req, res) => {
   try {
     const { name, phone } = req.body;
 
-    // 하이픈(-) 제거 로직 추가: "010-1111-2222" -> "01011112222"
-    const purePhone = phone.replace(/-/g, '');
-
     const user = await User.findOne({
       where: {
         customer_name: name,
         // DB 형식이 하이픈이 없다면 purePhone을, 있다면 phone을 사용하세요.
         // 보통은 하이픈 없이 저장하는 것이 일반적입니다.
-        phone: purePhone 
+        phone: phone
       }
     });
 
@@ -114,15 +111,14 @@ router.post('/find-pw', async (req, res) => {
   try {
     const { name, login_id, phone } = req.body;
 
-    // 1. 전화번호에서 하이픈(-) 제거 (DB 저장 형식과 맞춤)
-    const purePhone = phone.replace(/-/g, '');
+  
 
     // 2. DB 조회 (이름, 아이디, 하이픈 제거된 전화번호)
     const user = await User.findOne({
       where: {
         customer_name: name,
         login_id: login_id,
-        phone: purePhone // 또는 DB에 하이픈이 포함되어 있다면 phone 그대로 사용
+        phone: phone
       }
     });
 
