@@ -33,21 +33,28 @@
           />
         </div>
 
-       <q-input 
-          v-model="form.password" 
-          type="password" 
-          label="비밀번호" 
-          outlined 
-          dense
-          hint="8자 이상, 특수문자 1개 이상 포함"
-          :rules="[
-            val => !!val || '비밀번호를 입력해주세요',
-            val => val.length >= 8 || '최소 8자 이상 입력해주세요',
-            val => /^(?=.*[!@#$%^&*])/.test(val) || '특수문자를 최소 1개 이상 포함해주세요'
-          ]"
-          lazy-rules
-          class="q-gutter-x-sm"
-        />
+     <q-input 
+  v-model="form.password" 
+  type="password" 
+  label="비밀번호" 
+  outlined dense
+  hint="8자 이상, 특수문자 1개 이상 포함"
+  :rules="[val => !!val || '비밀번호를 입력해주세요']"
+  class="q-gutter-x-sm"
+/>
+
+<q-input 
+  v-model="form.confirm_password" 
+  type="password" 
+  label="비밀번호 확인" 
+  outlined dense
+  :rules="[
+    val => !!val || '확인을 위해 한 번 더 입력해주세요',
+    val => val === form.password || '비밀번호가 일치하지 않습니다'
+  ]"
+  lazy-rules
+  class="q-gutter-x-sm"
+/>
         <q-input v-model="form.customer_name" class="q-gutter-x-sm" label="이름" outlined dense />
         
         <q-input 
@@ -120,7 +127,7 @@ const isIdChecked = ref(false);
 
 const form = ref({
   login_id: '',
-  password: '', 
+  password: '', confirm_password: '', // 프론트 확인용 변수
   customer_name: '',
   phone: '',
   postcode: '',
@@ -180,7 +187,10 @@ const submit = async () => {
     $q.notify({ color: 'warning', message: '아이디 중복 확인을 먼저 완료해주세요.' });
     return;
   }
-
+if (form.value.password !== form.value.confirm_password) {
+    $q.notify({ color: 'negative', message: '입력하신 두 비밀번호가 서로 다릅니다.' });
+    return;
+  }
   // 2. 비밀번호 유효성 상세 체크 (정규표현식)
   const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
   if (!passwordRegex.test(form.value.password)) {
