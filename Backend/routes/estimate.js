@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();const multer = require('multer');
-const { Estimate } = require('../models');
+const { Estimate, EstimateDetail } = require('../models');
 
 // POST /api/estimates
 router.post('/', async (req, res) => {
