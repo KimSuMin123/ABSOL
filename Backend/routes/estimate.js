@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router();const multer = require('multer');
 const { Estimate } = require('../models');
 
 // POST /api/estimates
@@ -78,4 +78,57 @@ router.get('/user/:userId', async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+// 파일 저장 설정 (파일명 유지 및 확장자 처리 가능)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/estimates/'),
+  filename: (req, file, cb) => cb(null, `${Date.now()}_${file.originalname}`)
+});
+const upload = multer({ storage });
+
+router.post('/api/estimate', upload.single('pdfFile'), async (req, res) => {
+  try {
+    // 1. 프론트에서 보낸 JSON 파싱
+    const rawData = JSON.parse(req.body.data);
+
+    // 2. 부품 리스트 정의 (모델/프론트와 동일하게 유지)
+    const partKeys = [
+      'cpu', 'cooler', 'mb', 'ram', 'vga', 'ps', 
+      'storage0', 'storage1', 'storage2', 'case', 'etc'
+    ];
+
+    // 3. 데이터베이스에 넣을 객체 자동 생성
+    const saveData = {
+      pc_nickname: rawData.pc_nickname,
+      user_id: rawData.user_id,
+      estimate_id: rawData.estimate_id,
+      pdf_path: req.file ? req.file.path : null // PDF 경로 저장용 (컬럼이 있다면)
+    };
+
+    // 반복문을 통해 각 부품별 name, sn, warranty, price를 매핑
+    partKeys.forEach(part => {
+      saveData[`${part}_name`] = rawData[`${part}_name`];
+      saveData[`${part}_sn`] = rawData[`${part}_sn`];
+      saveData[`${part}_warranty`] = rawData[`${part}_warranty`];
+      saveData[`${part}_price`] = rawData[`${part}_price`];
+    });
+
+    // 4. DB 생성 실행
+    const result = await EstimateDetail.create(saveData);
+
+    console.log('✅ 견적서 저장 완료:', result.mypc_id);
+    console.log('📄 PDF 파일 저장 경로:', req.file?.path);
+
+    res.status(200).json({ 
+      success: true, 
+      id: result.mypc_id,
+      message: '견적서 정보와 PDF가 성공적으로 저장되었습니다.'
+    });
+
+  } catch (error) {
+    console.error('❌ 저장 에러:', error);
+    res.status(500).json({ success: false, message: '서버 저장 중 오류가 발생했습니다.' });
+  }
+});
+
 module.exports = router;
