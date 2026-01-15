@@ -86,7 +86,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.post('/api/estimate', upload.single('pdfFile'), async (req, res) => {
+router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
   try {
     // 1. 프론트에서 보낸 JSON 파싱
     const rawData = JSON.parse(req.body.data);

@@ -137,7 +137,7 @@ const submitAndDownload = async () => {
     formData.append('pdfFile', pdfBlob, `${form.pc_nickname}.pdf`);
 
     // D. 백엔드 API 호출 (URL을 본인의 서버 주소에 맞게 수정하세요)
-    const response = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimate', formData, {
+    const response = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimate/save-detail', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
