@@ -3,7 +3,7 @@
     <q-header v-if="isLoggedIn" elevated class="bg-grey-10">
       <q-toolbar>
         <q-btn flat dense round icon="menu" class="lt-md" @click="toggleLeftDrawer" />
-        <q-btn flat no-caps no-wrap to="/" class="q-px-sm">
+        <q-btn flat no-caps no-wrap to="/order" class="q-px-sm">
           <q-toolbar-title class="text-weight-bold">
             <span class="text-blue-6">AB</span><span class="text-red-6">SOL</span>
             <span class="text-subtitle2 q-ml-xs text-grey-5 text-weight-light">TECH</span>
