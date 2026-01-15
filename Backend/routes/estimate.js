@@ -79,16 +79,13 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-// 파일 저장 설정 (수정 버전)
+// 파일 저장 설정 및 폴더 자동 생성
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = 'uploads/estimates/';
-    
-    // 📂 폴더가 없으면 자동으로 생성 (recursive: true 옵션으로 상위 폴더까지 생성)
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
-    
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
@@ -97,49 +94,54 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// 상세 견적 저장 API
 router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
   try {
-    // 1. 프론트에서 보낸 JSON 파싱
+    // 1. 데이터 파싱
     const rawData = JSON.parse(req.body.data);
 
-    // 2. 부품 리스트 정의 (모델/프론트와 동일하게 유지)
+    // 2. 부품 리스트 (모델 컬럼명과 정확히 일치해야 함)
     const partKeys = [
       'cpu', 'cooler', 'mb', 'ram', 'vga', 'ps', 
       'storage0', 'storage1', 'storage2', 'case', 'etc'
     ];
 
-    // 3. 데이터베이스에 넣을 객체 자동 생성
+    // 3. 저장용 객체 구성
     const saveData = {
-      pc_nickname: rawData.pc_nickname,
-      user_id: rawData.user_id,
-      estimate_id: rawData.estimate_id,
-      pdf_path: req.file ? req.file.path : null // PDF 경로 저장용 (컬럼이 있다면)
+      pc_nickname: rawData.pc_nickname || '내 컴퓨터',
+      user_id: rawData.user_id || null,
+      estimate_id: rawData.estimate_id || null,
+      pdf_path: req.file ? req.file.path : null
     };
 
-    // 반복문을 통해 각 부품별 name, sn, warranty, price를 매핑
+    // 4. 반복문으로 부품 데이터 매핑 (rawData에서 정확한 키를 가져오도록 수정)
     partKeys.forEach(part => {
-      saveData[`${part}_name`] = rawData[`${part}_name`];
-      saveData[`${part}_sn`] = rawData[`${part}_sn`];
-      saveData[`${part}_warranty`] = rawData[`${part}_warranty`];
-      saveData[`${part}_price`] = rawData[`${part}_price`];
+      saveData[`${part}_name`] = rawData[`${part}_name`] || '';
+      saveData[`${part}_sn`] = rawData[`${part}_sn`] || '';
+      saveData[`${part}_warranty`] = rawData[`${part}_warranty`] === true;
+      // 중요: 아까 오타가 있었던 부분입니다. 
+      saveData[`${part}_price`] = Number(rawData[`${part}_price`]) || 0;
     });
 
-    // 4. DB 생성 실행
+    // 5. DB 저장
     const result = await EstimateDetail.create(saveData);
-
-    console.log('✅ 견적서 저장 완료:', result.mypc_id);
-    console.log('📄 PDF 파일 저장 경로:', req.file?.path);
 
     res.status(200).json({ 
       success: true, 
       id: result.mypc_id,
-      message: '견적서 정보와 PDF가 성공적으로 저장되었습니다.'
+      message: '성공적으로 저장되었습니다.' 
     });
 
   } catch (error) {
-    console.error('❌ 저장 에러:', error);
-    res.status(500).json({ success: false, message: '서버 저장 중 오류가 발생했습니다.' });
+    console.error('❌ DB 저장 상세 에러:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: '서버 저장 중 오류 발생',
+      error: error.message // 에러 원인을 프론트에 노출하여 확인
+    });
   }
 });
+
+module.exports = router;
 
 module.exports = router;
