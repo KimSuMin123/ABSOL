@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();const multer = require('multer');
 const { Estimate, EstimateDetail } = require('../models');
-
+const fs = require('fs');
 // POST /api/estimates
 router.post('/', async (req, res) => {
   try {
@@ -79,10 +79,21 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-// 파일 저장 설정 (파일명 유지 및 확장자 처리 가능)
+// 파일 저장 설정 (수정 버전)
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/estimates/'),
-  filename: (req, file, cb) => cb(null, `${Date.now()}_${file.originalname}`)
+  destination: (req, file, cb) => {
+    const uploadPath = 'uploads/estimates/';
+    
+    // 📂 폴더가 없으면 자동으로 생성 (recursive: true 옵션으로 상위 폴더까지 생성)
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}_${file.originalname}`);
+  }
 });
 const upload = multer({ storage });
 
