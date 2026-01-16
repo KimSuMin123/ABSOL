@@ -164,4 +164,28 @@ router.get('/detail/:estimate_id', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+// routes/estimate.js
+router.get('/pdf', async (req, res) => {
+  try {
+    const data = await Estimate.findAll({
+      include: [{
+        model: EstimateDetail,
+        as: 'detail',
+        attributes: ['pdf_path'] // PDF 경로만 쏙 빼오기
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+
+    // 프론트엔드에서 쓰기 편하게 구조 가공
+    const result = data.map(item => ({
+      ...item.toJSON(),
+      pdf_path: item.detail ? item.detail.pdf_path : null
+    }));
+
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 module.exports = router;

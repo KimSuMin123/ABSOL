@@ -140,20 +140,34 @@ const goToDetail = (estimate) => {
   });
 };
 
-// PDF 보기 함수 (서버에 저장된 PDF 경로가 있을 경우)
 const viewPDF = (estimate) => {
-  if (estimate.pdf_path) {
-    window.open(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/${estimate.pdf_path}`, '_blank');
-  } else {
-    $q.notify({ color: 'warning', message: '생성된 PDF 파일이 없습니다. 견적서를 먼저 저장해주세요.' });
+  // 1. 경로가 아예 없는 경우
+  if (!estimate.pdf_path) {
+    $q.notify({ 
+      color: 'warning', 
+      icon: 'priority_high',
+      message: '아직 생성된 견적서 파일이 없습니다. [견적서 작성]을 먼저 완료해주세요.' 
+    });
+    return;
   }
-};
 
+  // 2. 경로 가공 (역슬래시를 슬래시로 변경)
+  const baseUrl = 'https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app';
+  let cleanPath = estimate.pdf_path.replace(/\\/g, '/');
+  
+  // 3. 만약 경로 앞에 /가 없다면 추가
+  if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
+
+  const fullUrl = `${baseUrl}${cleanPath}`;
+  
+  console.log("접속 시도 URL:", fullUrl); // 디버깅용
+  window.open(fullUrl, '_blank');
+};
 // (기존 loadData, loadCompanies, updateEstimate 함수들은 동일하게 유지...)
 const loadData = async () => {
   loading.value = true;
   try {
-    const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates');
+    const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates/pdf');
     if (res.data && res.data.success) {
       estimates.value = res.data.data;
     }
