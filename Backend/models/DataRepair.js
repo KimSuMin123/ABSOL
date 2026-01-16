@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('Repair', {
+  return sequelize.define('DataRepair', {
     user_id:{
 type: DataTypes.STRING, allowNull:true
     },
@@ -13,14 +13,14 @@ type: DataTypes.STRING, allowNull:true
     address: { type: DataTypes.STRING, allowNull: false },
     level: { type: DataTypes.STRING },
     symptoms: { type: DataTypes.STRING(200), allowNull: false },
-    // 수리 유형 추가
+    // 복구 유형 추가
     repair_type: { 
-      type: DataTypes.ENUM('수리', '방문수리', '수리불가'), 
-      defaultValue: '수리' 
+      type: DataTypes.ENUM('복구', '방문복구', '복구불가'), 
+      defaultValue: '복구' 
     },
     // 진행 상태 (모든 유형의 단계를 포함하는 ENUM)
     status: { 
-      type: DataTypes.ENUM('접수완료', '수리중', '수리완료', '배송중', '수령완료', '센터입고', '수리불가판정', '반송중'), 
+      type: DataTypes.ENUM('접수완료', '복구중', '복구완료', '배송중', '수령완료', '센터입고', '복구불가판정', '반송중'), 
       defaultValue: '접수완료' 
     },tracking_number: { 
   type: DataTypes.STRING, 

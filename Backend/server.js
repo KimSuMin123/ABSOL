@@ -16,6 +16,7 @@ const bannerRouter = require('./routes/banner')
 const dashboardRouter =require('./routes/dashboard')
 const deliveryRouter =require('./routes/delivery')
 const chatbotRouter =require('./routes/chatbot')
+const DataRepairRouter =require('./routes/dataRepair')
 // 환경변수 설정
 dotenv.config();
 
@@ -60,6 +61,7 @@ app.use('/api/banner', bannerRouter)
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/delivery',deliveryRouter)
 app.use('/api/chatbot',chatbotRouter)
+app.use('/api/data-repairs',DataRepairRouter)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 데이터베이스 연결 및 서버 실행
