@@ -19,11 +19,17 @@
           <q-btn flat label="챗봇상담" to="/chat" />
           <q-separator dark vertical inset class="q-mx-sm" />
         </div>
-
+ <q-item-label header class="text-weight-bold q-mr-md">
+  <q-badge :color="getPlanColor(userStore.user?.level)" 
+           class="q-mr-sm">
+    {{ userStore.user?.level }}
+  </q-badge>
+  {{ userStore.user?.name }}님
+</q-item-label>
         <q-btn-dropdown flat round dense icon="account_circle">
           <q-list style="min-width: 150px">
             <template v-if="isLoggedIn">
-              <q-item-label header class="text-weight-bold">{{ userStore.user?.name }}님</q-item-label>
+            
               <q-item clickable v-close-popup to="/mypage">
                 <q-item-section avatar><q-icon name="person" /></q-item-section>
                 <q-item-section>마이페이지</q-item-section>
@@ -105,7 +111,19 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 };
+const getPlanColor = (lvl) => {
+  // 등급이 null이나 undefined일 경우를 대비해 기본값 설정
+  const currentLevel = lvl || 'Standard'; 
+  
+  const colors = {
+    'Gold': 'amber-9',
+    'Silver': 'grey-5',
+    'Green': 'green-7',
+    'Standard': 'blue-7'
+  };
 
+  return colors[currentLevel] || 'grey-7';
+};
 const handleLogout = () => {
   $q.dialog({
     title: '로그아웃',
