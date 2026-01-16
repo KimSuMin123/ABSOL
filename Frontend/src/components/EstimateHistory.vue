@@ -39,7 +39,16 @@
               <div v-if="estimate.description" class="q-mb-md q-pa-sm bg-grey-2 rounded-borders text-caption text-grey-9">
                 <q-icon name="chat_bubble_outline" class="q-mr-xs" /> {{ estimate.description }}
               </div>
-
+<div v-if="['견적발송완료', '배송중', '배송완료'].includes(estimate.status)" class="q-mb-md">
+  <q-btn 
+    outline 
+    color="secondary" 
+    icon="picture_as_pdf" 
+    label="내 견적서 확인 (PDF)" 
+    class="full-width"
+    @click="viewPDF(estimate)"
+  />
+</div>
               <div v-if="estimate.tracking_number && String(estimate.tracking_number).trim() !== ''" class="delivery-box q-pa-sm rounded-borders bg-teal-1">
                 <div class="row items-center justify-between">
                   <div class="column">
@@ -140,6 +149,32 @@ const getStatusColor = (s) => {
 };
 
 const formatDate = (d) => d ? d.substring(0, 10) : '';
+
+const viewPDF = async (estimate) => {
+  try {
+    // 서버의 상세 정보 API를 호출하여 pdf_path를 가져옵니다.
+    const res = await axios.get(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates/detail/${estimate.estimate_id}`);
+    
+    if (res.data.success && res.data.data.pdf_path) {
+      const baseUrl = 'https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app';
+      // 백슬래시를 슬래시로 변환하여 전체 URL 생성
+      const fullUrl = `${baseUrl}/${res.data.data.pdf_path.replace(/\\/g, '/')}`;
+      window.open(fullUrl, '_blank'); // 새 탭에서 PDF 열기
+    } else {
+      $q.notify({ 
+        color: 'warning', 
+        message: '아직 등록된 견적서 파일이 없습니다. 잠시만 기다려주세요.',
+        icon: 'warning'
+      });
+    }
+  } catch (err) {
+    console.error('PDF 로드 에러:', err);
+    $q.notify({ 
+      color: 'negative', 
+      message: '견적서 정보를 가져오는 중 오류가 발생했습니다.' 
+    });
+  }
+};
 </script>
 
 <style scoped>
