@@ -19,6 +19,7 @@ const routes = [
        { path: 'find-id', component: () => import('../components/FindIdPage.vue') }, 
       { path: 'find-pw', component: () => import('../components/FindPwPage.vue') },
       { path: 'membership', component: () => import('../components/MembershipChange.vue') },
+      { path: 'datarepair', component: () => import('../components/DateRepairForm.vue') },
     ]
   },
 

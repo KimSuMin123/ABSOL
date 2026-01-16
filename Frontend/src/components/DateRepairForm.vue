@@ -70,7 +70,7 @@
           </div>
 
           <div class="q-pa-sm bg-grey-2 rounded-borders">
-            <q-checkbox v-member="isAgreed" label="개인정보 수집 및 복구 정책 동의 (필수)" color="primary" dense />
+           <q-checkbox v-model="isAgreed" label="개인정보 수집 및 복구 정책 동의 (필수)" color="primary" dense />
           </div>
 
           <q-btn 
@@ -182,7 +182,7 @@ const handleRecovery = async () => {
       symptoms: form.value.symptoms,
       // DB 모델의 address 필드에 (우편번호) 주소 상세주소 형태로 저장
       address: `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`.trim(),
-      privacy_agreed: isAgreed.value ? 'Y' : 'N'
+     
     };
 
     // 엔드포인트를 데이터 복구 전용 API로 변경 (확인 필요)
