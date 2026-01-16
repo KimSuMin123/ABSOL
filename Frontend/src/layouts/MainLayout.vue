@@ -76,6 +76,15 @@
             <q-item-section>챗봇상담</q-item-section>
           </q-item>
           <q-separator/>
+        <q-item clickable v-ripple to="/membership" @click="leftDrawerOpen = false">
+  <q-item-section avatar>
+    <q-icon name="card_membership" />
+  </q-item-section>
+  
+  <q-item-section>
+    멤버십 변경
+  </q-item-section>
+</q-item>
         </q-list>
       </q-scroll-area>
     </q-drawer>
