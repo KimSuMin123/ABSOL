@@ -19,6 +19,9 @@
         <q-tab-panel name="repairs" class="q-pa-none">
           <RepairHistory />
         </q-tab-panel>
+  <q-tab-panel name="datarepairs" class="q-pa-none">
+          <DataRepairHistory/>
+        </q-tab-panel>
 
         <q-tab-panel name="estimates" class="q-pa-none">
           <EstimateHistory />
@@ -44,6 +47,7 @@ import RepairHistory from '../components/RepairHistory.vue';
 import MyPcSpecs from '../components/MyPcSpecs.vue';
 import EstimateHistory from '../components/EstimateHistory.vue';
 import UserSettings from '../components/UserSettings.vue';
+import DataRepairHistory from '../components/DataRepairHistory.vue';
 
 // 기본 탭 설정
 const tab = ref('orders');
