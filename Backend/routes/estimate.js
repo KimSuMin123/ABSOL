@@ -141,7 +141,27 @@ router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
     });
   }
 });
+// 상세 견적서 정보(PDF 경로 포함) 조회
+router.get('/detail/:estimate_id', async (req, res) => {
+  try {
+    const { estimate_id } = req.params;
+    
+    // DB에서 해당 견적 ID의 상세 정보를 찾음
+    const detail = await EstimateDetail.findOne({
+      where: { estimate_id },
+      order: [['createdAt', 'DESC']] // 가장 최근에 생성된 것
+    });
 
-module.exports = router;
+    if (!detail) {
+      return res.status(404).json({ success: false, message: '상세 내역을 찾을 수 없습니다.' });
+    }
 
+    res.json({
+      success: true,
+      data: detail // 여기에 pdf_path가 포함되어 내려갑니다.
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 module.exports = router;

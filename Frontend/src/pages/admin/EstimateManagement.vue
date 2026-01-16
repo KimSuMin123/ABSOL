@@ -39,9 +39,6 @@
               <div class="text-caption text-grey-7">
                 <q-icon name="location_on" /> {{ estimate.full_address || '주소 정보 없음' }}
               </div>
-              <div class="text-weight-bold text-teal-9 q-mt-sm">
-                <q-icon name="computer" size="xs" /> 용도: {{ estimate.usage }}
-              </div>
             </q-card-section>
 
             <q-card-section class="col-3 border-left">
@@ -49,14 +46,11 @@
               <div class="text-subtitle1 text-weight-bolder text-primary q-mb-sm">
                 {{ estimate.budget ? estimate.budget.toLocaleString() : 0 }} 만원
               </div>
-              <div class="text-caption text-weight-bold text-grey-7">추가 요청</div>
-              <div class="text-body2 bg-grey-2 q-pa-sm rounded-borders scroll" style="height: 60px">
-                {{ estimate.description || '요청사항 없음' }}
-              </div>
+              <div class="text-caption text-weight-bold text-grey-7">용도: {{ estimate.usage }}</div>
             </q-card-section>
 
             <q-card-section class="col-6 border-left row q-col-gutter-sm items-start q-pa-md">
-              <div class="col-4">
+              <div class="col-5">
                 <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">진행 상태</div>
                 <q-select
                   v-model="estimate.status"
@@ -64,12 +58,27 @@
                   dense outlined bg-color="white"
                   @update:model-value="(val) => updateEstimate(estimate)"
                 />
-                <div class="text-caption text-grey-6 q-mt-sm">
-                  신청일: {{ estimate.createdAt?.substring(0, 10) }}
-                </div>
+                
+                <q-btn 
+                  v-if="estimate.status === '견적발송중'"
+                  label="견적서 작성하러 가기" 
+                  color="primary" 
+                  icon="edit_note"
+                  class="full-width q-mt-md"
+                  @click="goToDetail(estimate)"
+                />
+
+                <q-btn 
+                  v-if="['견적발송완료', '배송중', '배송완료'].includes(estimate.status)"
+                  label="견적서 확인 (PDF)" 
+                  color="secondary" 
+                  icon="picture_as_pdf"
+                  class="full-width q-mt-md"
+                  @click="viewPDF(estimate)"
+                />
               </div>
 
-              <div class="col-8 row q-col-gutter-x-xs" v-if="estimate.status === '배송중' || estimate.status === '배송완료'">
+              <div class="col-7 row q-col-gutter-x-xs" v-if="['배송중', '배송완료'].includes(estimate.status)">
                 <div class="col-6">
                   <div class="text-caption text-weight-bold text-primary q-mb-xs">택배사</div>
                   <q-select
@@ -78,8 +87,7 @@
                     option-label="Name"
                     option-value="Code"
                     outlined dense bg-color="white"
-                    emit-value
-                    map-options
+                    emit-value map-options
                     @update:model-value="updateEstimate(estimate)"
                   />
                 </div>
@@ -88,7 +96,6 @@
                   <q-input 
                     v-model="estimate.tracking_number" 
                     dense outlined bg-color="white" 
-                    placeholder="번호 입력"
                     @blur="updateEstimate(estimate)" 
                   />
                 </div>
@@ -109,27 +116,40 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router'; // 라우터 추가
 
 const $q = useQuasar();
+const router = useRouter(); // 라우터 인스턴스
+
 const estimates = ref([]);
 const loading = ref(false);
 const deliveryCompanies = ref([]);
-
 const searchQuery = ref('');
 const statusFilter = ref('전체');
 
-// 검색 및 필터링 로직
-const filteredEstimates = computed(() => {
-  return estimates.value.filter(estimate => {
-    const search = searchQuery.value?.toLowerCase() || '';
-    const matchesSearch = (estimate.customer_name || '').toLowerCase().includes(search) || 
-                          (estimate.contact || '').includes(search);
-    const matchesStatus = statusFilter.value === '전체' || estimate.status === statusFilter.value;
-    return matchesSearch && matchesStatus;
+// 견적서 작성 페이지 이동 함수
+const goToDetail = (estimate) => {
+  router.push({
+    path: '/admin/estimatesDetail',
+    query: {
+      id: estimate.estimate_id,
+      name: estimate.customer_name,
+      contact: estimate.contact,
+      address: estimate.full_address
+    }
   });
-});
+};
 
-// 데이터 로드
+// PDF 보기 함수 (서버에 저장된 PDF 경로가 있을 경우)
+const viewPDF = (estimate) => {
+  if (estimate.pdf_path) {
+    window.open(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/${estimate.pdf_path}`, '_blank');
+  } else {
+    $q.notify({ color: 'warning', message: '생성된 PDF 파일이 없습니다. 견적서를 먼저 저장해주세요.' });
+  }
+};
+
+// (기존 loadData, loadCompanies, updateEstimate 함수들은 동일하게 유지...)
 const loadData = async () => {
   loading.value = true;
   try {
@@ -144,7 +164,6 @@ const loadData = async () => {
   }
 };
 
-// 택배사 리스트 로드 (수리 관리와 동일한 API 사용)
 const loadCompanies = async () => {
   try {
     const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/delivery/companyList');
@@ -154,7 +173,6 @@ const loadCompanies = async () => {
   }
 };
 
-// 견적 상태 및 배송 정보 업데이트
 const updateEstimate = async (estimate) => {
   try {
     const payload = {
@@ -162,20 +180,23 @@ const updateEstimate = async (estimate) => {
       tracking_number: estimate.tracking_number,
       delivery_company: estimate.delivery_company
     };
-
-    const res = await axios.patch(
-      `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates/${estimate.estimate_id}/status`, 
-      payload
-    );
-
-    if (res.data.success) {
-      $q.notify({ color: 'positive', message: '변경사항이 저장되었습니다.', timeout: 800 });
-    }
+    await axios.patch(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates/${estimate.estimate_id}/status`, payload);
+    $q.notify({ color: 'positive', message: '저장되었습니다.', timeout: 800 });
   } catch (error) {
     $q.notify({ color: 'negative', message: '업데이트 실패' });
-    loadData(); // 에러 시 데이터 롤백을 위해 재로드
+    loadData();
   }
 };
+
+const filteredEstimates = computed(() => {
+  return estimates.value.filter(estimate => {
+    const search = searchQuery.value?.toLowerCase() || '';
+    const matchesSearch = (estimate.customer_name || '').toLowerCase().includes(search) || 
+                          (estimate.contact || '').includes(search);
+    const matchesStatus = statusFilter.value === '전체' || estimate.status === statusFilter.value;
+    return matchesSearch && matchesStatus;
+  });
+});
 
 onMounted(async () => {
   await Promise.all([loadData(), loadCompanies()]);
