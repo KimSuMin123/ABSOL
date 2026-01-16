@@ -13,6 +13,7 @@ const sequelize = new Sequelize(config.database, config.username, config.passwor
 db.User = require('./Users')(sequelize, Sequelize);
 db.Product = require('./Product')(sequelize, Sequelize);
 db.Estimate = require('./Estimate')(sequelize, Sequelize);
+db.EstimateDetail = require('./EstimateDetail')(sequelize, Sequelize);
 db.Repair = require('./Repair')(sequelize, Sequelize);
 db.Order = require('./Order')(sequelize, Sequelize);
 db.CompanyInfo = require('./CompanyInfo')(sequelize, Sequelize);
