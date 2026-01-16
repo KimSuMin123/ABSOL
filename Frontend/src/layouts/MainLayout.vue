@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="lHh Lpr lff">
     <q-header v-if="isLoggedIn" elevated class="bg-grey-10">
       <q-toolbar>
         <q-btn flat dense round icon="menu" class="lt-md" @click="toggleLeftDrawer" />
