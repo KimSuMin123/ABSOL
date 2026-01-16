@@ -49,22 +49,27 @@
             <q-item-section avatar><q-icon name="build" /></q-item-section>
             <q-item-section>수리문의</q-item-section>
           </q-item>
+          <q-separator/>
           <q-item clickable v-ripple to="/estimate" @click="leftDrawerOpen = false">
             <q-item-section avatar><q-icon name="calculate" /></q-item-section>
             <q-item-section>조립견적</q-item-section>
           </q-item>
+          <q-separator/>
           <q-item clickable v-ripple to="/order" @click="leftDrawerOpen = false">
             <q-item-section avatar><q-icon name="shopping_bag" /></q-item-section>
             <q-item-section>상품구매</q-item-section>
           </q-item>
+          <q-separator/>
           <q-item clickable v-ripple to="/cart" @click="leftDrawerOpen = false">
             <q-item-section avatar><q-icon name="shopping_cart" /></q-item-section>
             <q-item-section>장바구니</q-item-section>
           </q-item>
+          <q-separator/>
           <q-item clickable v-ripple to="/chat" @click="leftDrawerOpen = false">
             <q-item-section avatar><q-icon name="smart_toy" /></q-item-section>
             <q-item-section>챗봇상담</q-item-section>
           </q-item>
+          <q-separator/>
         </q-list>
       </q-scroll-area>
     </q-drawer>
