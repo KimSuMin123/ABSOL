@@ -18,13 +18,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false,defaultValue: '고객님', 
       comment: '사용자 식별 ID'
     },
     estimate_id: {
       type: DataTypes.INTEGER,
       comment: '연관된 견적서 ID (Estimate 테이블 외래키)'
-    }
+    },pdf_path: { type: DataTypes.STRING }
   };
 
   // 3. 반복문을 통해 부품별 name, sn, warranty, price 컬럼을 자동 생성
