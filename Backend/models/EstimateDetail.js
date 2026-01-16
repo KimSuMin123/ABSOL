@@ -7,17 +7,12 @@ module.exports = (sequelize, DataTypes) => {
 
   // 2. 기본 컬럼 정의
   const columns = {
-    mypc_id: { 
-      type: DataTypes.INTEGER, 
-      primaryKey: true, 
-      autoIncrement: true 
-    },
     pc_nickname: { 
       type: DataTypes.STRING, 
       defaultValue: '내 컴퓨터' 
     },
     user_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,defaultValue: '고객님', 
       comment: '사용자 식별 ID'
     },
