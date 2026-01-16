@@ -40,6 +40,7 @@ const routes = [
       },{ path: '', component: () => import('../pages/admin/AdminDashboard.vue')},
       { path: 'mypcview', component: () => import('../pages/admin/AdminUserPCList.vue')},
        { path: 'estimatesDetail', component: () => import('../pages/admin/AdminEstimateDetail.vue') },
+        { path: 'datarepair', component: () => import('../pages/admin/AdminDataRepair.vue') },
     ]
   }
 ];

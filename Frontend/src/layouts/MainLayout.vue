@@ -13,10 +13,12 @@
         
         <div class="gt-sm row no-wrap items-center q-gutter-x-sm">
           <q-btn flat label="수리문의" to="/repairs" />
+           <q-btn flat label="데이터복구" to="datarepair"/>
           <q-btn flat label="조립견적" to="/estimate" />
           <q-btn flat label="상품구매" to="/order" />
           <q-btn flat label="장바구니" to="/cart" />
           <q-btn flat label="챗봇상담" to="/chat" />
+         
           <q-separator dark vertical inset class="q-mx-sm" />
         </div>
  <q-item-label header class="text-weight-bold q-mr-md">
@@ -54,6 +56,11 @@
           <q-item clickable v-ripple to="/repairs" @click="leftDrawerOpen = false">
             <q-item-section avatar><q-icon name="build" /></q-item-section>
             <q-item-section>수리문의</q-item-section>
+          </q-item>
+          <q-separator/>
+           <q-item clickable v-ripple to="/datarepair" @click="leftDrawerOpen = false">
+            <q-item-section avatar><q-icon name="settings_backup_restore" /></q-item-section>
+            <q-item-section>데이터복구</q-item-section>
           </q-item>
           <q-separator/>
           <q-item clickable v-ripple to="/estimate" @click="leftDrawerOpen = false">
