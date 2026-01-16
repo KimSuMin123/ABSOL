@@ -94,44 +94,54 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// 상세 견적 저장 API
 router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
   try {
-    // 1. 모델 존재 여부 확인 (가장 흔한 500 에러 원인)
-    if (!EstimateDetail) {
-      console.error('❌ Error: EstimateDetail model is undefined. Check models/index.js');
-      return res.status(500).json({ success: false, message: "서버 모델 로드 실패" });
-    }
-
+    // 1. 데이터 파싱
     const rawData = JSON.parse(req.body.data);
-    const partKeys = ['cpu', 'cooler', 'mb', 'ram', 'vga', 'ps', 'storage0', 'storage1', 'storage2', 'case', 'etc'];
 
-    // 2. 데이터 정제 (숫자형 변환 필수)
+    // 2. 부품 리스트 (모델 컬럼명과 정확히 일치해야 함)
+    const partKeys = [
+      'cpu', 'cooler', 'mb', 'ram', 'vga', 'ps', 
+      'storage0', 'storage1', 'storage2', 'case', 'etc'
+    ];
+
+    // 3. 저장용 객체 구성
     const saveData = {
       pc_nickname: rawData.pc_nickname || '내 컴퓨터',
-      user_id: parseInt(rawData.user_id) || 0, // NaN 방지
-      estimate_id: parseInt(rawData.estimate_id) || null,
+      user_id: rawData.user_id || null,
+      estimate_id: rawData.estimate_id || null,
       pdf_path: req.file ? req.file.path : null
     };
 
+    // 4. 반복문으로 부품 데이터 매핑 (rawData에서 정확한 키를 가져오도록 수정)
     partKeys.forEach(part => {
-      saveData[`${part}_name`] = String(rawData[`${part}_name`] || '');
-      saveData[`${part}_sn`] = String(rawData[`${part}_sn`] || '');
+      saveData[`${part}_name`] = rawData[`${part}_name`] || '';
+      saveData[`${part}_sn`] = rawData[`${part}_sn`] || '';
       saveData[`${part}_warranty`] = rawData[`${part}_warranty`] === true;
-      saveData[`${part}_price`] = parseInt(rawData[`${part}_price`]) || 0;
+      // 중요: 아까 오타가 있었던 부분입니다. 
+      saveData[`${part}_price`] = Number(rawData[`${part}_price`]) || 0;
     });
 
-    // 3. DB 실행
+    // 5. DB 저장
     const result = await EstimateDetail.create(saveData);
-    res.status(200).json({ success: true, id: result.mypc_id });
+
+    res.status(200).json({ 
+      success: true, 
+      id: result.mypc_id,
+      message: '성공적으로 저장되었습니다.' 
+    });
 
   } catch (error) {
-    // 서버 콘솔 로그를 반드시 확인해야 합니다.
     console.error('❌ DB 저장 상세 에러:', error);
     res.status(500).json({ 
       success: false, 
-      message: error.name === 'SequelizeValidationError' ? '데이터 형식이 맞지 않습니다.' : error.message 
+      message: '서버 저장 중 오류 발생',
+      error: error.message // 에러 원인을 프론트에 노출하여 확인
     });
   }
 });
+
+module.exports = router;
 
 module.exports = router;
