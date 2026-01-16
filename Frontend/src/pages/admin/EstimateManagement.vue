@@ -34,7 +34,10 @@
               <div class="row items-center q-mb-sm">
                 <q-badge color="teal-8" class="q-mr-sm">PC 견적</q-badge>
                 <div class="text-h6 text-weight-bold">{{ estimate.customer_name }}</div>
+                  <div class="text-h6 text-weight-bold text-white">{{ estimate.user_id }}</div>
+                   <div class="text-h6 text-weight-bold text-white">{{ estimate.estimate_id }}</div>
               </div>
+            
               <div class="text-caption text-grey-8 q-mb-xs"><q-icon name="phone" /> {{ estimate.contact }}</div>
               <div class="text-caption text-grey-7">
                 <q-icon name="location_on" /> {{ estimate.full_address || '주소 정보 없음' }}
@@ -127,41 +130,38 @@ const deliveryCompanies = ref([]);
 const searchQuery = ref('');
 const statusFilter = ref('전체');
 
-// 견적서 작성 페이지 이동 함수
 const goToDetail = (estimate) => {
   router.push({
     path: '/admin/estimatesDetail',
-    query: {
-      id: estimate.estimate_id,
-      name: estimate.customer_name,
-      contact: estimate.contact,
-      address: estimate.full_address
+    // state를 사용하면 URL에 파라미터가 붙지 않습니다.
+    state: {
+      estimateData: {
+        user_id: estimate.user_id,
+        estimate_id: estimate.estimate_id,
+        name: estimate.customer_name,
+        contact: estimate.contact,
+        address: estimate.full_address
+      }
     }
   });
 };
 
-const viewPDF = (estimate) => {
-  // 1. 경로가 아예 없는 경우
-  if (!estimate.pdf_path) {
-    $q.notify({ 
-      color: 'warning', 
-      icon: 'priority_high',
-      message: '아직 생성된 견적서 파일이 없습니다. [견적서 작성]을 먼저 완료해주세요.' 
-    });
-    return;
+// AdminEstimates.vue 의 viewPDF 함수를 아래와 같이 변경
+const viewPDF = async (estimate) => {
+  try {
+    // 1. 서버에 이 견적의 상세 정보를 따로 물어봄
+    const res = await axios.get(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates/detail/${estimate.estimate_id}`);
+    
+    if (res.data.success && res.data.data.pdf_path) {
+      const baseUrl = 'https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app';
+      const fullUrl = `${baseUrl}/${res.data.data.pdf_path.replace(/\\/g, '/')}`;
+      window.open(fullUrl, '_blank');
+    } else {
+      $q.notify({ color: 'warning', message: '저장된 PDF 파일이 없습니다.' });
+    }
+  } catch (err) {
+    $q.notify({ color: 'negative', message: 'PDF 정보를 가져오는 중 오류가 발생했습니다.' });
   }
-
-  // 2. 경로 가공 (역슬래시를 슬래시로 변경)
-  const baseUrl = 'https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app';
-  let cleanPath = estimate.pdf_path.replace(/\\/g, '/');
-  
-  // 3. 만약 경로 앞에 /가 없다면 추가
-  if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
-
-  const fullUrl = `${baseUrl}${cleanPath}`;
-  
-  console.log("접속 시도 URL:", fullUrl); // 디버깅용
-  window.open(fullUrl, '_blank');
 };
 // (기존 loadData, loadCompanies, updateEstimate 함수들은 동일하게 유지...)
 const loadData = async () => {

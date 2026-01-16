@@ -82,6 +82,7 @@
 
 <script setup>
 import { reactive, computed, ref } from 'vue';
+import { onMounted } from 'vue';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -104,7 +105,11 @@ const partsList = [
 ];
 
 const form = reactive({
-  estimate_id: null,
+  user_id: '',
+  estimate_id: '',
+  customer_name: '',
+  contact: '',
+  address: '',
   ...Object.fromEntries(partsList.flatMap(p => [
     [`${p.key}_name`, ''], 
     [`${p.key}_sn`, ''], 
@@ -116,7 +121,22 @@ const form = reactive({
 const totalPrice = computed(() => {
   return partsList.reduce((acc, curr) => acc + (form[`${curr.key}_price`] || 0), 0);
 });
+onMounted(() => {
+  // history.state 내부에 보낸 데이터가 담겨 있습니다.
+  const savedState = window.history.state?.estimateData;
 
+  if (savedState) {
+    form.user_id = savedState.user_id;
+    form.estimate_id = savedState.estimate_id;
+    form.customer_name = savedState.name;
+    form.contact = savedState.contact;
+    form.address = savedState.address;
+    
+    console.log('데이터 로드 완료:', savedState);
+  } else {
+    console.warn('넘겨받은 데이터가 없습니다.');
+  }
+});
 // 2. 백엔드 서버 전송 함수
 const submitAndDownload = async () => {
   try {
