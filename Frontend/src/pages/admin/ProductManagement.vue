@@ -74,6 +74,18 @@
               <div class="text-body2 bg-grey-1 q-pa-sm rounded-borders scroll" style="height: 70px">
                 {{ product.hardware_info || '미등록' }}
               </div>
+              <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">https://absoltech.kr/product/{{ product.product_id }}
+              <q-btn 
+    flat 
+    round 
+    dense 
+    color="grey-7" 
+    icon="content_copy" 
+    size="sm" 
+    @click="copyUrl(product.product_id)"
+  >
+    
+  </q-btn></div>
             </q-card-section>
 
             <q-card-section class="col-3 q-py-md flex flex-center border-left ">
@@ -290,6 +302,25 @@ const confirmDelete = (product) => {
       } catch (err) { $q.notify({ color: 'negative', message: '삭제 실패' }); }
     });
 };
-
+const copyUrl = async (id) => {
+  const url = `https://absoltech.kr/product/${id}`;
+  
+  try {
+    await navigator.clipboard.writeText(url);
+    $q.notify({
+      color: 'teal',
+      message: '주소가 클립보드에 복사되었습니다.',
+      icon: 'assignment_turned_in',
+      timeout: 1000,
+      position: 'top'
+    });
+  } catch (err) {
+    $q.notify({
+      color: 'negative',
+      message: '복사 실패',
+      icon: 'report_problem'
+    });
+  }
+};
 onMounted(loadProducts);
 </script>

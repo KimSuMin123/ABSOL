@@ -13,14 +13,16 @@
         </div>
 
         <q-card-section class="col-12 col-md-6 q-pa-xl bg-white border-left">
-          <div class="row items-center q-gutter-x-sm q-mb-md">
-            <q-badge :color="product.is_used ? 'orange-9' : 'teal-7'" class="q-pa-xs">
-              {{ product.is_used ? '중고 상품' : '새 상품' }}
-            </q-badge>
-            <q-badge v-if="product.stock > 0" color="blue-6">재고 보유</q-badge>
-            <q-badge v-else color="red-6">품절</q-badge>
-          </div>
+          <div v-if="product.show !== 'no'" class="row items-center q-gutter-x-sm q-mb-md">
+  
+  <q-badge :color="product.is_used ? 'orange-9' : 'teal-7'" class="q-pa-xs">
+    {{ product.is_used ? '중고 상품' : '새 상품' }}
+  </q-badge>
 
+  <q-badge v-if="product.stock > 0" color="blue-6">재고 보유</q-badge>
+  <q-badge v-else color="red-6">품절</q-badge>
+  
+</div>
           <div class="text-h4 text-weight-bolder q-mb-sm">{{ product.product_name }}</div>
           <div class="text-h5 text-primary text-weight-bold q-mb-lg">
             {{ product.product_price?.toLocaleString() }}원
@@ -44,11 +46,12 @@
 
           <div class="row q-col-gutter-sm">
             <div class="col-6">
-              <q-btn outline color="primary" label="장바구니 담기" icon="shopping_cart" class="full-width" size="lg" @click="addToCart" />
-            </div>
-            <div class="col-6">
               <q-btn color="primary" label="바로 구매하기" icon="bolt" class="full-width" size="lg" :disable="product.stock === 0" @click="openPurchaseDialog" />
             </div>
+            <div class="col-6">
+              <q-btn outline color="primary"  v-if="product.show !== 'no'" label="장바구니 담기" icon="shopping_cart" class="full-width" size="lg" @click="addToCart" />
+            </div>
+            
           </div>
         </q-card-section>
       </q-card>
