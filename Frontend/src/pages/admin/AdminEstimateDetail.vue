@@ -33,6 +33,9 @@
     <div class="preview-side">
       <div class="preview-wrapper">
         <div id="pdf-area" ref="pdfArea" class="quote-paper">
+          <div class="watermark">
+    <span class="wm-blue">AB</span><span class="wm-red">SOL</span>
+  </div>
          <div class="quote-header">
             <div class="quote-title">온라인 견적서</div>
             <div class="quote-logo-wrapper">
@@ -212,6 +215,28 @@ const submitAndDownload = async () => {
 </script>
 
 <style scoped>
+  .watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg); /* 중앙 배치 및 회전 */
+  font-size: 150px; /* 아주 크게 설정 */
+  font-weight: 900;
+  opacity: 0.08; /* 매우 흐리게 (0.05 ~ 0.1 권장) */
+  pointer-events: none; /* 클릭 방해 금지 */
+  user-select: none;
+  z-index: 0;
+  white-space: nowrap;
+}
+
+.wm-blue { color: #2294f2; }
+.wm-red { color: #f44336; }
+
+/* 기존 내용물들이 워터마크 위로 올라오도록 설정 */
+.quote-header, .info-grid, .items-table, .final-price-area {
+  position: relative;
+  z-index: 1;
+}
 .admin-quote-container {
   display: grid;
   grid-template-columns: 1fr 1fr; /* 정확히 50:50 분할 */
@@ -299,7 +324,8 @@ const submitAndDownload = async () => {
   height: 297mm;
   background: white;
   padding: 60px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3);position: relative; /* 중요: 워터마크 absolute의 기준 */
+  overflow: hidden;   /* 워터마크가 삐져나가지 않게 */
 }
 
 .quote-header {
