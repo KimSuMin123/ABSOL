@@ -19,7 +19,7 @@
           <q-btn flat dense icon="settings_backup_restore" label="데이터 복구"to="/admin/datarepair" />
           <q-btn flat dense icon="receipt_long" label="상품구매이력" to="/admin/orders" />
           <q-btn flat dense icon="view_carousel" label="배너 편집" to="/admin/banner" />
-          
+          <q-btn flat dense icon= 'payments'label="관리자 결제" to="/admin/nopay" />
           <q-btn flat round dense icon="home" to="/order">
             <q-tooltip>사용자 페이지로 이동</q-tooltip>
           </q-btn>
