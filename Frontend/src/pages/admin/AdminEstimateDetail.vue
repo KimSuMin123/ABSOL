@@ -116,7 +116,8 @@ import { reactive, computed, ref, onMounted } from 'vue';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-
+import { useRouter } from 'vue-router';
+const router = useRouter();
 const pdfArea = ref(null);
 const todayDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
@@ -204,8 +205,17 @@ const submitAndDownload = async () => {
     const response = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates/save-detail', formData);
 
     if (response.data.success) {
+      try {
+        await axios.patch(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates/${form.estimate_id}/status`, {
+          status: '견적발송완료'
+        });
+      } catch (statusErr) {
+        console.error('상태 업데이트 실패:', statusErr);
+        // 상태 변경 실패는 경고 정도로 처리 (파일은 이미 저장되었으므로)
+      }
       pdf.save(`${form.pc_nickname}.pdf`);
       alert('견적서가 서버에 저장되고 PDF 다운로드가 시작되었습니다.');
+     router.push('/admin/estimates');
     }
   } catch (err) {
     console.error(err);
