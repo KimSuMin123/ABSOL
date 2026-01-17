@@ -76,7 +76,7 @@ router.get('/admin/all', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { search } = req.query;
-    let whereClause = { stock: { [Op.gt]: 0 } };
+    let whereClause = { stock: { [Op.gt]: 0 }, show: { [Op.ne]: 'no' } };
     if (search) {
       whereClause.product_name = { [Op.like]: `%${search}%` };
     }

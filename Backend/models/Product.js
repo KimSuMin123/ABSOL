@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     is_used: { type: DataTypes.BOOLEAN, defaultValue: false },
     description: { type: DataTypes.TEXT },
-    hardware_info: { type: DataTypes.TEXT } 
+    hardware_info: { type: DataTypes.TEXT } ,
+    show: { type: DataTypes.TEXT } 
   }, {
     tableName: 'Products',
     timestamps: true
