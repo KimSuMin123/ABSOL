@@ -65,6 +65,7 @@
             </q-card-section>
 
            <q-card-section class="col-5 q-py-md border-left row q-col-gutter-sm items-center">
+            <template v-if="!order.product_name?.includes('멤버십 업그레이드')">
   <div class="col-6">
     <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">단계 변경</div>
     <q-select
@@ -100,6 +101,7 @@
       <template v-slot:append><q-icon name="save" size="xs" color="primary" /></template>
     </q-input>
   </div>
+  </template>
 </q-card-section>
           </q-card-section>
         </q-card>

@@ -25,7 +25,7 @@
                     {{ (order.total_price || 0).toLocaleString() }}원
                   </div>
                   <q-badge 
-  v-if="order.product_name && !order.product_name.includes('업그레이드')"
+  v-if="order.product_name && !order.product_name.includes('멤버십 업그레이드')"
   outline 
   :color="getStatusColor(order.status)" 
   class="text-weight-bold" 

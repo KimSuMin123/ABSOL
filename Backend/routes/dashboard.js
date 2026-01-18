@@ -21,7 +21,9 @@ router.get('/summary', async (req, res) => {
     // 2. 미처리 목록 (접수완료 상태) 병렬 조회
     const [newOrders, newRepairs, newEstimates] = await Promise.all([
       Order.findAll({ 
-        where: { status: '접수완료' }, 
+        where: { status: '접수완료' ,product_name: {
+        [Op.notLike]: '%멤버십 업그레이드%'
+      }}, 
         order: [['createdAt', 'DESC']],
         limit: 5 // 대시보드 성능을 위해 최근 5건만
       }),
