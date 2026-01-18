@@ -6,10 +6,24 @@
       <q-card flat bordered class="row no-wrap shadow-2 rounded-borders overflow-hidden">
         <div class="col-12 col-md-6 bg-white flex flex-center">
           <q-img
-            :src="product.image_url ? `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${product.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'"
-            style="max-width: 100%; height: auto;"
-            class="q-ma-md"
-          />
+  :src="getImageUrl(product.image_url)"
+  @error="(e) => { e.target.src = defaultLogo }"
+  style="max-width: 100%; height: auto;"
+  class="q-ma-md"
+>
+  <template v-slot:loading>
+    <q-spinner-dots color="primary" />
+  </template>
+
+  <template v-slot:error>
+    <div class="absolute-full flex flex-center bg-white text-grey-4">
+      <div class="column items-center">
+        <img :src="defaultLogo" style="width: 150px; opacity: 0.5;" />
+        <div class="text-caption q-mt-sm">이미지를 찾을 수 없습니다.</div>
+      </div>
+    </div>
+  </template>
+</q-img>
         </div>
 
         <q-card-section class="col-12 col-md-6 q-pa-xl bg-white border-left">
@@ -113,6 +127,13 @@ const submitting = ref(false);
 
 const purchaseDialog = ref(false);
 const detailInput = ref(null);
+
+import defaultLogo from '../assets/logo.png';
+
+const getImageUrl = (url) => {
+  if (!url) return defaultLogo; // URL이 없으면 로컬 로고 반환
+  return `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${url}`;
+};
 
 // 주문 폼: 초기값을 userStore에서 가져와 자동 입력 구현
 const orderForm = ref({
