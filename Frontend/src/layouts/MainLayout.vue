@@ -104,6 +104,7 @@
       <div class="text-center">
         <div class="text-weight-bold"><span class="text-blue-6">AB</span><span class="text-red-6">SOL</span>TECH</div>
         <div class="text-caption text-grey-5">대표자: 이용관 | TEL: 010-9857-7531</div>
+         <div class="text-caption text-grey-5">영업시간: 월-일 08:00 ~ 24:00 (연중무휴)</div>
       </div>
     </q-footer>
   </q-layout>
