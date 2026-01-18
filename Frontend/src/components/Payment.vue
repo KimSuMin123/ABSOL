@@ -64,6 +64,7 @@ const customerKey = 'USER_' + (userStore.user?.id || Math.random().toString(36).
 const currentMode = computed(() => {
   if (route.query.mode === 'direct') return 'DIRECT'     // 단일 상품 바로구매
   if (route.query.mode === 'membership') return 'MEMBERSHIP' // 멤버십 업그레이드
+  if (route.query.mode === 'ESTIMATE') return 'ESTIMATE' // 대문자 처리
   return 'CART' // 기본값: 장바구니
 })
 
@@ -78,7 +79,7 @@ const orderTitle = computed(() => {
   if (currentMode.value === 'MEMBERSHIP') {
     return `${route.query.level} 멤버십 업그레이드`
   }
-
+if (currentMode.value === 'ESTIMATE') return '조립 PC 맞춤 견적'
   // 3. 장바구니 결제 모드 (상품이 없을 때)
   if (cartStore.items.length === 0) return '상품 정보 없음'
 
@@ -90,6 +91,9 @@ const orderTitle = computed(() => {
 })
 // [변경] 결제 금액 계산
 const totalAmount = computed(() => {
+  if (currentMode.value === 'ESTIMATE') {
+    return Number(route.query.total_price || 0) // 쿼리에서 받은 금액 사용
+  }
   if (currentMode.value === 'DIRECT' && cartStore.pendingOrder) {
     return cartStore.pendingOrder.product_price
   }
@@ -137,7 +141,26 @@ const handlePayment = async () => {
         ? (userStore.user?.name || '구매자') 
         : (currentMode.value === 'DIRECT' ? cartStore.pendingOrder.customer_name : (userStore.user?.name || '구매자')),
       toss_order_id = `MEMBERSHIP_${userStore.user?.id}_${Date.now()}`
-    } else {
+    } else if(currentMode.value === 'ESTIMATE') {
+      // 견적서 결제를 위한 백엔드 API 호출
+     const payload = {
+        user_id: route.query.user_id,
+        estimate_id: route.query.estimateId,
+        product_name: '조립 PC 맞춤 견적',
+        total_price: Number(route.query.total_price), // 숫자로 변환
+        customer_name: route.query.customer_name,
+        phone: route.query.phone,
+        address: route.query.address
+      };
+      // 견적 결제 전용 엔드포인트가 있다면 해당 주소로 호출
+      const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders/direct', payload);
+      toss_order_id = res.data.toss_order_id;
+      await axios.patch(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/estimates/${route.query.estimateId}/status`, {
+        status: '결제완료' 
+      });
+      
+    }
+    else {
       // 2. 일반 주문(Direct/Cart)은 백엔드에 주문서 먼저 생성
       const payload = {
         user_id: userStore.user?.id || null,

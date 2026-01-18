@@ -17,7 +17,7 @@
           </q-input>
         </div>
         <div class="col-12 col-sm-6">
-          <q-select v-model="statusFilter" :options="['전체', '접수완료', '수리중', '수리완료', '배송중', '수령완료', '수리불가판정']" label="진행 단계 필터" dense outlined />
+          <q-select v-model="statusFilter" :options="['전체', '접수완료', '수리중', '수리완료', '결제완료','배송중', '수령완료', '수리불가판정']" label="진행 단계 필터" dense outlined />
         </div>
       </div>
     </div>

@@ -39,15 +39,28 @@
               <div v-if="estimate.description" class="q-mb-md q-pa-sm bg-grey-2 rounded-borders text-caption text-grey-9">
                 <q-icon name="chat_bubble_outline" class="q-mr-xs" /> {{ estimate.description }}
               </div>
-<div v-if="['견적발송완료', '배송중', '배송완료'].includes(estimate.status)" class="q-mb-md">
-  <q-btn 
-    outline 
-    color="secondary" 
-    icon="picture_as_pdf" 
-    label="내 견적서 확인 (PDF)" 
-    class="full-width"
-    @click="viewPDF(estimate)"
-  />
+<div class="row q-col-gutter-x-sm">
+  <div v-if="['견적발송완료', '배송중'].includes(estimate.status)" class="q-mb-md col-6">
+    <q-btn 
+      outline 
+      color="secondary" 
+      icon="picture_as_pdf" 
+      label="견적서 (PDF)" 
+      class="full-width"
+      @click="viewPDF(estimate)"
+    />
+  </div>
+
+  <div v-if="['견적발송완료'].includes(estimate.status)" class="q-mb-md col-6">
+    <q-btn 
+      outline 
+      color="primary" 
+      icon="credit_card" 
+      label="결제하기" 
+      class="full-width"
+      @click="goToPayment(estimate)"
+    />
+  </div>
 </div>
               <div v-if="estimate.tracking_number && String(estimate.tracking_number).trim() !== ''" class="delivery-box q-pa-sm rounded-borders bg-teal-1">
                 <div class="row items-center justify-between">
@@ -82,9 +95,11 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from '../stores/user';
+import { useRouter } from 'vue-router';
 
 const $q = useQuasar();
 const userStore = useUserStore();
+const router = useRouter();
 
 const estimates = ref([]); 
 const loading = ref(false);
@@ -174,6 +189,28 @@ const viewPDF = async (estimate) => {
       message: '견적서 정보를 가져오는 중 오류가 발생했습니다.' 
     });
   }
+};
+const goToPayment = (estimate) => {
+  if (!estimate || !estimate.estimate_id) {
+    $q.notify({ color: 'negative', message: '견적 정보를 찾을 수 없습니다.' });
+    return;
+  }
+
+  // 요구하신 모든 정보를 query 객체에 담습니다.
+  router.push({
+    path: '/pay',
+    query: {
+      mode: 'ESTIMATE',
+      estimateId: estimate.estimate_id,
+      user_id: userStore.user?.id || '',
+      // 견적서 데이터 구조에 맞춰 budget(만원 단위)을 원 단위로 변환하거나 
+      // 이미 계산된 total_price가 있다면 그것을 사용합니다.
+      total_price: estimate.total_price || (estimate.budget * 10000), 
+      customer_name: userStore.user?.name || '구매자',
+      phone: userStore.user?.phone || '01000000000',
+      address: userStore.user?.address || '기본 배송지'
+    }
+  });
 };
 </script>
 

@@ -57,7 +57,7 @@
                 <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">진행 상태</div>
                 <q-select
                   v-model="estimate.status"
-                  :options="['접수완료', '견적발송중', '견적발송완료', '배송중', '배송완료']"
+                  :options="['접수완료', '견적발송중', '견적발송완료','결제완료', '배송중', '배송완료']"
                   dense outlined bg-color="white"
                   @update:model-value="(val) => updateEstimate(estimate)"
                 />

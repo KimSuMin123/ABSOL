@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 'Y'
     },
     status: {
-      type: DataTypes.ENUM('접수완료', '견적발송중', '견적발송완료','배송중', '배송완료'),
+      type: DataTypes.ENUM('접수완료', '견적발송중', '견적발송완료','배송중', '배송완료', '결제 완료'),
       allowNull: false,
       defaultValue: '접수완료'
     },
