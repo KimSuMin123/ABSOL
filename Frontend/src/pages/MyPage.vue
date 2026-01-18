@@ -40,7 +40,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useUserStore } from '../stores/user';
 import UserProfileCard from '../components/UserProfileCard.vue';
 import OrderHistory from '../components/OrderHistory.vue';
 import RepairHistory from '../components/RepairHistory.vue';
@@ -50,5 +51,12 @@ import UserSettings from '../components/UserSettings.vue';
 import DataRepairHistory from '../components/DataRepairHistory.vue';
 
 // 기본 탭 설정
+const userStore = useUserStore();
 const tab = ref('orders');
+onMounted(async () => {
+  if (userStore.isLoggedIn) {
+    await userStore.fetchProfile();
+  }
+});
+
 </script>
