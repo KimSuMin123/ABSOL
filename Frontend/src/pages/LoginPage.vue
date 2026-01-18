@@ -37,9 +37,9 @@
         </q-card>
       </div>
 
- <div class="col-12 col-md-7 column q-gutter-y-md">
-  <q-card flat bordered class="bg-grey-3 q-pa-lg" style="border-radius: 10px; flex: 1;">
-    <div class="row items-center justify-between no-wrap q-mb-xl">
+ <div class="col-12 col-md-7 column q-gutter-y-md justify-center">
+  <q-card flat bordered class="bg-grey-3 q-pa-md" style="border-radius: 10px;">
+    <div class="row items-center justify-between no-wrap q-mb-sm">
       <div class="text-h5 text-weight-bold">견적 요청(비회원)</div>
       <q-icon name="calculate" size="64px" color="grey-6" />
     </div>
@@ -49,14 +49,24 @@
     </div>
   </q-card>
 
-  <q-card flat bordered class="bg-grey-3 q-pa-lg" style="border-radius: 10px; flex: 1;">
-    <div class="row items-center justify-between no-wrap q-mb-xl">
-      <div class="text-h5 text-weight-bold">수리 및 복구(비회원)</div>
+  <q-card flat bordered class="bg-grey-3 q-pa-md" style="border-radius: 10px;">
+    <div class="row items-center justify-between no-wrap q-mb-sm">
+      <div class="text-h5 text-weight-bold">수리 신청(비회원)</div>
       <q-icon name="build_circle" size="64px" color="grey-6" />
     </div>
 
     <div class="row items-center">
       <q-btn label="신청하기" color="grey-8" unelevated @click="goToGuest('repair')" />
+    </div>
+  </q-card>
+    <q-card flat bordered class="bg-grey-3 q-pa-md" style="border-radius: 10px;">
+    <div class="row items-center justify-between no-wrap q-mb-sm">
+      <div class="text-h5 text-weight-bold">데이터 복구 신청(비회원)</div>
+      <q-icon name="save" size="64px" color="grey-6" />
+    </div>
+
+    <div class="row items-center">
+      <q-btn label="신청하기" color="grey-8" unelevated @click="goToGuest('datarepair')" />
     </div>
   </q-card>
 </div>
@@ -108,7 +118,13 @@ const handleLogin = async () => {
 };
 
 const goToGuest = (type) => {
-  router.push(type === 'estimate' ? '/estimate' : '/repairs');
+  if (type === 'estimate') {
+    router.push('/estimate');
+  } else if (type === 'repair') {
+    router.push('/repairs');
+  } else if (type === 'datarepair') {
+    router.push('/datarepair'); // 데이터 복구 전용 경로
+  }
 };
 </script>
 
