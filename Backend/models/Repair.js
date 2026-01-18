@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define('Repair', {
     user_id:{
-type: DataTypes.STRING, allowNull:true
+type: DataTypes.INTEGER,  allowNull:true
     },
     repair_id: { 
       type: DataTypes.INTEGER, 
