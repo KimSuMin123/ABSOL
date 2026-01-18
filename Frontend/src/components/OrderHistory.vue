@@ -24,9 +24,15 @@
                   <div class="text-h5 text-weight-bolder text-primary">
                     {{ (order.total_price || 0).toLocaleString() }}원
                   </div>
-                  <q-badge outline :color="getStatusColor(order.status)" class="text-weight-bold" style="font-size: 14px; padding: 4px 8px;">
-                    {{ order.status }}
-                  </q-badge>
+                  <q-badge 
+  v-if="order.product_name && !order.product_name.includes('업그레이드')"
+  outline 
+  :color="getStatusColor(order.status)" 
+  class="text-weight-bold" 
+  style="font-size: 14px; padding: 4px 8px;"
+>
+  {{ order.status }}
+</q-badge>
                 </div>
 
                 <div v-if="order.status === '배송중' && order.tracking_number" class="delivery-box q-pa-sm rounded-borders bg-indigo-1">
