@@ -50,7 +50,7 @@
     <q-drawer v-if="isLoggedIn" v-model="leftDrawerOpen" side="left" bordered overlay behavior="mobile" class="bg-grey-1">
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item class="text-weight-bold text-h5">
+          <q-item class="text-weight-bold text-h5 q-mb-lg">
             <span class="text-blue-6">AB</span><span class="text-red-6">SOL</span>TECH
           </q-item>
           <q-item clickable v-ripple to="/repairs" @click="leftDrawerOpen = false">
@@ -84,16 +84,28 @@
           </q-item>
           <q-separator/>
         <q-item clickable v-ripple to="/membership" @click="leftDrawerOpen = false">
-  <q-item-section avatar>
-    <q-icon name="card_membership" />
-  </q-item-section>
-  
-  <q-item-section>
-    멤버십 변경
-  </q-item-section>
-</q-item>
-        </q-list>
+          <q-item-section avatar>
+            <q-icon name="card_membership" />
+          </q-item-section>
+          
+          <q-item-section>
+            멤버십 변경
+          </q-item-section>
+        </q-item>
+        
+      </q-list>
+        
       </q-scroll-area>
+      <div class="absolute-bottom q-pa-md bg-grey-1">
+    <q-btn 
+      class="full-width text-weight-bold" 
+      style="background-color: #FEE500; color: #3c1e1e;"
+      icon="chat" 
+      label="카카오톡 상담하기" 
+      unelevated
+      @click="openKakao"
+    />
+  </div>
     </q-drawer>
 
     <q-page-container>
@@ -121,7 +133,10 @@ const $q = useQuasar();
 const userStore = useUserStore();
 
 const leftDrawerOpen = ref(false);
-
+const openKakao = () => {
+  // 실제 카카오톡 오픈채팅이나 채널 링크를 입력하세요
+  window.open('https://pf.kakao.com/_XXXXX', '_blank');
+};
 // [핵심] 스토어의 isLoggedIn 변화를 실시간으로 감시합니다.
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
