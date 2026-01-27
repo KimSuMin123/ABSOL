@@ -50,7 +50,7 @@
       <div v-else class="row q-col-gutter-sm">
         <div v-for="product in products" :key="product.product_id" class="col-6 col-sm-4 col-md-2">
           <q-card class="product-card-compact no-shadow border-light cursor-pointer" @click="goToDetail(product.product_id)">
-            <q-img :src="product.image_url ? `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${product.image_url}` : 'https://cdn.quasar.dev/img/no-image.png'" :ratio="1">
+            <q-img :src="product.image_url ? `https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app${product.image_url}` : '/src/assets/logo.png'" :ratio="1">
                </q-img>
             <q-card-section class="q-pa-xs">
               <div class="text-caption text-weight-bold ellipsis-2-lines" style="height: 34px;">{{ product.product_name }}</div>
