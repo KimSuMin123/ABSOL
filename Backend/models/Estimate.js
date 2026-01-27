@@ -54,7 +54,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING, 
       allowNull: true,
       comment: '스마트택배 택배사 코드 (예: 04)'
-    },
+    },real_price :{
+      type: DataTypes.STRING, 
+      allowNull: true,
+    }
   }, {
     timestamps: true
   });
