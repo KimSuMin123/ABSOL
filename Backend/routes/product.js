@@ -76,16 +76,32 @@ router.get('/admin/all', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { search } = req.query;
-    let whereClause = { stock: { [Op.gt]: 0 }, show: { [Op.ne]: 'no' } };
+
+    // 조건 설정
+    let whereClause = {
+      // 1. 재고가 0보다 크고
+      stock: { [Op.gt]: 0 },
+      
+      // 2. show가 'no'가 아니거나, 아예 null인 경우 포함
+      [Op.or]: [
+        { show: { [Op.ne]: 'no' } }, // 'no'가 아님
+        { show: null }               // 또는 null임
+      ]
+    };
+
+    // 검색어가 있을 경우 조건 추가
     if (search) {
       whereClause.product_name = { [Op.like]: `%${search}%` };
     }
+
     const products = await Product.findAll({
       where: whereClause,
       order: [['createdAt', 'DESC']]
     });
+
     res.json({ success: true, data: products });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
