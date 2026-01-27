@@ -10,6 +10,6 @@ module.exports = (sequelize, DataTypes) => {
     level: { 
       type: DataTypes.ENUM('Basic', 'Standard', 'Green', 'Silver', 'Gold'), 
       defaultValue: 'Basic' 
-    }, levelday: { type: DataTypes.STRING },
+    }, levelday: { type: DataTypes.STRING, allowNull: true },
   });
 };
