@@ -62,8 +62,7 @@ router.post('/register', async (req, res) => {
       customer_name,
       phone,
       address: full_address, // DB의 address 컬럼에 합쳐진 주소 저장
-      level: 'Basic',
-      levelday: today 
+      level: 'Basic'
     });
 
     // 3. 고객 번호 조합 로직
