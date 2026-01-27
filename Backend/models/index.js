@@ -20,7 +20,7 @@ db.CompanyInfo = require('./CompanyInfo')(sequelize, Sequelize);
 db.MyPC = require('./MyPC')(sequelize, Sequelize);
 db.Banner = require('./Banner')(sequelize, Sequelize);
 db.DataRepair = require('./DataRepair')(sequelize, Sequelize);
-
+db.Qna = require('./Qna')(sequelize, Sequelize);
 // 3. 관계 정의 (작성하신 코드 적용)
 // 회원 <-> 견적, 수리, 주문
 db.User.hasMany(db.Estimate, { foreignKey: 'user_id', sourceKey: 'user_id' });

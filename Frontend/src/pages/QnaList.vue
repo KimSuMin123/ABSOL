@@ -42,13 +42,15 @@ const qnaList = ref([]);
 
 const loadQnas = async () => {
   try {
-    const res = await axios.get('https://YOUR_API_URL/api/qna');
-    qnaList.value = res.data;
+    const res = await axios.get('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/qna');
+    // 수정: res.data 가 아니라 res.data.data 를 넣어야 배열이 들어갑니다.
+    if (res.data.success) {
+      qnaList.value = res.data.data;
+    }
   } catch (err) {
     console.error('Q&A 로드 실패', err);
   }
 };
-
 const goToWrite = () => router.push('/qna/write');
 const goToDetail = (id) => router.push(`/qna/${id}`);
 const formatDate = (date) => new Date(date).toLocaleDateString();
