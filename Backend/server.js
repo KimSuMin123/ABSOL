@@ -17,6 +17,7 @@ const dashboardRouter =require('./routes/dashboard')
 const deliveryRouter =require('./routes/delivery')
 const chatbotRouter =require('./routes/chatbot')
 const DataRepairRouter =require('./routes/dataRepair')
+const qnaRouter = require('./routes/qna');
 // 환경변수 설정
 dotenv.config();
 
@@ -63,7 +64,7 @@ app.use('/api/delivery',deliveryRouter)
 app.use('/api/chatbot',chatbotRouter)
 app.use('/api/data-repairs',DataRepairRouter)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+app.use('/api/qna', qnaRouter);
 // 데이터베이스 연결 및 서버 실행
 sequelize.sync({force: false}) // force: false는 기존 테이블을 삭제하지 않고 유지함
   .then(() => {
