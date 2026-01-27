@@ -20,10 +20,9 @@ const routes = [
       { path: 'find-pw', component: () => import('../components/FindPwPage.vue') },
       { path: 'membership', component: () => import('../components/MembershipChange.vue') },
       { path: 'datarepair', component: () => import('../components/DateRepairForm.vue') },
-      { path: 'qna', component: () => import('../pages/QnaList.vue') },{
-  path: 'qna/write',
-  component: () => import('../pages/QnaWrite.vue'), // 파일 위치 확인
-},
+      { path: 'qna', component: () => import('../pages/QnaList.vue') },
+      {path: 'qna/write',component: () => import('../pages/QnaWrite.vue')},
+      {path: 'qna/:id', component: () => import('../pages/QnaDetail.vue')},
     ]
   },
 

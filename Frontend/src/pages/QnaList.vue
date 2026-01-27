@@ -8,7 +8,13 @@
 
       <q-card flat bordered class="shadow-1">
         <q-list separator>
-          <q-item v-for="qna in qnaList" :key="qna.id" clickable v-ripple @click="goToDetail(qna.id)">
+         <q-item 
+  v-for="qna in qnaList" 
+  :key="qna.qna_id" 
+  clickable 
+  v-ripple 
+  @click="goToDetail(qna.qna_id)" 
+>
             <q-item-section side>
               <q-badge :color="qna.is_answered ? 'teal' : 'orange'" :label="qna.is_answered ? '답변완료' : '답변대기'" />
             </q-item-section>

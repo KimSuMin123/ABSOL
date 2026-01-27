@@ -27,12 +27,12 @@
             :rules="[val => !!val || '작성자 성함을 입력해주세요']"
           />
 
-          <div class="row items-center q-gutter-x-sm">
+          <!-- <div class="row items-center q-gutter-x-sm">
             <q-checkbox v-model="form.is_private" label="비밀글로 작성하기" color="primary" />
             <q-icon name="help_outline" size="xs" color="grey-6">
               <q-tooltip>비밀글은 작성자와 관리자만 볼 수 있습니다.</q-tooltip>
             </q-icon>
-          </div>
+          </div> -->
 
           <div>
             <div class="text-subtitle2 q-mb-xs text-grey-7">상세 내용</div>
