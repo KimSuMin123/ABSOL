@@ -62,7 +62,8 @@ router.post('/register', async (req, res) => {
       customer_name,
       phone,
       address: full_address, // DB의 address 컬럼에 합쳐진 주소 저장
-      level: 'Basic'
+      level: 'Basic',
+      levelday: today 
     });
 
     // 3. 고객 번호 조합 로직
@@ -96,15 +97,23 @@ router.post('/register', async (req, res) => {
  */
 router.patch('/users/:id/level', async (req, res) => {
   try {
-    const { level } = req.body;
-    // User 모델의 Primary Key 컬럼명이 'id'인지 'user_id'인지 확인 후 수정
+    const { level, days } = req.body; // days: 지정일수 (예: 30)
+    
+    // 만료 날짜 계산 (오늘 + 지정일수)
+    const expireDate = new Date();
+    expireDate.setDate(expireDate.getDate() + parseInt(days || 30)); // 기본 30일
+    const levelday = expireDate.toISOString().split('T')[0];
+
     const result = await User.update(
-      { level }, 
-      { where: { id: req.params.id } } // 또는 user_id: req.params.id
+      { 
+        level: level, 
+        levelday: levelday 
+      }, 
+      { where: { user_id: req.params.id } }
     );
     
     if (result[0] > 0) {
-      res.json({ success: true, message: '회원 등급이 변경되었습니다.' });
+      res.json({ success: true, levelday });
     } else {
       res.status(404).json({ success: false, message: '유저를 찾지 못했습니다.' });
     }
@@ -112,6 +121,7 @@ router.patch('/users/:id/level', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
 
 // 아이디 중복 확인 API
 router.get('/check-id/:login_id', async (req, res) => {

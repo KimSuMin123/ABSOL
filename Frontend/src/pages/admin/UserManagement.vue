@@ -38,6 +38,7 @@
             <q-card-section class="col-3 q-py-md">
               <div class="row items-center q-mb-xs">
                 <q-badge :color="getLevelColor(user.level)" class="q-mr-sm">{{ user.level }}</q-badge>
+                 <div class="text-h6 text-weight-bold">{{ user.levelday }}</div>
                 <div class="text-h6 text-weight-bold">{{ user.customer_name }}</div>
               </div>
               <div class="text-subtitle2 text-primary">ID: {{ user.login_id }}</div>
