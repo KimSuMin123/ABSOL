@@ -4,26 +4,26 @@
       <q-btn flat icon="arrow_back" label="목록으로 돌아가기" color="grey-8" @click="$router.back()" class="q-mb-md" />
 
       <q-card flat bordered class="row no-wrap shadow-2 rounded-borders overflow-hidden">
-        <div class="col-12 col-md-6 bg-white flex flex-center">
+        <div class="col-12 col-md-6 bg-white flex flex-center gt-sm">
           <q-img
-  :src="getImageUrl(product.image_url)"
-  @error="(e) => { e.target.src = defaultLogo }"
-  style="max-width: 100%; height: auto;"
-  class="q-ma-md"
->
-  <template v-slot:loading>
-    <q-spinner-dots color="primary" />
-  </template>
+            :src="getImageUrl(product.image_url)"
+            @error="(e) => { e.target.src = defaultLogo }"
+            style="max-width: 100%; height: auto;"
+            class="q-ma-md"
+          >
+            <template v-slot:loading>
+              <q-spinner-dots color="primary" />
+            </template>
 
-  <template v-slot:error>
-    <div class="absolute-full flex flex-center bg-white text-grey-4">
-      <div class="column items-center">
-        <img :src="defaultLogo" style="width: 150px; opacity: 0.5;" />
-        <div class="text-caption q-mt-sm">이미지를 찾을 수 없습니다.</div>
-      </div>
-    </div>
-  </template>
-</q-img>
+            <template v-slot:error>
+              <div class="absolute-full flex flex-center bg-white text-grey-4">
+                <div class="column items-center">
+                  <img :src="defaultLogo" style="width: 150px; opacity: 0.5;" />
+                  <div class="text-caption q-mt-sm">이미지를 찾을 수 없습니다.</div>
+                </div>
+              </div>
+            </template>
+          </q-img>
         </div>
 
         <q-card-section class="col-12 col-md-6 q-pa-xl bg-white border-left">
@@ -59,14 +59,31 @@
           </div>
 
           <div class="row q-col-gutter-sm">
-            <div class="col-6">
-              <q-btn color="primary" label="바로 구매하기" icon="bolt" class="full-width" size="lg" :disable="product.stock === 0" @click="openPurchaseDialog" />
-            </div>
-            <div class="col-6">
-              <q-btn outline color="primary"  v-if="product.show !== 'no'" label="장바구니 담기" icon="shopping_cart" class="full-width" size="lg" @click="addToCart" />
-            </div>
-            
-          </div>
+  <div class="col-12 col-sm-6">
+    <q-btn 
+      color="primary" 
+      label="바로 구매하기" 
+      icon="bolt" 
+      class="full-width" 
+      size="lg" 
+      :disable="product.stock === 0" 
+      @click="openPurchaseDialog" 
+    />
+  </div>
+
+  <div class="col-6 gt-xs">
+    <q-btn 
+      outline 
+      color="primary" 
+      v-if="product.show !== 'no'" 
+      label="장바구니 담기" 
+      icon="shopping_cart" 
+      class="full-width" 
+      size="lg" 
+      @click="addToCart" 
+    />
+  </div>
+</div>
         </q-card-section>
       </q-card>
     </div>
