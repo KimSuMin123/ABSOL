@@ -100,7 +100,7 @@ router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
     // 1. 데이터 파싱
     const rawData = JSON.parse(req.body.data);
 
-    // 2. 부품 리스트
+    // 2. 부품 리스트 (모델 컬럼명과 정확히 일치해야 함)
     const partKeys = [
       'cpu', 'cooler', 'mb', 'ram', 'vga', 'ps', 
       'storage0', 'storage1', 'storage2', 'case', 'etc'
@@ -114,39 +114,22 @@ router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
       pdf_path: req.file ? req.file.path : null
     };
 
-    // --- [중요] 총액 계산을 위한 변수 선언 ---
-    let calculatedTotalPrice = 0; 
-
-    // 4. 반복문으로 부품 데이터 매핑 및 가격 합산
+    // 4. 반복문으로 부품 데이터 매핑 (rawData에서 정확한 키를 가져오도록 수정)
     partKeys.forEach(part => {
-      const price = Number(rawData[`${part}_price`]) || 0;
       saveData[`${part}_name`] = rawData[`${part}_name`] || '';
       saveData[`${part}_sn`] = rawData[`${part}_sn`] || '';
       saveData[`${part}_warranty`] = rawData[`${part}_warranty`] === true;
-      saveData[`${part}_price`] = price;
-      
-      calculatedTotalPrice += price; // 가격을 계속 더함
+      // 중요: 아까 오타가 있었던 부분입니다. 
+      saveData[`${part}_price`] = Number(rawData[`${part}_price`]) || 0;
     });
 
-    // 5. DB 저장 (상세 내역 생성)
+    // 5. DB 저장
     const result = await EstimateDetail.create(saveData);
-
-    // 6. 부모 테이블(Estimate) 업데이트
-    if (saveData.estimate_id) {
-      await Estimate.update(
-        { 
-          real_price: String(calculatedTotalPrice), // 계산된 총액 저장
-          status: '견적발송완료' // 상태를 업데이트해야 사용자 화면에 결제 버튼이 나타남
-        }, 
-        { where: { estimate_id: saveData.estimate_id } }
-      );
-    }
 
     res.status(200).json({ 
       success: true, 
       id: result.mypc_id,
-      total_price: calculatedTotalPrice,
-      message: '성공적으로 저장 및 업데이트되었습니다.' 
+      message: '성공적으로 저장되었습니다.' 
     });
 
   } catch (error) {
@@ -154,7 +137,7 @@ router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: '서버 저장 중 오류 발생',
-      error: error.message 
+      error: error.message // 에러 원인을 프론트에 노출하여 확인
     });
   }
 });

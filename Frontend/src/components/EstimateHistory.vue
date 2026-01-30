@@ -194,26 +194,21 @@ const goToPayment = (estimate) => {
   if (!estimate || !estimate.estimate_id) {
     $q.notify({ color: 'negative', message: '견적 정보를 찾을 수 없습니다.' });
     return;
-  }const finalPrice = estimate.real_price 
-    ? Number(estimate.real_price) 
-    : (Number(estimate.budget) * 10000);
-
-  if (!finalPrice || finalPrice <= 0) {
-    $q.notify({ color: 'warning', message: '확정된 결제 금액이 없습니다.' });
-    return;
   }
 
   // 요구하신 모든 정보를 query 객체에 담습니다.
-router.push({
+  router.push({
     path: '/pay',
     query: {
       mode: 'ESTIMATE',
       estimateId: estimate.estimate_id,
       user_id: userStore.user?.id || '',
-      total_price: finalPrice, 
-      customer_name: estimate.customer_name || userStore.user?.name || '구매자',
-      phone: estimate.contact || userStore.user?.phone || '01000000000',
-      address: estimate.full_address || userStore.user?.address || '기본 배송지'
+      // 견적서 데이터 구조에 맞춰 budget(만원 단위)을 원 단위로 변환하거나 
+      // 이미 계산된 total_price가 있다면 그것을 사용합니다.
+      total_price: estimate.total_price || (estimate.budget * 10000), 
+      customer_name: userStore.user?.name || '구매자',
+      phone: userStore.user?.phone || '01000000000',
+      address: userStore.user?.address || '기본 배송지'
     }
   });
 };
