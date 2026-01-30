@@ -125,7 +125,12 @@ router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
 
     // 5. DB 저장
     const result = await EstimateDetail.create(saveData);
-
+if (saveData.estimate_id) {
+      await Estimate.update(
+        { real_price: String(totalPrice) }, // 모델 정의에 맞게 문자열로 변환 (DataTypes.STRING 기준)
+        { where: { estimate_id: saveData.estimate_id } }
+      );
+    }
     res.status(200).json({ 
       success: true, 
       id: result.mypc_id,
