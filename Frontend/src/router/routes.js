@@ -54,10 +54,13 @@ const routes = [
        { path: 'estimatesDetail', component: () => import('../pages/admin/AdminEstimateDetail.vue') },
         { path: 'datarepair', component: () => import('../pages/admin/AdminDataRepair.vue') },
           { path: 'nopay', component: () => import('../pages/admin/NoPay.vue')},
-          { 
-        path: 'noti', 
+          { path: 'noti', 
         name: 'NoticeWrite', 
         component: () => import('../pages/admin/NoticeWrite.vue'
+        )},    { 
+        path: 'noti/edit/:id', 
+        name: 'NoticeEdit', 
+        component: () => import('../pages/admin/NoticeEdit.vue'
         )
         
       }

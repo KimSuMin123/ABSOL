@@ -5,6 +5,7 @@
         <div class="text-h5 text-weight-bolder text-teal-9">
           <q-icon name="campaign" color="teal" size="md" class="q-mr-sm" />공지사항
         </div>
+        
       </div>
 
       <q-card flat bordered class="shadow-1">
@@ -30,10 +31,7 @@
                 <q-badge color="orange" label="중요" />
               </q-item-section>
               
-              <q-item-section side v-else class="text-grey-5 text-caption">
-                {{ item.notice_id }}
-              </q-item-section>
-
+            
               <q-item-section>
                 <q-item-label class="text-weight-bold text-subtitle1">
                   {{ item.title }}
@@ -82,7 +80,7 @@ const fetchNotices = async () => {
 };
 
 const goToDetail = (id) => {
-  router.push(`/notice/${id}`);
+  router.push(`/noti/${id}`);
 };
 
 const formatDate = (date) => date ? date.substring(0, 10) : '';

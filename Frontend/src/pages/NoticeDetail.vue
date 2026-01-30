@@ -25,16 +25,17 @@
           <div style="white-space: pre-wrap; line-height: 1.8;">{{ notice.content }}</div>
         </q-card-section>
 
-        <q-separator />
-
-        <q-card-actions align="right" class="q-pa-md">
-          <q-btn flat color="grey-7" label="삭제" @click="deleteNotice" />
-          <q-btn flat color="teal" label="수정" :to="`/admin/notice/edit/${notice.notice_id}`" />
-        </q-card-actions>
+        <template v-if="authStore.isAdmin">
+          <q-separator />
+          <q-card-actions align="right" class="q-pa-md">
+            <q-btn flat color="negative" label="삭제" @click="deleteNotice" />
+            <q-btn flat color="teal" label="수정" :to="`/admin/noti/edit/${notice.notice_id}`" />
+          </q-card-actions>
+        </template>
       </q-card>
     </div>
 
-    <div v-else-if="loading" class="flex flex-center">
+    <div v-else-if="loading" class="flex flex-center" style="min-height: 400px;">
       <q-spinner-comment color="teal" size="50px" />
     </div>
   </q-page>
@@ -45,10 +46,13 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { useQuasar } from 'quasar';
+import { useAuthStore } from '../stores/auth'; // useAuthStore로 변경
 
 const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
+const authStore = useAuthStore(); // auth 스토어 사용
+
 const notice = ref(null);
 const loading = ref(true);
 
@@ -59,8 +63,8 @@ const fetchDetail = async () => {
       notice.value = res.data.data;
     }
   } catch (err) {
-    $q.notify({ color: 'negative', message: '글을 불러올 수 없습니다.' });
-    router.back();
+    $q.notify({ color: 'negative', message: '데이터를 불러오는 중 오류가 발생했습니다.' });
+    router.push('/noti');
   } finally {
     loading.value = false;
   }
@@ -68,15 +72,15 @@ const fetchDetail = async () => {
 
 const deleteNotice = () => {
   $q.dialog({
-    title: '삭제 확인',
+    title: '공지 삭제',
     message: '이 공지사항을 정말 삭제하시겠습니까?',
     cancel: true,
     persistent: true
   }).onOk(async () => {
     try {
       await axios.delete(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/notices/${notice.value.notice_id}`);
-      $q.notify({ color: 'positive', message: '삭제되었습니다.' });
-      router.push('/notice');
+      $q.notify({ color: 'positive', message: '성공적으로 삭제되었습니다.' });
+      router.push('/noti');
     } catch (err) {
       $q.notify({ color: 'negative', message: '삭제 실패' });
     }
@@ -87,10 +91,3 @@ const formatDate = (date) => date ? date.substring(0, 16).replace('T', ' ') : ''
 
 onMounted(fetchDetail);
 </script>
-
-<style scoped>
-.notice-content {
-  min-height: 300px;
-  color: #333;
-}
-</style>

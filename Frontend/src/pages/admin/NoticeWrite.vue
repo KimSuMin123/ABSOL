@@ -73,7 +73,7 @@ const onSubmit = async () => {
     const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/notices', form.value);
     if (res.data.success) {
       $q.notify({ color: 'positive', message: '공지사항이 등록되었습니다.' });
-      router.push('/notice'); // 등록 후 목록으로 이동
+      router.push('/noti'); // 등록 후 목록으로 이동
     }
   } catch (err) {
     console.error(err);
