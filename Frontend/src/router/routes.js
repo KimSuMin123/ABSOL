@@ -22,7 +22,16 @@ const routes = [
       { path: 'datarepair', component: () => import('../components/DateRepairForm.vue') },
       { path: 'qna', component: () => import('../pages/QnaList.vue') },
       {path: 'qna/write',component: () => import('../pages/QnaWrite.vue')},
-      {path: 'qna/:id', component: () => import('../pages/QnaDetail.vue')},
+      {path: 'qna/:id', component: () => import('../pages/QnaDetail.vue')},{ 
+        path: 'noti', 
+        name: 'NoticeList', 
+        component: () => import('../pages/NoticeList.vue') 
+      },
+      { 
+        path: 'noti/:id', 
+        name: 'NoticeDetail', 
+        component: () => import('../pages/NoticeDetail.vue') 
+      },
     ]
   },
 
@@ -44,7 +53,14 @@ const routes = [
       { path: 'mypcview', component: () => import('../pages/admin/AdminUserPCList.vue')},
        { path: 'estimatesDetail', component: () => import('../pages/admin/AdminEstimateDetail.vue') },
         { path: 'datarepair', component: () => import('../pages/admin/AdminDataRepair.vue') },
-          { path: 'nopay', component: () => import('../pages/admin/NoPay.vue')}
+          { path: 'nopay', component: () => import('../pages/admin/NoPay.vue')},
+          { 
+        path: 'noti', 
+        name: 'NoticeWrite', 
+        component: () => import('../pages/admin/NoticeWrite.vue'
+        )
+        
+      }
     ]
   }
 ];
