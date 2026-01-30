@@ -20,6 +20,7 @@
           <q-btn flat dense icon="receipt_long" label="상품구매이력" to="/admin/orders" />
           <q-btn flat dense icon="view_carousel" label="배너 편집" to="/admin/banner" />
           <q-btn flat dense icon= 'payments'label="관리자 결제" to="/admin/nopay" />
+          <q-btn flat dense icon= 'write'label="공지사항" to="/admin/noti" />
           <q-btn flat round dense icon="home" to="/order">
             <q-tooltip>사용자 페이지로 이동</q-tooltip>
           </q-btn>

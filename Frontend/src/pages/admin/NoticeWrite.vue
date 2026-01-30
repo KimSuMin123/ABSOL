@@ -2,7 +2,6 @@
   <q-page class="q-pa-md flex justify-center">
     <div style="max-width: 800px; width: 100%;">
       <div class="row items-center q-mb-md">
-        <q-btn flat round icon="arrow_back" @click="$router.back()" />
         <div class="text-h6 text-weight-bold">공지사항 작성</div>
       </div>
 

@@ -5,7 +5,6 @@
         <div class="text-h5 text-weight-bolder text-teal-9">
           <q-icon name="campaign" color="teal" size="md" class="q-mr-sm" />공지사항
         </div>
-        <q-btn color="teal" icon="add" label="글쓰기" unelevated to="/admin/notice/write" />
       </div>
 
       <q-card flat bordered class="shadow-1">
