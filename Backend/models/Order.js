@@ -4,24 +4,21 @@ module.exports = (sequelize, DataTypes) => {
     product_name: { type: DataTypes.STRING }, 
     customer_name: { type: DataTypes.STRING },
     phone: { type: DataTypes.STRING },
-    address: { type: DataTypes.STRING },delivery_company: { 
-      type: DataTypes.STRING,
-      allowNull: true 
-    },
+    address: { type: DataTypes.STRING },
+    delivery_company: { type: DataTypes.STRING, allowNull: true },
     total_price: { type: DataTypes.INTEGER },
     tracking_number: { type: DataTypes.STRING },
-    is_paid: { type: DataTypes.BOOLEAN, defaultValue: false },
-    // 진행 상태 컬럼 추가
+    // BOOLEAN은 0/1을 false/true로 자동 변환합니다.
+    is_paid: { type: DataTypes.BOOLEAN, defaultValue: 0 },
     status: { 
-      type: DataTypes.ENUM('접수완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료'), 
+      type: DataTypes.ENUM('접수완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료', '결제완료'), // '결제완료' 추가
       defaultValue: '접수완료' 
-    },toss_order_id: { // 토스 결제창에 보냈던 'ORDER_59gjpra57' 저장용
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },payment_key: { // 결제 승인 후 받는 고유 키 (환불 시 필요)
-      type: DataTypes.STRING,
-      allowNull: true
-    }
+    },
+    toss_order_id: { type: DataTypes.STRING, allowNull: false, unique: true },
+    payment_key: { type: DataTypes.STRING, allowNull: true },
+    // ★ pdf_path 컬럼 추가 ★
+    pdf_path: { type: DataTypes.STRING, allowNull: true },
+    // ★ product_ids 컬럼 추가 (문자열 저장용) ★
+    product_ids: { type: DataTypes.TEXT, allowNull: true }
   });
 };
