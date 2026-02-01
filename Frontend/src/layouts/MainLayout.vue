@@ -86,15 +86,18 @@
           </q-item>
           <q-separator/>
         <q-item clickable v-ripple to="/membership" @click="leftDrawerOpen = false">
-          <q-item-section avatar>
-            <q-icon name="card_membership" />
-          </q-item-section>
-          
-          <q-item-section>
-            멤버십 변경
-          </q-item-section>
-        </q-item>
-        
+  <q-item-section avatar>
+    <q-icon name="card_membership" color="primary" />
+  </q-item-section>
+  <q-item-section>멤버십 변경</q-item-section>
+</q-item>
+
+<q-item clickable v-ripple @click="handleLogout">
+  <q-item-section avatar>
+    <q-icon name="logout" color="primary" />
+  </q-item-section>
+  <q-item-section>로그아웃</q-item-section>
+</q-item>
       </q-list>
         
       </q-scroll-area>
