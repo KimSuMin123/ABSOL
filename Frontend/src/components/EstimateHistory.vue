@@ -31,7 +31,14 @@
               </div>
 
               <div class="row items-center q-gutter-x-sm q-mb-md text-grey-7">
-                <span class="text-weight-bold text-teal-9">예산: {{ estimate.budget?.toLocaleString() }}만원</span>
+                
+               <span v-if="estimate.real_price && estimate.real_price !== '0'" class="text-weight-bold text-teal-9">
+  결제가: {{ Number(estimate.real_price).toLocaleString() }}원
+</span>
+
+<span v-else class="text-weight-bold text-teal-9">
+  예산: {{ estimate.budget?.toLocaleString() }}만원
+</span>
                 <q-separator vertical inset class="q-mx-xs" />
                 <span>신청일: {{ formatDate(estimate.createdAt) }}</span>
               </div>
@@ -205,7 +212,7 @@ const goToPayment = (estimate) => {
       user_id: userStore.user?.id || '',
       // 견적서 데이터 구조에 맞춰 budget(만원 단위)을 원 단위로 변환하거나 
       // 이미 계산된 total_price가 있다면 그것을 사용합니다.
-      total_price: estimate.total_price || (estimate.budget * 10000), 
+      total_price: estimate.real_price, 
       customer_name: userStore.user?.name || '구매자',
       phone: userStore.user?.phone || '01000000000',
       address: userStore.user?.address || '기본 배송지'
