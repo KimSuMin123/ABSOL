@@ -191,6 +191,10 @@ router.post('/confirm', async (req, res) => {
         // 상단에서 User를 import 했으므로 이제 'User is not defined' 에러가 나지 않습니다.
         const user = await User.findByPk(userId); 
         if (!user) throw new Error('해당 유저를 DB에서 찾을 수 없습니다.');
+        // [핵심] 1년 만료 날짜 계산
+      const expireDate = new Date();
+      expireDate.setFullYear(expireDate.getFullYear() + 1); // 현재 날짜 기준 + 1년
+      const levelday = expireDate.toISOString().split('T')[0]; // YYYY-MM-DD 형식
 // [추가] 멤버십 주문 이력을 Order 테이블에 생성
         await Order.create({
           user_id: userId,
@@ -205,7 +209,8 @@ router.post('/confirm', async (req, res) => {
           status: '접수완료'
         }, { transaction: t });
         // 유저 등급 업데이트
-        await user.update({ level: targetLevel }, { transaction: t });
+        await user.update({ level: targetLevel,
+        levelday: levelday }, { transaction: t });
       } else {
         // 일반 주문(DIRECT/CART) 처리
         const order = await Order.findOne({ where: { toss_order_id: orderId }, transaction: t });
