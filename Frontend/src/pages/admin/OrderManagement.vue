@@ -21,7 +21,7 @@
         <div class="col-12 col-sm-6">
           <q-select 
             v-model="selectedStatusFilter" 
-            :options="['전체', '접수완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료']" 
+            :options="['전체', '접수완료', '결제완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료']" 
             label="진행 단계 필터" 
             dense outlined 
           />
@@ -58,6 +58,46 @@
               <div class="text-center">
                 <div class="text-body2 text-weight-bold text-blue-9">{{ order.total_price?.toLocaleString() }}원</div>
                 <div class="text-caption text-grey-6">{{ order.createdAt?.substring(0, 10) }}</div>
+          <div class="q-mt-md q-pa-sm bg-grey-1 rounded-borders border-grey-3">
+  <div class="row items-center q-gutter-x-sm">
+    <template v-if="order.pdf_path">
+      <q-btn 
+        label="주문서 PDF" 
+        icon="picture_as_pdf" 
+        color="red-9" 
+        flat
+        dense
+        size="sm"
+        @click="openPdf(order.pdf_path)"
+      >
+        <q-tooltip>PDF 파일 열기</q-tooltip>
+      </q-btn>
+    </template>
+    <div v-else class="text-caption text-grey-5 q-px-xs">PDF 없음</div>
+
+    <q-separator vertical inset class="q-mx-xs" />
+
+    <template v-if="order.product_ids && parseIds(order.product_ids).length > 0">
+      <div class="row q-gutter-x-xs">
+        <template v-for="id in parseIds(order.product_ids)" :key="id">
+          <q-btn
+            label="제품"
+            icon="launch"
+            color="primary"
+            flat
+            dense
+            size="sm"
+            @click="openProductPage(id)"
+          >
+            <q-tooltip>제품 상세: https://absoltech.kr/product/{{ id }}</q-tooltip>
+          </q-btn>
+        </template>
+      </div>
+    </template>
+    <div v-else class="text-caption text-grey-5 q-px-xs">연결 제품 없음</div>
+  </div>
+</div>
+
                 <q-badge :color="order.is_paid ? 'green' : 'red'" outline class="q-mt-xs">
                   {{ order.is_paid ? '결제완료' : '미결제' }}
                 </q-badge>
@@ -70,7 +110,7 @@
     <div class="text-caption text-weight-bold text-grey-7 q-mb-xs">단계 변경</div>
     <q-select
       v-model="order.status"
-      :options="['접수완료', '조립중', '조립완료', '상품출고', '배송중', '수령완료']"
+      :options="['접수완료', '조립중', '조립완료', '결제완료','상품출고', '배송중', '수령완료']"
       dense outlined bg-color="white"
       @update:model-value="(val) => updateOrderData(order, { status: val })"
     />
@@ -122,7 +162,28 @@ const orders = ref([]); // 원본 데이터
 const loading = ref(false);
 const searchQuery = ref('');
 const selectedStatusFilter = ref('전체');
+const openPdf = (path) => {
+  if (!path) return;
+  // 서버 주소와 경로를 결합 (서버 주소는 본인 환경에 맞게 수정)
+  const baseUrl = 'https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/';
+  // 백엔드에서 저장된 path가 'uploads/pdfs/...' 형태라면 그대로 붙여서 엽니다.
+  window.open(baseUrl + path, '_blank');
+};
 
+// 2. product_ids (문자열 또는 배열)를 안전하게 배열로 변환하는 함수
+const parseIds = (data) => {
+  if (!data) return [];
+  try {
+    // 이미 배열인 경우
+    if (Array.isArray(data)) return data;
+    // "[3, 4]" 형태의 문자열인 경우 파싱
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {
+    // 단순 숫자나 문자열인 경우
+    return [data];
+  }
+}
 // [핵심] 프론트엔드 실시간 필터 로직
 const filteredOrders = computed(() => {
   return orders.value.filter(order => {
@@ -190,6 +251,13 @@ const loadCompanyList = async () => {
     console.error('택배사 목록 로드 실패');
   }
 };
+const openProductPage = (id) => {
+  if (!id) return;
+  const url = `https://absoltech.kr/product/${id}`;
+  window.open(url, '_blank');
+};
+
+
 
 onMounted(() => {
   loadOrders();
