@@ -217,7 +217,7 @@ router.post('/confirm', async (req, res) => {
         if (order) {
           await order.update({ 
             is_paid: true, 
-            status: '접수완료', 
+            status: '결제완료', 
             payment_key: paymentKey 
           }, { transaction: t });
         } else {
