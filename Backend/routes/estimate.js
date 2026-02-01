@@ -166,25 +166,40 @@ router.get('/detail/:estimate_id', async (req, res) => {
 });
 
 // routes/estimate.js
+// routes/estimate.js
 router.get('/pdf', async (req, res) => {
   try {
+    // 1. 모든 데이터를 가져옵니다. (상세 정보 포함)
     const data = await Estimate.findAll({
       include: [{
         model: EstimateDetail,
         as: 'detail',
-        attributes: ['pdf_path'] // PDF 경로만 쏙 빼오기
+        attributes: ['pdf_path', 'createdAt'] // 상세 정보의 생성일도 확인
       }],
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']] // 일단 전체 최신순 정렬
     });
 
-    // 프론트엔드에서 쓰기 편하게 구조 가공
-    const result = data.map(item => ({
-      ...item.toJSON(),
-      pdf_path: item.detail ? item.detail.pdf_path : null
-    }));
+    // 2. [핵심] estimate_id를 기준으로 중복 제거 (가장 최신 것만 남김)
+    const uniqueMap = new Map();
+
+    data.forEach(item => {
+      const jsonItem = item.toJSON();
+      // Map은 키가 중복되면 덮어쓰지만, 
+      // 이미 정렬(DESC)되어 있으므로 처음 만난(가장 최신) ID만 저장하고 나머지는 무시합니다.
+      if (!uniqueMap.has(jsonItem.estimate_id)) {
+        uniqueMap.set(jsonItem.estimate_id, {
+          ...jsonItem,
+          pdf_path: jsonItem.detail ? jsonItem.detail.pdf_path : null
+        });
+      }
+    });
+
+    // Map의 값들을 다시 배열로 변환
+    const result = Array.from(uniqueMap.values());
 
     res.json({ success: true, data: result });
   } catch (err) {
+    console.error('견적 조회 에러:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
