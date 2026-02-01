@@ -248,23 +248,15 @@ router.post('/offline', upload.single('pdfFile'), async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const rawData = JSON.parse(req.body.data);
-    // 프론트에서 보낸 product_ids를 구조 분해 할당으로 가져옵니다.
     const { 
-      customer_name, 
-      contact, 
-      address, 
-      pay_method, 
-      total_price, 
-      items, 
-      product_ids 
+      customer_name, contact, address, pay_method, 
+      total_price, items, product_ids, is_paid, state 
     } = rawData;
 
-    // 1. 대표 상품명 생성
     const representativeName = items && items.length > 0 
       ? `${items[0].name}${items.length > 1 ? ' 외 ' + (items.length - 1) + '건' : ''}`
-      : '오프라인 자유 주문';
+      : '오프라인 주문';
 
-    // 2. 주문 생성
     const newOrder = await Order.create({
       customer_name,
       phone: contact,
@@ -273,28 +265,16 @@ router.post('/offline', upload.single('pdfFile'), async (req, res) => {
       product_name: representativeName,
       toss_order_id: `OFFLINE_${Date.now()}`,
       payment_key: `OFFLINE_${pay_method}`,
-      is_paid: 1, 
-      status: '접수완료',
-      // multer를 통해 저장된 PDF 경로
-      pdf_path: req.file ? req.file.path : null,
-      
-      // [중요] 생성된 제품 ID들을 저장 (Order 모델에 컬럼이 정의되어 있어야 함)
-      // 만약 DB 컬럼이 JSON 타입이면 그대로 넣고, 문자열 타입이면 JSON.stringify 처리
+      is_paid: is_paid, // 프론트에서 보낸 0 또는 1
+      status: state,    // 프론트에서 보낸 '접수완료' 또는 '결제완료'
+      pdf_path: req.file ? req.file.path : null, // 서버에 저장된 실제 경로
       product_ids: product_ids ? JSON.stringify(product_ids) : null 
     }, { transaction: t });
 
     await t.commit();
-    
-    // 생성된 order_id를 리턴하여 프론트에서 결제 URL 등에 사용하게 함
-    res.json({ 
-      success: true, 
-      order_id: newOrder.order_id,
-      pdf_url: req.file ? req.file.path : null 
-    });
-    
+    res.json({ success: true, order_id: newOrder.order_id });
   } catch (error) {
     if (t) await t.rollback();
-    console.error('주문 생성 에러:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

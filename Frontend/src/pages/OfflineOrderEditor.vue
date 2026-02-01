@@ -149,32 +149,13 @@ const removeItem = (index) => { if (form.items.length > 1) form.items.splice(ind
 
 const activeItems = computed(() => form.items.filter(i => i.name || i.price > 0));
 const totalPrice = computed(() => form.items.reduce((acc, cur) => acc + (Number(cur.price) || 0), 0));
-
-// 기존 submitOfflineOrder 함수 내부 수정
 const submitOfflineOrder = async () => {
   if (!form.customer_name) return alert('고객명을 입력해주세요.');
   isSaving.value = true;
   
   try {
-    // --- [1] PDF 생성을 위한 캔버스 작업 ---
-    const element = pdfArea.value;
-    const wrapper = document.querySelector('.preview-wrapper');
-    const originalTransform = wrapper.style.transform;
-    wrapper.style.transform = 'none';
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    const canvas = await html2canvas(element, { scale: 3, useCORS: true });
-    wrapper.style.transform = originalTransform;
-
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'NONE');
-    const pdfBlob = pdf.output('blob');
-
-    // --- [2] 제품 자동 등록 및 product_id 추출 ---
+    // --- [1] 제품 먼저 등록하여 ID와 URL 확보 ---
     const validItems = form.items.filter(item => item.name && item.price > 0);
-    
-    // 각 항목별로 제품 등록 API 호출
     const productPromises = validItems.map(item => {
       const productData = new FormData();
       productData.append('product_name', item.name);
@@ -183,56 +164,64 @@ const submitOfflineOrder = async () => {
       productData.append('description', `${form.customer_name} 주문서 기반 자동 등록`);
       productData.append('stock', 1);
       productData.append('show', 'no');
-
       return axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/products', productData);
     });
 
     const responses = await Promise.all(productPromises);
-// --- [2] 제품 자동 등록 및 ID 추출 수정 ---
+    const registeredProductIds = responses
+      .map(res => res.data.data?.product_id || res.data.data?.id)
+      .filter(id => id !== undefined);
 
+    // 제품 URL 생성 (첫 번째 제품 기준 또는 리스트)
+    const firstProductId = registeredProductIds[0];
+    const productUrl = firstProductId ? `http://localhost:5173/product/${firstProductId}` : '';
 
-const registeredProductIds = responses
-  .filter(res => res && res.data) 
-  .map(res => {
-    // 서버 응답이 { success: true, data: { product_id: ... } } 구조이므로
-    // res.data.data.product_id 형태로 접근해야 합니다.
-    const id = res.data.data?.product_id || res.data.data?.id; 
+    // --- [2] PDF 생성 (이제 productUrl을 PDF에 포함할 수 있음) ---
+    // (템플릿에 URL 표시용 ref나 변수를 추가하여 PDF에 찍히게 함)
+    // 예: PDF 영역 하단에 "결제 주소: http://localhost:5173/product/7" 텍스트 추가 가능
     
-    if (!id) {
-      console.error('서버 응답 구조 확인용:', res.data); // 구조가 다를 경우를 대비한 로그
-    }
-    return id;
-  })
-  .filter(id => id !== undefined); 
+    const element = pdfArea.value;
+    const wrapper = document.querySelector('.preview-wrapper');
+    const originalTransform = wrapper.style.transform;
+    wrapper.style.transform = 'none';
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const canvas = await html2canvas(element, { scale: 3, useCORS: true });
+    wrapper.style.transform = originalTransform;
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+    const pdfBlob = pdf.output('blob');
 
-console.log('최종 등록된 제품 ID 목록:', registeredProductIds);
-    
-    // [보강] 생성된 제품 ID들을 기반으로 제품 상세 페이지 URL 리스트 생성
-const productUrls = registeredProductIds.map(id => `http://localhost:5173/product/${id}`);
-    // --- [3] 최종 주문 정보 및 PDF 서버 저장 ---
+    // --- [3] 상태값 결정 ---
+    const isUnpaid = form.pay_method === '미결제';
+    const is_paid = isUnpaid ? 0 : 1;
+    const state = isUnpaid ? '접수완료' : '결제완료';
+
+    // --- [4] 최종 주문 저장 ---
     const orderFormData = new FormData();
     orderFormData.append('data', JSON.stringify({ 
       ...form, 
       total_price: totalPrice.value,
-      product_ids: registeredProductIds, // [7] 같은 배열
-  product_urls: productUrls,         // [http://localhost:5173/product/7] 같은 배열
+      product_ids: registeredProductIds,
+      is_paid, 
+      state
     }));
     orderFormData.append('pdfFile', pdfBlob, `Order_${form.customer_name}.pdf`);
 
-    // 주문 API 호출 (기존 중복 호출 제거 후 하나로 통합)
-    await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders/offline', orderFormData);
+    const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders/offline', orderFormData);
 
-    // --- [4] 마무리 ---
-    pdf.save(`주문확인서_${form.customer_name}.pdf`);
-    alert('주문서 발행 및 구성 품목 등록이 완료되었습니다.');
-    
+    if (res.data.success) {
+      pdf.save(`주문확인서_${form.customer_name}.pdf`);
+      alert(`등록 완료! ${isUnpaid ? '미결제 주문으로 접수되었습니다.' : '결제 완료 처리되었습니다.'}`);
+    }
   } catch (err) {
-    console.error('처리 중 에러:', err);
-    alert('저장 실패: ' + (err.response?.data?.message || err.message));
+    console.error(err);
+    alert('처리 중 에러 발생');
   } finally {
     isSaving.value = false;
   }
 };
+
 </script>
 
 <style scoped>
