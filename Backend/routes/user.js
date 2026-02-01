@@ -10,6 +10,27 @@ const { Op } = require('sequelize');
 router.get('/', async (req, res) => {
   try {
     const { search, level } = req.query;
+    const { Op } = require('sequelize'); // 연산자 임포트 확인
+    
+    // 1. 오늘 날짜 구하기 (YYYY-MM-DD 형식)
+    const today = new Date().toISOString().split('T')[0];
+
+    // 2. [자동 갱신 로직] 오늘 날짜가 만료일(levelday)보다 이후인 경우 업데이트
+    // 조건: level이 Basic이 아니면서, levelday가 오늘(today)보다 작은(미만) 경우
+    await User.update(
+      { 
+        level: 'Basic', 
+        levelday: null 
+      },
+      { 
+        where: { 
+          level: { [Op.ne]: 'Basic' }, // Basic이 아닌 회원 중
+          levelday: { [Op.lt]: today }  // 만료일이 오늘보다 이전인 경우
+        } 
+      }
+    );
+
+    // 3. 필터 및 조회 로직
     let whereClause = {};
 
     // [이름 검색 로직]
@@ -22,6 +43,7 @@ router.get('/', async (req, res) => {
       whereClause.level = level;
     }
 
+    // 4. 최종 데이터 조회
     const users = await User.findAll({
       where: whereClause,
       order: [['createdAt', 'DESC']], // 최신 가입순
@@ -33,10 +55,10 @@ router.get('/', async (req, res) => {
       data: users 
     });
   } catch (error) {
+    console.error('회원 조회 및 자동 갱신 에러:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 /**
  * 2. 회원 등록 
  */
