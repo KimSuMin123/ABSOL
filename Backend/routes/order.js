@@ -164,11 +164,12 @@ router.get('/user/:user_id', async (req, res) => {
 router.post('/confirm', async (req, res) => {
   const { paymentKey, orderId, amount, targetLevel } = req.body;
   
+  // 1. 토스 시크릿 키 설정 (시크릿 키 뒤에 콜론 ':'을 붙여야 401 에러를 방지합니다)
   const secretKey = 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6'; 
   const authToken = Buffer.from(secretKey + ':').toString('base64');
 
   try {
-    // 1. 토스 승인 요청
+    // 2. 토스 승인 요청
     await axios.post(
       'https://api.tosspayments.com/v1/payments/confirm',
       { paymentKey, orderId, amount },
@@ -180,29 +181,22 @@ router.post('/confirm', async (req, res) => {
       }
     );
 
-    // 2. DB 업데이트를 위한 트랜잭션 시작
+    // 3. DB 업데이트를 위한 트랜잭션 시작
     const t = await sequelize.transaction();
     try {
       if (orderId.startsWith('MEMBERSHIP')) {
-        // orderId 형식 예: MEMBERSHIP_1_12_1700000000 (유저ID_개월수_타임스탬프)
-        const parts = orderId.split('_');
-        const userId = parts[1];
+        // orderId 형식: MEMBERSHIP_1_1700000000000 (MEMBERSHIP_유저ID_타임스탬프)
+        const userId = orderId.split('_')[1];
         
-        // [수정] duration(개월 수) 추출 및 날짜 계산 로직 추가
-        const duration = parseInt(parts[2]) || 12; // 정보가 없으면 기본 12개월
-        const expireDate = new Date();
-        expireDate.setMonth(expireDate.getMonth() + duration);
-        const levelday = expireDate.toISOString().split('T')[0]; // 변수 정의 완료
-
+        // 상단에서 User를 import 했으므로 이제 'User is not defined' 에러가 나지 않습니다.
         const user = await User.findByPk(userId); 
         if (!user) throw new Error('해당 유저를 DB에서 찾을 수 없습니다.');
-
-        // 멤버십 주문 이력을 Order 테이블에 생성
+// [추가] 멤버십 주문 이력을 Order 테이블에 생성
         await Order.create({
           user_id: userId,
           product_name: `${targetLevel} 멤버십 업그레이드`,
           total_price: amount,
-          customer_name: user.customer_name || user.name || '회원',
+          customer_name: user.name || '회원',
           phone: user.phone,
           address: user.address || '멤버십 결제(디지털)',
           toss_order_id: orderId,
@@ -210,13 +204,9 @@ router.post('/confirm', async (req, res) => {
           is_paid: true,
           status: '접수완료'
         }, { transaction: t });
-
-        // [해결] 이제 levelday가 정의되어 있으므로 에러가 나지 않습니다.
-        await user.update({ 
-          level: targetLevel, 
-          levelday: levelday 
-        }, { transaction: t });
-
+        // 유저 등급 업데이트
+        await user.update({ level: targetLevel, 
+          levelday: levelday }, { transaction: t });
       } else {
         // 일반 주문(DIRECT/CART) 처리
         const order = await Order.findOne({ where: { toss_order_id: orderId }, transaction: t });
@@ -234,12 +224,14 @@ router.post('/confirm', async (req, res) => {
       await t.commit();
       res.json({ success: true });
     } catch (dbErr) {
-      if (t) await t.rollback();
+      await t.rollback();
       throw dbErr;
     }
   } catch (err) {
     console.error('--- 결제 승인 최종 실패 ---');
+    // 토스 API 응답 에러인지, 코드 문법 에러인지 상세히 출력
     console.error(err.response?.data || err.message); 
+    
     res.status(500).json({ 
       success: false, 
       message: err.response?.data?.message || err.message 
