@@ -38,7 +38,7 @@
             <q-card-section class="col-3 q-py-md">
               <div class="row items-center q-mb-xs">
                 <q-badge :color="getLevelColor(user.level)" class="q-mr-sm">{{ user.level }}</q-badge>
-                 <div class="text-h6 text-weight-bold">{{ user.levelday }}</div>
+              
                 <div class="text-h6 text-weight-bold">{{ user.customer_name }}</div>
               </div>
               <div v-if="user.level !== 'Basic'" class="text-subtitle2 text-orange-9 text-weight-bold q-mt-xs">
