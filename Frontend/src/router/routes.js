@@ -63,6 +63,12 @@ const routes = [
         component: () => import('../pages/admin/NoticeEdit.vue'
         )
         
+      }, { 
+        path: 'offline', 
+        name: 'offline', 
+        component: () => import('../pages/OfflineOrderEditor.vue'
+        )
+        
       }
     ]
   }

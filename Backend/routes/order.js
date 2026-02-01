@@ -3,6 +3,8 @@ const router = express.Router();
 const { Order, Product, sequelize,User } = require('../models');
 const { Op } = require('sequelize'); // 검색을 위한 연산자 추가
 const axios = require('axios');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/pdfs/' });
 /**
  * 1. 주문 이력 전체 조회 및 검색 (고객명, 연락처, 상품명)
  * GET /api/orders
@@ -242,5 +244,36 @@ router.post('/confirm', async (req, res) => {
     });
   }
 });
+router.post('/offline', upload.single('pdfFile'), async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const rawData = JSON.parse(req.body.data);
+    const { customer_name, contact, address, pay_method, total_price, items } = rawData;
 
+    // 1. 대표 상품명 생성 (예: 핵심부품 외 3건)
+    const representativeName = items.length > 0 
+      ? `${items[0].name}${items.length > 1 ? ' 외 ' + (items.length - 1) + '건' : ''}`
+      : '오프라인 자유 주문';
+
+    // 2. 주문 생성
+    const newOrder = await Order.create({
+      customer_name,
+      phone: contact,
+      address: address || '매장방문',
+      total_price: total_price,
+      product_name: representativeName,
+      toss_order_id: `OFFLINE_${Date.now()}`,
+      payment_key: `OFFLINE_${pay_method}`,
+      is_paid: false, // 관리자가 추후 수동 변경
+      status: '접수완료',
+      pdf_path: req.file ? req.file.path : null
+    }, { transaction: t });
+
+    await t.commit();
+    res.json({ success: true, order_id: newOrder.order_id });
+  } catch (error) {
+    if (t) await t.rollback();
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 module.exports = router;
