@@ -107,7 +107,10 @@ router.patch('/users/:id/level', async (req, res) => {
     const expireDate = new Date();
     
     // [핵심] 값이 없으면 기본 12개월, 있으면 해당 개월 수만큼 추가
-    const monthsToAdd = parseInt(duration || 12);
+    let monthsToAdd = parseInt(duration);
+    if (isNaN(monthsToAdd)) {
+      monthsToAdd = 12; // 값이 안 오면 무조건 12개월
+    }
     expireDate.setMonth(expireDate.getMonth() + monthsToAdd);
     
     const levelday = expireDate.toISOString().split('T')[0]; // YYYY-MM-DD
