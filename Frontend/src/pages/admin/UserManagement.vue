@@ -41,6 +41,9 @@
                  <div class="text-h6 text-weight-bold">{{ user.levelday }}</div>
                 <div class="text-h6 text-weight-bold">{{ user.customer_name }}</div>
               </div>
+              <div v-if="user.level !== 'Basic'" class="text-subtitle2 text-orange-9 text-weight-bold q-mt-xs">
+    <q-icon name="event" size="xs" /> 만료일: {{ user.levelday }}
+  </div>
               <div class="text-subtitle2 text-primary">ID: {{ user.login_id }}</div>
               <div class="text-caption text-grey-7 q-mt-xs"><q-icon name="phone" size="xs" /> {{ user.phone || '연락처 없음' }}</div>
             </q-card-section>
