@@ -100,13 +100,13 @@ router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
     // 1. 데이터 파싱
     const rawData = JSON.parse(req.body.data);
 
-    // 2. 부품 리스트 (모델 컬럼명과 정확히 일치해야 함)
+    // 2. 부품 리스트
     const partKeys = [
       'cpu', 'cooler', 'mb', 'ram', 'vga', 'ps', 
       'storage0', 'storage1', 'storage2', 'case', 'etc'
     ];
 
-    // 3. 저장용 객체 구성
+    // 3. 저장용 객체 구성 및 합계 금액(TotalPrice) 계산 변수
     const saveData = {
       pc_nickname: rawData.pc_nickname || '내 컴퓨터',
       user_id: rawData.user_id || null,
@@ -114,22 +114,44 @@ router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
       pdf_path: req.file ? req.file.path : null
     };
 
-    // 4. 반복문으로 부품 데이터 매핑 (rawData에서 정확한 키를 가져오도록 수정)
+    let totalPrice = 0;
+
+    // 4. 반복문으로 부품 데이터 매핑 및 합계 계산
     partKeys.forEach(part => {
+      const price = Number(rawData[`${part}_price`]) || 0;
+      
       saveData[`${part}_name`] = rawData[`${part}_name`] || '';
       saveData[`${part}_sn`] = rawData[`${part}_sn`] || '';
       saveData[`${part}_warranty`] = rawData[`${part}_warranty`] === true;
-      // 중요: 아까 오타가 있었던 부분입니다. 
-      saveData[`${part}_price`] = Number(rawData[`${part}_price`]) || 0;
+      saveData[`${part}_price`] = price;
+      
+      // 실 결제 금액 합산
+      totalPrice += price;
     });
 
-    // 5. DB 저장
-    const result = await EstimateDetail.create(saveData);
+    // 5. DB 저장 (Transaction 사용 권장 - 상세정보 저장과 가격 업데이트를 하나로 묶음)
+    // 여기서는 간단하게 await를 순차적으로 사용합니다.
+    
+    // [A] 상세 부품 정보 저장 (EstimateDetail)
+    const detailResult = await EstimateDetail.create(saveData);
+
+    // [B] 부모 테이블인 Estimate의 real_price 업데이트
+    // rawData.estimate_id가 존재할 경우에만 실행
+    if (rawData.estimate_id) {
+      await Estimate.update(
+        { 
+          real_price: String(totalPrice), // 모델 정의가 STRING이므로 문자열로 변환
+          status: '견적발송완료' // 필요시 상태값도 함께 변경 가능
+        },
+        { where: { estimate_id: rawData.estimate_id } }
+      );
+    }
 
     res.status(200).json({ 
       success: true, 
-      id: result.mypc_id,
-      message: '성공적으로 저장되었습니다.' 
+      id: detailResult.mypc_id,
+      total_calculated_price: totalPrice,
+      message: '상세 견적 및 결제 금액이 성공적으로 저장되었습니다.' 
     });
 
   } catch (error) {
@@ -137,7 +159,7 @@ router.post('/save-detail', upload.single('pdfFile'), async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: '서버 저장 중 오류 발생',
-      error: error.message // 에러 원인을 프론트에 노출하여 확인
+      error: error.message 
     });
   }
 });
