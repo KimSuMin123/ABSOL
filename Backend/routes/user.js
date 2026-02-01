@@ -94,25 +94,38 @@ router.post('/register', async (req, res) => {
  * 3. 회원 등급 수정 (Admin용)
  * PATCH /api/users/:id/level
  */
+/**
+ * 3. 회원 등급 수정 (Admin용)
+ * PATCH /api/users/:id/level
+ */
 router.patch('/users/:id/level', async (req, res) => {
   try {
-    const { level, days } = req.body; // days: 지정일수 (예: 30)
-    
-    // 만료 날짜 계산 (오늘 + 지정일수)
+    const { level, duration } = req.body; // duration: 개월 수 (예: 1, 3, 12)
+    const { id } = req.params;
+
+    // 만료 날짜 계산
     const expireDate = new Date();
-    expireDate.setDate(expireDate.getDate() + parseInt(days || 30)); // 기본 30일
-    const levelday = expireDate.toISOString().split('T')[0];
+    
+    // [핵심] 값이 없으면 기본 12개월, 있으면 해당 개월 수만큼 추가
+    const monthsToAdd = parseInt(duration || 12);
+    expireDate.setMonth(expireDate.getMonth() + monthsToAdd);
+    
+    const levelday = expireDate.toISOString().split('T')[0]; // YYYY-MM-DD
 
     const result = await User.update(
       { 
         level: level, 
         levelday: levelday 
       }, 
-      { where: { user_id: req.params.id } }
+      { where: { user_id: id } }
     );
     
     if (result[0] > 0) {
-      res.json({ success: true, levelday });
+      res.json({ 
+        success: true, 
+        levelday, 
+        message: `${monthsToAdd}개월 뒤인 ${levelday}까지 등급이 유지됩니다.` 
+      });
     } else {
       res.status(404).json({ success: false, message: '유저를 찾지 못했습니다.' });
     }
@@ -120,7 +133,6 @@ router.patch('/users/:id/level', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 // 아이디 중복 확인 API
 router.get('/check-id/:login_id', async (req, res) => {
