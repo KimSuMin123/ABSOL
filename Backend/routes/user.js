@@ -146,23 +146,32 @@ router.get('/check-id/:login_id', async (req, res) => {
 router.patch('/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
-    const { customer_name, phone, address, level, customer_code } = req.body;
+    const { customer_name, phone, address, level, customer_code, duration } = req.body;
 
-    await User.update({
+   let updateData = {
       customer_name,
       phone,
       address,
       level,
-      customer_code // 프론트에서 조합해서 보낸 새 코드 저장
-    }, { 
-      where: { user_id } 
-    });
+      customer_code
+    };
+
+    // 등급이 Basic이 아닌 경우에만 만료일 계산
+    if (level !== 'Basic') {
+      const expireDate = new Date();
+      // 현재 날짜에 선택한 개월 수(duration)만큼 추가
+      expireDate.setMonth(expireDate.getMonth() + parseInt(duration));
+      updateData.levelday = expireDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    } else {
+      updateData.levelday = null; // Basic이면 만료일 제거
+    }
+
+    await User.update(updateData, { where: { user_id } });
 
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 
 module.exports = router;

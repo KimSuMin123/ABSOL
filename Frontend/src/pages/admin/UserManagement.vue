@@ -98,8 +98,22 @@
               {{ previewCustomerCode }}
             </div>
           </div>
-
-          <q-select v-model="editForm.level" :options="['Basic', 'Standard', 'Green', 'Silver', 'Gold']" label="회원 등급" outlined dense class="q-mt-md" />
+<div class="row q-col-gutter-sm q-mt-md">
+  <q-select v-model="editForm.level" :options="['Basic', 'Standard', 'Green', 'Silver', 'Gold']" 
+            label="회원 등급" outlined dense class="col-6" />
+  
+  <q-select v-if="editForm.level !== 'Basic'" 
+            v-model="editForm.duration" 
+            :options="[
+              {label: '1개월', value: 1}, 
+              {label: '2개월', value: 2}, 
+              {label: '3개월', value: 3}, 
+              {label: '6개월', value: 6}, 
+              {label: '12개월', value: 12}
+            ]" 
+            label="유지 기간" outlined dense class="col-6" 
+            emit-value map-options />
+</div>
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
@@ -163,7 +177,7 @@ const editForm = ref({
   customer_name: '',
   phone: '',
   address: '',
-  level: '',
+  level: '',duration: 1,
   region: '1',
   type: '1',
   productLine: '1'
@@ -224,7 +238,7 @@ const updateUser = async () => {
     // 미리보기 코드를 포함하여 전송
     const payload = {
       ...editForm.value,
-      customer_code: previewCustomerCode.value
+      customer_code: previewCustomerCode.value,duration: editForm.value.duration || 1
     };
     
     const res = await axios.patch(`https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/users/${editForm.value.user_id}`, payload);
