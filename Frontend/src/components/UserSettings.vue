@@ -164,7 +164,8 @@ const upgradePlan = (plan) => {
       query: {
         mode: 'membership',
         level: plan.name,
-        price: plan.price
+        price: plan.price,
+        levelday:12
       }
     });
   });

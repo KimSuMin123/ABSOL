@@ -205,7 +205,8 @@ router.post('/confirm', async (req, res) => {
           status: '접수완료'
         }, { transaction: t });
         // 유저 등급 업데이트
-        await user.update({ level: targetLevel }, { transaction: t });
+        await user.update({ level: targetLevel, 
+          levelday: levelday }, { transaction: t });
       } else {
         // 일반 주문(DIRECT/CART) 처리
         const order = await Order.findOne({ where: { toss_order_id: orderId }, transaction: t });
