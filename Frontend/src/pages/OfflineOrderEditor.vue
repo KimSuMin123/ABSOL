@@ -8,7 +8,7 @@
           <div class="col-6"><q-input v-model="form.contact" label="연락처" dense outlined /></div>
           <div class="col-12"><q-input v-model="form.address" label="주소/배송지" dense outlined /></div>
           <div class="col-12">
-            <q-select v-model="form.pay_method" :options="['계좌이체', '카드결제', '현금결제']" label="결제수단" dense outlined />
+            <q-select v-model="form.pay_method" :options="['계좌이체', '카드결제', '현금결제', '미결제']" label="결제수단" dense outlined />
           </div>
         </div>
 
@@ -153,22 +153,54 @@ const totalPrice = computed(() => form.items.reduce((acc, cur) => acc + (Number(
 const submitOfflineOrder = async () => {
   if (!form.customer_name) return alert('고객명을 입력해주세요.');
   isSaving.value = true;
+  
   try {
-    const canvas = await html2canvas(pdfArea.value, { scale: 2, useCORS: true });
-    const imgData = canvas.toDataURL('image/png');
+    const element = pdfArea.value;
+    const wrapper = document.querySelector('.preview-wrapper');
+
+    // [1] 프리뷰 스케일 임시 해제 (캡처 해상도 저하 방지)
+    const originalTransform = wrapper.style.transform;
+    wrapper.style.transform = 'none';
+
+    // 렌더링 대기 시간 (레이아웃 재정렬 및 폰트 안정화)
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // [2] html2canvas 고화질 옵션 적용
+    const canvas = await html2canvas(element, {
+      scale: 3,             // 3배율로 캡처하여 인쇄급 화질 확보
+      useCORS: true,        // 외부 이미지 로드 허용
+      logging: false,
+      backgroundColor: "#ffffff",
+      letterRendering: true, // 글자 뭉침 방지
+      width: element.offsetWidth,
+      height: element.offsetHeight,
+    });
+
+    // 원래 화면 스케일로 복구
+    wrapper.style.transform = originalTransform;
+
+    // [3] PDF 생성 (압축 없이 최고 화질 설정)
+    const imgData = canvas.toDataURL('image/jpeg', 1.0); // 최고 품질 JPEG
     const pdf = new jsPDF('p', 'mm', 'a4');
-    pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+    
+    // A4 규격(210x297)에 맞춰 이미지 삽입, 'NONE'으로 추가 압축 방지
+    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'NONE');
     
     const pdfBlob = pdf.output('blob');
     const formData = new FormData();
+    
+    // 데이터 전송 (기존 로직 유지)
     formData.append('data', JSON.stringify({ ...form, total_price: totalPrice.value }));
     formData.append('pdfFile', pdfBlob, `Order_${form.customer_name}.pdf`);
 
     await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/orders/offline', formData);
     
+    // [4] PDF 저장 및 알림
     pdf.save(`주문확인서_${form.customer_name}.pdf`);
-    alert('오프라인 주문 저장 성공');
+    alert('고화질 주문서 저장 및 PDF 발행이 완료되었습니다.');
+    
   } catch (err) {
+    console.error('PDF 생성 에러:', err);
     alert('저장 실패: ' + err.message);
   } finally {
     isSaving.value = false;
