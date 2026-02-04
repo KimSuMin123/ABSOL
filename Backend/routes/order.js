@@ -167,7 +167,7 @@ router.post('/confirm', async (req, res) => {
   const { paymentKey, orderId, amount, targetLevel } = req.body;
   
   // 1. 토스 시크릿 키 설정 (시크릿 키 뒤에 콜론 ':'을 붙여야 401 에러를 방지합니다)
-  const secretKey = 'test_sk_jExPeJWYVQ45ow51Wm1q349R5gvN'; 
+   const secretKey = 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
   const authToken = Buffer.from(secretKey + ':').toString('base64');
 
   try {
