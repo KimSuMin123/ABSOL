@@ -57,7 +57,7 @@ const route = useRoute()
 
 const widgets = ref(null)
 const isProcessing = ref(false)
-const clientKey = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm'
+const clientKey = 'test_ck_ALnQvDd2VJLdmlw6ABYx8Mj7X41m'
 const customerKey = 'USER_' + (userStore.user?.id || Math.random().toString(36).slice(2, 11))
 
 // [핵심] 현재 결제 모드 판별 (3가지 상태)
