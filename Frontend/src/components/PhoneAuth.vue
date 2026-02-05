@@ -19,13 +19,13 @@ const phone = ref(''); const code = ref('');
 const sent = ref(false); const isDone = ref(false); const loading = ref(false);
 
 const sendOtp = async () => {
-  const res = await axios.post('/api/sms/send-otp', { phone: phone.value.replace(/-/g, '') });
+  const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/sms/send-otp', { phone: phone.value.replace(/-/g, '') });
   if (res.data.success) sent.value = true;
 };
 
 const verify = async () => {
   loading.value = true;
-  const res = await axios.post('/api/sms/verify-otp', { phone: phone.value.replace(/-/g, ''), code: code.value });
+  const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/sms/verify-otp', { phone: phone.value.replace(/-/g, ''), code: code.value });
   if (res.data.success) {
     isDone.value = true;
     emit('success', phone.value);

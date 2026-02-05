@@ -31,6 +31,10 @@ const routes = [
         path: 'noti/:id', 
         name: 'NoticeDetail', 
         component: () => import('../pages/NoticeDetail.vue') 
+      },  { 
+        path: 'sms', 
+        name: 'sms', 
+        component: () => import('../components/PhoneAuth.vue') 
       },
     ]
   },
