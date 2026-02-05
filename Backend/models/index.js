@@ -22,6 +22,8 @@ db.Banner = require('./Banner')(sequelize, Sequelize);
 db.DataRepair = require('./DataRepair')(sequelize, Sequelize);
 db.Qna = require('./Qna')(sequelize, Sequelize);
 db.Notice = require('./notice')(sequelize, Sequelize);
+db.SmsAuth = require('./SmsAuth')(sequelize, Sequelize);
+db.SmsLog = require('./SmsLog')(sequelize, Sequelize);
 // 3. 관계 정의 (작성하신 코드 적용)
 // 회원 <-> 견적, 수리, 주문
 db.User.hasMany(db.Estimate, { foreignKey: 'user_id', sourceKey: 'user_id' });
@@ -43,6 +45,7 @@ db.MyPC.belongsTo(db.User, { foreignKey: 'user_id', targetKey: 'user_id' });
 // models/index.js (또는 관계 설정 파일)
 db.Estimate.hasOne(db.EstimateDetail, { foreignKey: 'estimate_id', as: 'detail' });
 db.EstimateDetail.belongsTo(db.Estimate, { foreignKey: 'estimate_id' });
+
 // 4. 외부에서 쓸 수 있게 내보내기
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
