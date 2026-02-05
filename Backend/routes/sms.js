@@ -34,3 +34,5 @@ router.post('/send-guest-link', async (req, res) => {
 const notifyAdmin = (detail) => {
   sendSmsV2('01098577531', `[접수알림] ${detail}`, 'ADMIN_NOTI');
 };
+
+module.exports = router;
