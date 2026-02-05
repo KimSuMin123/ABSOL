@@ -120,8 +120,11 @@
     <q-footer v-if="isLoggedIn" class="bg-grey-9 q-pa-md">
       <div class="text-center">
         <div class="text-weight-bold"><span class="text-blue-6">AB</span><span class="text-red-6">SOL</span>TECH</div>
-        <div class="text-caption text-grey-5">대표자: 이용관 | TEL: 010-9857-7531</div>
+        <div class="text-caption text-grey-5">대표자: 이용관 | TEL: 010-9857-7531 | 사업명 : 앱솔텍</div>
+         <div class="text-caption text-grey-5">사업장 주소 :  서울시 강남구 개포로 310, 154동 605호</div>
          <div class="text-caption text-grey-5">영업시간: 월-일 08:00 ~ 24:00 (연중무휴)</div>
+            <div class="text-caption text-grey-5">사업자등록번호 : 587-40-01502  </div>
+         
       </div>
     </q-footer>
   </q-layout>

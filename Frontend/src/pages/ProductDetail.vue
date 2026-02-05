@@ -52,6 +52,38 @@
               {{ product.description || '상품 상세 설명이 없습니다.' }}
                   </div>
           </div>
+      <div class="text-title3 text-weight-bold q-mb-md">📦 배송 및 반품 안내</div>
+      
+      <div class="text-title5 text-blue-8 text-weight-bold">배송 안내</div>
+      <q-list dense>
+        <q-item>
+          <q-item-section side>배송 업체</q-item-section>
+          <q-item-section>한진 택배</q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section side>배송 기간</q-item-section>
+          <q-item-section>주말·공휴일 제외 2~5일</q-item-section>
+        </q-item>
+      </q-list>
+
+      <q-separator class="q-my-md" />
+
+      <div class="text-title5 text-red-8 text-weight-bold">반품 안내</div>
+      <q-list dense>
+        <q-item>
+          <q-item-section side>반품 주소</q-item-section>
+          <q-item-section>서울시 강남구 개포로 310, 154동 605호</q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section side>신청 방법</q-item-section>
+          <q-item-section>상품 수령 후 7일 이내 Q&A 게시판 접수</q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section side>반품 비용</q-item-section>
+          <q-item-section>단순 변심 시 왕복 택배비 6,000원</q-item-section>
+        </q-item>
+      </q-list>
+   
    <div class="row q-col-gutter-sm">
   <div class="col-12 col-sm-6">
     <q-btn 
@@ -78,6 +110,7 @@
     />
   </div>
 </div>
+
         </q-card-section>
       </q-card>
     </div>
