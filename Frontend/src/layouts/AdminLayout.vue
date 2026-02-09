@@ -23,7 +23,14 @@
           <q-btn flat dense icon="campaign" label="공지사항" to="/admin/noti" />
  <q-btn flat dense icon= 'payments'label="관리자 결제" to="/admin/nopay" />
 <q-btn flat dense icon="point_of_sale" label="오프라인결제" to="/admin/offline" />
-
+<q-btn 
+  flat 
+  dense 
+  icon="assessment" 
+  label="토스대시보드" 
+  href="https://dashboard.tosspayments.com/sales-reports/tm/1561378" 
+  target="_blank" 
+/>
           <q-btn flat round dense icon="home" to="/order">
             <q-tooltip>사용자 페이지로 이동</q-tooltip>
           </q-btn>
