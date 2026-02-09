@@ -22,6 +22,7 @@
          
           <q-btn flat dense icon="campaign" label="공지사항" to="/admin/noti" />
  <q-btn flat dense icon= 'payments'label="관리자 결제" to="/admin/nopay" />
+ <q-btn flat dense icon="point_of_sale" label="현금영수증" to="/admin/CashReceipt" />
 <q-btn flat dense icon="point_of_sale" label="오프라인결제" to="/admin/offline" />
 <q-btn 
   flat 
