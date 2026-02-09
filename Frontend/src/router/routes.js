@@ -73,6 +73,12 @@ const routes = [
         component: () => import('../pages/OfflineOrderEditor.vue'
         )
         
+      }, { 
+        path: 'CashReceipt', 
+        name: 'CashReceipt', 
+        component: () => import('../pages/admin/CashReceiptDetailView.vue'
+        )
+        
       }
     ]
   }
