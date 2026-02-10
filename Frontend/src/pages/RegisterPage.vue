@@ -25,10 +25,25 @@
         <q-input v-model="form.address" label="기본 주소" outlined dense readonly />
         <q-input v-model="form.detailAddress" label="상세 주소" outlined dense ref="detailInput" />
 
-        <div class="q-pa-sm bg-blue-grey-1 rounded-borders row items-center justify-between">
-          <div class="text-caption">회원가입을 위해 약관 동의가 필요합니다.</div>
-          <q-btn label="약관 읽기" color="primary" size="sm" flat @click="termsDialogOpen = true" icon="description" />
-        </div>
+        <div class="q-pa-sm bg-grey-2 rounded-borders">
+  <q-checkbox 
+    v-model="form.privacy_agreed" 
+    label="개인정보 수집 및 이용약관 동의 (필수)" 
+    color="primary" 
+    dense
+    true-value="Y"
+    false-value="N"
+  />
+  <q-btn 
+    label="[내용보기]" 
+    color="grey-7" 
+
+    flat 
+    dense 
+    class="q-ml-xs"
+    @click="termsDialogOpen = true" 
+  />
+</div>
       </q-card-section>
 
       <q-card-actions align="center" class="q-pb-lg q-px-md">
@@ -76,6 +91,7 @@
             v-close-popup 
             :disabled="form.privacy_agreed !== 'Y'"
           />
+          
         </q-card-actions>
       </q-card>
     </q-dialog>

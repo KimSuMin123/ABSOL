@@ -1,89 +1,114 @@
 <template>
-  <q-page class="flex flex-center q-pa-sm bg-grey-1">
-    <q-card style="width: 100%; max-width: 500px;" flat bordered class="shadow-2">
-      <q-card-section class="q-pa-md">
-        <div class="text-h6 text-center q-mb-sm text-primary text-weight-bolder">PC 수리 요청</div>
-        
+  <q-page class="flex flex-center q-pa-md bg-grey-2">
+    <q-card style="width: 100%; max-width: 500px;" class="shadow-10 ">
+      <q-card-section class="text-h6 bg-dark text-white text-center text-weight-bold">
+        PC 수리 요청
+      </q-card-section>
+
+      <q-card-section class="q-gutter-y-sm q-pt-lg">
         <div v-if="userStore.isLoggedIn" class="q-mb-md q-pa-sm bg-blue-1 rounded-borders row items-center">
           <q-icon name="info" color="primary" size="xs" class="q-mr-xs" />
           <span class="text-caption text-primary text-weight-bold">회원 정보로 주소가 자동 입력되었습니다.</span>
         </div>
 
         <q-form @submit="handleRepair" class="q-gutter-y-sm">
-          <q-input 
-            v-model="form.customer_name" 
-            label="성함 *" 
-            outlined dense 
-            :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'"
-          />
-          
-          <q-input 
-            v-model="form.contact" 
-            label="연락처 *" 
-            mask="###-####-####" 
-            outlined dense 
-            :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'"
-          />
-          
+          <q-input v-model="form.customer_name" label="성함 *" outlined dense :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'" />
+          <q-input v-model="form.contact" label="연락처 *" mask="###-####-####" outlined dense :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'" />
+
           <div class="row q-gutter-x-sm items-center no-wrap">
-            <q-input 
-              v-model="form.postcode" 
-              label="우편번호" 
-              outlined dense 
-              readonly 
-              class="col-4"
-              :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'"
-            />
+            <q-input v-model="form.postcode" label="우편번호" outlined dense readonly class="col-4" :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'" />
             <q-btn label="주소 검색" color="secondary" @click="openPostcode" outline class="col-auto" />
           </div>
-          
-          <q-input 
-            v-model="form.address" 
-            :label="form.repair_type === '방문수리' ? '방문 희망 주소 *' : '회수 주소 *'" 
-            outlined dense 
-            readonly 
-            :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'"
-          />
-          
-          <q-input 
-            v-model="form.detailAddress" 
-            label="상세 주소 *" 
-            outlined dense 
-            ref="detailInput"
-            :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'"
-          />
+          <q-input v-model="form.address" :label="form.repair_type === '방문수리' ? '방문 희망 주소 *' : '회수 주소 *'" outlined dense readonly :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'" />
+          <q-input v-model="form.detailAddress" label="상세 주소 *" outlined dense ref="detailInput" :bg-color="userStore.isLoggedIn ? 'blue-0' : 'white'" />
 
-          <q-input
-            v-model="form.symptoms"
-            type="textarea"
-            label="고장 증상 (최대 200자)"
-            maxlength="200"
-            counter outlined dense
-            rows="3"
-          />
+          <q-input v-model="form.symptoms" type="textarea" label="고장 증상 (최대 200자) *" placeholder="예: 전원이 안 들어옴, 블루스크린 발생 등" maxlength="200" counter outlined dense rows="3" />
 
           <div class="q-py-xs">
             <div class="text-caption text-red-6 q-mt-xs text-weight-medium">
-              <q-icon name="info" size="xs" /> 출장 수리로 진행되어 출장비(1만원~3만원)이 발생할 수 있습니다. 
+              <q-icon name="info" size="xs" /> 출장 수리 시 거리에 따른 출장비가 발생할 수 있습니다.
             </div>
           </div>
 
-          <div class="q-pa-sm bg-grey-2 rounded-borders">
-            <q-checkbox v-model="isAgreed" label="개인정보 수집 및 이용 동의 (필수)" color="primary" dense />
+          <div class="q-pa-sm bg-grey-2 rounded-borders row items-center no-wrap q-mt-md">
+            <q-checkbox 
+              v-model="form.privacy_agreed" 
+              label="개인정보 수집 및 이용약관 동의 (필수)" 
+              color="primary" 
+              dense
+              true-value="Y"
+              false-value="N"
+              class="col"
+            />
+            <q-btn 
+              label="[내용보기]" 
+              color="grey-7" 
+              flat 
+              dense 
+              size="sm"
+              @click="termsDialogOpen = true" 
+            />
           </div>
 
-          <q-btn 
-            label="수리 신청하기" 
-            type="submit" 
-            color="primary" 
-            class="full-width q-mt-sm"
-            size="lg"
-            :loading="loading" 
-            :disable="!isAgreed"
-          />
+          <div class="q-mt-md">
+            <q-btn 
+              v-if="form.privacy_agreed !== 'Y'"
+              label="약관에 동의해 주세요" 
+              color="grey-6" 
+              class="full-width" 
+              size="lg"
+              unelevated
+              @click="termsDialogOpen = true"
+            />
+            <q-btn 
+              v-else
+              label="수리 신청하기" 
+              type="submit" 
+              color="primary" 
+              class="full-width"
+              size="lg"
+              unelevated
+              :loading="loading" 
+            />
+          </div>
         </q-form>
       </q-card-section>
     </q-card>
+
+    <q-dialog v-model="termsDialogOpen" persistent>
+      <q-card style="width: 550px; max-width: 95vw;">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-weight-bold">이용약관 및 개인정보 동의</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pa-none">
+          <TermsOfService />
+        </q-card-section>
+        
+        <q-separator />
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-checkbox 
+            v-model="form.privacy_agreed" 
+            label="위 약관을 모두 읽었으며 동의합니다." 
+            true-value="Y" 
+            false-value="N" 
+            color="primary"
+            class="q-mr-auto"
+          />
+          <q-btn flat label="닫기" color="grey" v-close-popup />
+          <q-btn 
+            label="동의 및 확인" 
+            color="primary" 
+            v-close-popup 
+            :disabled="form.privacy_agreed !== 'Y'"
+            unelevated
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -92,12 +117,13 @@ import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { useQuasar } from 'quasar';
 import { useUserStore } from '../stores/user';
+import TermsOfService from '../components/TermsOfService.vue';
 
 const $q = useQuasar();
 const userStore = useUserStore();
 
-const isAgreed = ref(false);
 const loading = ref(false);
+const termsDialogOpen = ref(false);
 const detailInput = ref(null);
 
 const form = ref({
@@ -108,104 +134,60 @@ const form = ref({
   postcode: '',
   address: '',
   detailAddress: '',
-  symptoms: ''
+  symptoms: '',
+  privacy_agreed: 'N'
 });
 
-// [수정] 데이터 자동 채우기 및 주소 분리 로직 적용
 const autoFill = () => {
   if (userStore.isLoggedIn && userStore.user) {
+    form.value.privacy_agreed = 'Y';
     form.value.user_id = userStore.user.id;
     form.value.customer_name = userStore.user.name || '';
     form.value.contact = userStore.user.phone || '';
-    
-    const rawAddress = (userStore.user.address || '').trim();
-    if (!rawAddress) return;
-
-    // 1. 우편번호 추출 (괄호 포함 5자리 숫자)
-    const postcodeMatch = rawAddress.match(/\(?(\d{5})\)?/);
-    
-    if (postcodeMatch) {
-      form.value.postcode = postcodeMatch[1];
-      let remaining = rawAddress.replace(postcodeMatch[0], '').trim();
-
-      // 2. 일반주소와 상세주소 분리 (도로명/지번 숫자 뒤 기준)
-      const splitRegex = /(.*(?:로|길|동|읍|면|리)\s\d+)(.*)/;
-      const addrMatch = remaining.match(splitRegex);
-
-      if (addrMatch) {
-        form.value.address = addrMatch[1].trim();
-        form.value.detailAddress = addrMatch[2].trim();
-      } else {
-        form.value.address = remaining;
-        form.value.detailAddress = '';
-      }
-    } else {
-      form.value.address = rawAddress;
-    }
+    const raw = (userStore.user.address || '').trim();
+    if (!raw) return;
+    const pcMatch = raw.match(/\(?(\d{5})\)?/);
+    if (pcMatch) {
+      form.value.postcode = pcMatch[1];
+      let rem = raw.replace(pcMatch[0], '').trim();
+      const split = /(.*(?:로|길|동|읍|면|리)\s\d+)(.*)/;
+      const m = rem.match(split);
+      if (m) { form.value.address = m[1].trim(); form.value.detailAddress = m[2].trim(); }
+      else { form.value.address = rem; }
+    } else { form.value.address = raw; }
   }
 };
 
-onMounted(() => {
-  autoFill();
-});
-
-watch(() => userStore.user, (newVal) => {
-  if (newVal && newVal.id) {
-    autoFill();
-  }
-}, { deep: true, immediate: true });
+onMounted(autoFill);
+watch(() => userStore.user, autoFill, { deep: true, immediate: true });
 
 const openPostcode = () => {
-  if (!window.daum) {
-    $q.notify({ color: 'negative', message: '주소 서비스 라이브러리가 로드되지 않았습니다.' });
-    return;
-  }
   new window.daum.Postcode({
     oncomplete: (data) => {
-      let fullAddr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
       form.value.postcode = data.zonecode;
-      form.value.address = fullAddr;
-      form.value.detailAddress = ''; // 새 주소 검색 시 상세주소 초기화
+      form.value.address = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+      form.value.detailAddress = '';
       setTimeout(() => detailInput.value.focus(), 100);
     }
   }).open();
 };
 
 const handleRepair = async () => {
-  // 필수값 검증 (우편번호 포함)
-  if (!form.value.customer_name || !form.value.contact || !form.value.postcode || !form.value.address) {
-    $q.notify({ color: 'warning', message: '주소를 포함한 필수 정보를 모두 입력해주세요.' });
-    return;
+  if (!form.value.customer_name || !form.value.contact || !form.value.postcode || !form.value.address || !form.value.symptoms) {
+    return $q.notify({ color: 'warning', message: '필수 정보를 모두 입력해주세요.' });
   }
-
   loading.value = true;
   try {
-    // 1. 서버에 보낼 데이터를 정리합니다.
     const payload = {
-      user_id: form.value.user_id,
-      repair_type: form.value.repair_type,
-      customer_name: form.value.customer_name,
-      contact: form.value.contact,
-      symptoms: form.value.symptoms,
-      // 2. 쪼개진 주소들을 하나로 합쳐서 'address' 필드에 담습니다. (서버 컬럼명에 맞춤)
+      ...form.value,
       address: `(${form.value.postcode}) ${form.value.address} ${form.value.detailAddress}`.trim()
     };
-
-    // 만약 서버에서 'full_address'라는 필드명을 사용한다면 아래와 같이 추가하세요.
-    // payload.full_address = payload.address;
-
     const res = await axios.post('https://port-0-absol-mk2l6v1wd9132c30.sel3.cloudtype.app/api/repairs', payload);
-    
     if (res.data.success) {
-      $q.dialog({
-        title: '신청 완료',
-        message: `${form.value.repair_type} 신청이 성공적으로 접수되었습니다.`,
-      }).onOk(() => {
-        location.reload(); 
-      });
+      $q.dialog({ title: '신청 완료', message: '수리 신청이 접수되었습니다.' }).onOk(() => location.reload());
     }
   } catch (err) {
-    $q.notify({ color: 'negative', message: '신청 중 오류가 발생했습니다.' });
+    $q.notify({ color: 'negative', message: '오류가 발생했습니다. 다시 시도해주세요.' });
   } finally {
     loading.value = false;
   }
@@ -213,7 +195,6 @@ const handleRepair = async () => {
 </script>
 
 <style scoped>
-.bg-blue-0 {
-  background-color: #f0f7ff !important;
-}
+.border-radius-16 { border-radius: 16px; overflow: hidden; }
+.bg-blue-0 { background-color: #f0f7ff !important; }
 </style>
