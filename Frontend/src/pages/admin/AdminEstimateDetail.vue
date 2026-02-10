@@ -56,7 +56,7 @@
             <div class="info-box supplier">
               <div class="stamp-area">인</div>
               <table>
-                <tr><th>사업자 번호</th><td>113-92-01109</td></tr>
+                <tr><th>사업자 번호</th><td>587-40-01502</td></tr>
                 <tr><th>상호</th><td>ABSOL</td></tr>
                 <tr><th>대표자</th><td>이용관 (인)</td></tr>
                 <tr><th>연락처</th><td>010-9857-7531</td></tr>

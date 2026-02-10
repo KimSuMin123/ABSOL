@@ -83,7 +83,7 @@
                 <tr><th>상 호</th><td>ABSOL</td></tr>
                 <tr><th>대표자</th><td>이용관</td></tr>
                 <tr><th>연락처</th><td>010-9857-7531</td></tr>
-                <tr><th>계 좌</th><td>기업 113-92-01109</td></tr>
+                <tr><th>사업자 번호</th><td>587-40-01502</td></tr>
               </table>
             </div>
           </div>
