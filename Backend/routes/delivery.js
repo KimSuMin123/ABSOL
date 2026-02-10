@@ -5,7 +5,7 @@ const axios = require('axios');
 router.get('/track', async (req, res) => {
   try {
     const { t_code, t_invoice } = req.query;
-    const API_KEY = 'lvhHr8UbL1MCUIrhuQUlMg'; 
+    const API_KEY = 'JY2C2hG20UxcbyZejcD7pw'; 
 
     // 숫자만 추출
     const cleanInvoice = String(t_invoice).replace(/[^0-9]/g, '');
@@ -48,7 +48,7 @@ router.get('/track', async (req, res) => {
 // backend/routes/delivery.js 에 추가
 router.get('/companyList', async (req, res) => {
   try {
-    const API_KEY = 'lvhHr8UbL1MCUIrhuQUlMg';
+    const API_KEY = 'JY2C2hG20UxcbyZejcD7pw';
     const response = await axios.get(`https://info.sweettracker.co.kr/api/v1/companylist?t_key=${API_KEY}`);
     res.json(response.data); // { Company: [{ Code: "04", Name: "CJ대한통운" }, ...] }
   } catch (error) {
