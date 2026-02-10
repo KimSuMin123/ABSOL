@@ -148,11 +148,11 @@ const checkDuplicate = async () => {
 };
 // 카카오 주소 API
 const openPostcode = () => {
-  if (!window.daum) {
+  if (!window.kakao) {
     $q.notify({ color: 'negative', message: '주소 서비스 라이브러리가 로드되지 않았습니다.' });
     return;
   }
-  new window.daum.Postcode({
+  new window.kakao.Postcode({
     oncomplete: (data) => {
       let fullAddr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
       form.value.postcode = data.zonecode;

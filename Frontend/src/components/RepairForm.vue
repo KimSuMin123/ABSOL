@@ -162,7 +162,7 @@ onMounted(autoFill);
 watch(() => userStore.user, autoFill, { deep: true, immediate: true });
 
 const openPostcode = () => {
-  new window.daum.Postcode({
+  new window.kakao.Postcode({
     oncomplete: (data) => {
       form.value.postcode = data.zonecode;
       form.value.address = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;

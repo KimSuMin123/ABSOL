@@ -197,11 +197,11 @@ const openPurchaseDialog = () => {
 
 // 카카오 주소 검색
 const openPostcode = () => {
-  if (!window.daum) {
+  if (!window.kakao) {
     $q.notify({ color: 'negative', message: '주소 서비스 라이브러리를 불러올 수 없습니다.' });
     return;
   }
-  new window.daum.Postcode({
+  new window.kakao.Postcode({
     oncomplete: (data) => {
       let fullAddr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
       orderForm.value.postcode = data.zonecode;
